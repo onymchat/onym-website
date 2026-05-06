@@ -7,16 +7,19 @@
 <meta name="description" content="Сквозное шифрование. Никаких серверов, которым нужно доверять. Метаданные не покидают устройство. Open source, якорь в Stellar." />
 <meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
-<link rel="icon" type="image/png" href="assets/icon-dark.png" />
-<link rel="apple-touch-icon" href="assets/icon-dark.png" />
+<link rel="icon" type="image/png" href="/assets/icon-dark.png" />
+<link rel="apple-touch-icon" href="/assets/icon-dark.png" />
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Onym — приватность по умолчанию" />
 <meta property="og:description" content="Сквозное шифрование. Никаких серверов, которым нужно доверять. Метаданные не покидают устройство." />
-<meta property="og:image" content="assets/icon-dark.png" />
+<meta property="og:image" content="/assets/icon-dark.png" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Onym — приватность по умолчанию" />
 <meta name="twitter:description" content="Сквозное шифрование. Никаких серверов, которым нужно доверять. Метаданные не покидают устройство." />
-<meta name="twitter:image" content="assets/icon-dark.png" />
+<meta name="twitter:image" content="/assets/icon-dark.png" />
+<link rel="alternate" hreflang="en" href="https://onym.app/" />
+<link rel="alternate" hreflang="ru" href="https://onym.app/ru/" />
+<link rel="alternate" hreflang="x-default" href="https://onym.app/" />
 <script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -96,16 +99,16 @@
   .mark{
     display:inline-block; position:relative;
     background: var(--fg);
-    -webkit-mask: url('assets/logo-light.png') center/contain no-repeat;
-            mask: url('assets/logo-light.png') center/contain no-repeat;
+    -webkit-mask: url('/assets/logo-light.png') center/contain no-repeat;
+            mask: url('/assets/logo-light.png') center/contain no-repeat;
   }
   :root .mark.app-icon{
-    background: url('assets/icon-dark.png') center/cover no-repeat;
+    background: url('/assets/icon-dark.png') center/cover no-repeat;
     -webkit-mask: none; mask: none;
     border-radius: 22%;
   }
   html[data-theme="light"] .mark.app-icon{
-    background: url('assets/icon-light.png') center/cover no-repeat;
+    background: url('/assets/icon-light.png') center/cover no-repeat;
     -webkit-mask: none; mask: none;
     border-radius: 22%;
   }
@@ -617,7 +620,7 @@
       <a href="#specs" class="hover:text-[var(--fg)] focus-ring">Разработчикам</a>
       <a href="#opensource" class="hover:text-[var(--fg)] focus-ring">Open Source</a>
     </nav>
-    <div class="lang-switch" role="group" aria-label="Language"><a href="/" aria-current="false">EN</a><a href="/ru/" aria-current="true">RU</a></div><a href="/qa/" class="pill border hair text-[12.5px] px-3.5 py-1.5 focus-ring" style="border-style:solid;">Альфа-версия</a>
+    <a href="/qa/" class="pill border hair text-[12.5px] px-3.5 py-1.5 focus-ring" style="border-style:solid;">Альфа-версия</a>
   </div>
 </header>
 
@@ -642,7 +645,7 @@
         <a href="#identity" class="pill text-[13.5px] px-5 py-3 hair border focus-ring" style="border-style:solid;">Как это работает</a>
       </div>
       <div class="mt-20 flex items-center justify-center">
-        <span class="hero-mark" role="img" aria-label="Onym" id="heroMark"><img src="assets/icon-dark.png" alt="" class="dark-icon"/><img src="assets/icon-light.png" alt="" class="light-icon"/></span>
+        <span class="hero-mark" role="img" aria-label="Onym" id="heroMark"><img src="/assets/icon-dark.png" alt="" class="dark-icon"/><img src="/assets/icon-light.png" alt="" class="light-icon"/></span>
       </div>
     </div>
   </div>
@@ -1125,7 +1128,7 @@
     const v = document.getElementById('smokeVideo');
     if(!v) return;
     const isLight = root.getAttribute('data-theme') === 'light';
-    const src = isLight ? 'assets/light_video.mp4' : 'assets/dark_video.mp4';
+    const src = isLight ? '/assets/light_video.mp4' : '/assets/dark_video.mp4';
     if(v.getAttribute('src') !== src){
       v.setAttribute('src', src);
       v.load();
@@ -1260,5 +1263,12 @@
   });
 })();
 </script>
+<script>(function(){
+  document.querySelectorAll('.lang-switch a').forEach(function(a){
+    a.addEventListener('click', function(){
+      try{ localStorage.setItem('onym.lang', a.href.indexOf('/ru/') > -1 ? 'ru' : 'en'); }catch(e){}
+    });
+  });
+})();</script>
 </body>
 </html>

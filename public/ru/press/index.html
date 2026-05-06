@@ -13,6 +13,9 @@
 <meta property="og:title" content="Пресса · Onym" />
 <meta property="og:description" content="Пресс-кит, шаблоны, брендовые ассеты и контакт." />
 <meta property="og:image" content="/assets/icon-dark.png" />
+<link rel="alternate" hreflang="en" href="https://onym.app/press/" />
+<link rel="alternate" hreflang="ru" href="https://onym.app/ru/press/" />
+<link rel="alternate" hreflang="x-default" href="https://onym.app/press/" />
 <script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -293,5 +296,12 @@
   }catch(e){}
 })();
 </script>
+<script>(function(){
+  document.querySelectorAll('.lang-switch a').forEach(function(a){
+    a.addEventListener('click', function(){
+      try{ localStorage.setItem('onym.lang', a.href.indexOf('/ru/') > -1 ? 'ru' : 'en'); }catch(e){}
+    });
+  });
+})();</script>
 </body>
 </html>

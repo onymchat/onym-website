@@ -10,6 +10,9 @@
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
 <link rel="icon" type="image/png" href="/assets/icon-dark.png" />
 <link rel="apple-touch-icon" href="/assets/icon-dark.png" />
+<link rel="alternate" hreflang="en" href="https://onym.app/qa/" />
+<link rel="alternate" hreflang="ru" href="https://onym.app/ru/qa/" />
+<link rel="alternate" hreflang="x-default" href="https://onym.app/qa/" />
 <script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -511,5 +514,12 @@
   load();
 })();
 </script>
+<script>(function(){
+  document.querySelectorAll('.lang-switch a').forEach(function(a){
+    a.addEventListener('click', function(){
+      try{ localStorage.setItem('onym.lang', a.href.indexOf('/ru/') > -1 ? 'ru' : 'en'); }catch(e){}
+    });
+  });
+})();</script>
 </body>
 </html>

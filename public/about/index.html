@@ -13,6 +13,9 @@
 <meta property="og:title" content="About · Onym" />
 <meta property="og:description" content="Privacy is a right, not a feature. Onym builds messaging that requires no trust." />
 <meta property="og:image" content="/assets/icon-dark.png" />
+<link rel="alternate" hreflang="en" href="https://onym.app/about/" />
+<link rel="alternate" hreflang="ru" href="https://onym.app/ru/about/" />
+<link rel="alternate" hreflang="x-default" href="https://onym.app/about/" />
 <script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -200,5 +203,12 @@
   }catch(e){}
 })();
 </script>
+<script>(function(){
+  document.querySelectorAll('.lang-switch a').forEach(function(a){
+    a.addEventListener('click', function(){
+      try{ localStorage.setItem('onym.lang', a.href.indexOf('/ru/') > -1 ? 'ru' : 'en'); }catch(e){}
+    });
+  });
+})();</script>
 </body>
 </html>
