@@ -1,21 +1,21 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Onym — Open · Anonymous · Onchain</title>
-<meta name="description" content="End-to-end encrypted messaging. No server to trust. Metadata never leaves your device. Open source, anchored on Stellar." />
+<title>Onym — приватность по умолчанию</title>
+<meta name="description" content="Сквозное шифрование. Никаких серверов, которым нужно доверять. Метаданные не покидают устройство. Open source, якорь в Stellar." />
 <meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
 <link rel="icon" type="image/png" href="assets/icon-dark.png" />
 <link rel="apple-touch-icon" href="assets/icon-dark.png" />
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Onym — Open · Anonymous · Onchain" />
-<meta property="og:description" content="End-to-end encrypted messaging. No server to trust. Metadata never leaves your device." />
+<meta property="og:title" content="Onym — приватность по умолчанию" />
+<meta property="og:description" content="Сквозное шифрование. Никаких серверов, которым нужно доверять. Метаданные не покидают устройство." />
 <meta property="og:image" content="assets/icon-dark.png" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Onym — Open · Anonymous · Onchain" />
-<meta name="twitter:description" content="End-to-end encrypted messaging. No server to trust. Metadata never leaves your device." />
+<meta name="twitter:title" content="Onym — приватность по умолчанию" />
+<meta name="twitter:description" content="Сквозное шифрование. Никаких серверов, которым нужно доверять. Метаданные не покидают устройство." />
 <meta name="twitter:image" content="assets/icon-dark.png" />
 <script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -599,8 +599,8 @@
 
 <!-- Theme toggle -->
 <div class="toggle" role="tablist" aria-label="Surface variant">
-  <button id="themeDark" aria-pressed="true" class="focus-ring">Dark</button>
-  <button id="themeLight" aria-pressed="false" class="focus-ring">Light</button>
+  <button id="themeDark" aria-pressed="true" class="focus-ring">Тёмная</button>
+  <button id="themeLight" aria-pressed="false" class="focus-ring">Светлая</button>
 </div>
 
 <!-- Nav -->
@@ -611,13 +611,13 @@
       <span class="text-[14px] font-medium tracking-tight">Onym</span>
     </a>
     <nav class="hidden md:flex items-center gap-7 text-[13px] muted">
-      <a href="#identity" class="hover:text-[var(--fg)] focus-ring">Product</a>
-      <a href="#smoke" class="hover:text-[var(--fg)] focus-ring">Privacy</a>
-      <a href="#governance" class="hover:text-[var(--fg)] focus-ring">Governance</a>
-      <a href="#specs" class="hover:text-[var(--fg)] focus-ring">Developers</a>
+      <a href="#identity" class="hover:text-[var(--fg)] focus-ring">Продукт</a>
+      <a href="#smoke" class="hover:text-[var(--fg)] focus-ring">Приватность</a>
+      <a href="#governance" class="hover:text-[var(--fg)] focus-ring">Управление</a>
+      <a href="#specs" class="hover:text-[var(--fg)] focus-ring">Разработчикам</a>
       <a href="#opensource" class="hover:text-[var(--fg)] focus-ring">Open Source</a>
     </nav>
-    <div class="lang-switch" role="group" aria-label="Language"><a href="/" aria-current="true">EN</a><a href="/ru/" aria-current="false">RU</a></div><a href="/qa/" class="pill border hair text-[12.5px] px-3.5 py-1.5 focus-ring" style="border-style:solid;">Try the alpha</a>
+    <div class="lang-switch" role="group" aria-label="Language"><a href="/" aria-current="false">EN</a><a href="/ru/" aria-current="true">RU</a></div><a href="/qa/" class="pill border hair text-[12.5px] px-3.5 py-1.5 focus-ring" style="border-style:solid;">Альфа-версия</a>
   </div>
 </header>
 
@@ -627,19 +627,19 @@
 <section class="hero-pin" aria-label="Hero">
   <div class="hero-stage">
     <div class="text-center px-6 max-w-[1200px] mx-auto">
-      <p class="eyebrow mb-6">Open · Anonymous · Onchain</p>
+      <p class="eyebrow mb-6">Открыто · Анонимно · В блокчейне</p>
       <h1 class="display display-xl hero-words" aria-live="polite">
-        <span class="hero-word" data-i="0">Privacy.</span>
-        <span class="hero-word" data-i="1" style="opacity:0">By design.</span>
+        <span class="hero-word" data-i="0">Приватность.</span>
+        <span class="hero-word" data-i="1" style="opacity:0">По умолчанию.</span>
         <span class="hero-word" data-i="2" style="opacity:0">Onym.</span>
       </h1>
-      <p class="mt-7 text-[clamp(1rem,1.4vw,1.25rem)] muted max-w-[52ch] mx-auto">No server to trust.
-Metadata never leaves your device.
-End-to-end encrypted.
+      <p class="mt-7 text-[clamp(1rem,1.4vw,1.25rem)] muted max-w-[52ch] mx-auto">Никаких серверов, которым нужно доверять.
+Метаданные не покидают устройство.
+Сквозное шифрование.
 </p>
       <div class="mt-9 flex items-center justify-center gap-3">
-        <a href="/qa/" class="pill text-[13.5px] px-5 py-3 focus-ring" style="background:var(--fg);color:var(--bg);">Try the alpha</a>
-        <a href="#identity" class="pill text-[13.5px] px-5 py-3 hair border focus-ring" style="border-style:solid;">See how it works</a>
+        <a href="/qa/" class="pill text-[13.5px] px-5 py-3 focus-ring" style="background:var(--fg);color:var(--bg);">Альфа-версия</a>
+        <a href="#identity" class="pill text-[13.5px] px-5 py-3 hair border focus-ring" style="border-style:solid;">Как это работает</a>
       </div>
       <div class="mt-20 flex items-center justify-center">
         <span class="hero-mark" role="img" aria-label="Onym" id="heroMark"><img src="assets/icon-dark.png" alt="" class="dark-icon"/><img src="assets/icon-light.png" alt="" class="light-icon"/></span>
@@ -653,11 +653,11 @@ End-to-end encrypted.
   <div class="max-w-[1200px] mx-auto px-6 grid md:grid-cols-[1fr_minmax(280px,440px)] gap-16 md:gap-24 items-start">
     <div class="order-2 md:order-1">
       <div class="reveal">
-        <p class="eyebrow mb-5">Sovereign identity</p>
-        <h2 class="display display-lg">Your identity,<br/>in twelve words.</h2>
+        <p class="eyebrow mb-5">Суверенная идентичность</p>
+        <h2 class="display display-lg">Ваша идентичность —<br/>двенадцать слов.</h2>
         <p class="mt-6 text-[clamp(1rem,1.3vw,1.2rem)] muted max-w-[58ch]">
-          Generated on this device. Stored only on device. Never synced to the cloud. Never sent anywhere.
-          These twelve words restore your Nostr, Stellar, and BLS keys on any device — and they are the only key to your chats.
+          Генерируется на устройстве. Хранится только на устройстве. Не синхронизируется с облаком. Никуда не отправляется.
+          Эти двенадцать слов восстанавливают ключи Nostr, Stellar и BLS на любом устройстве — и это единственный ключ к чатам.
         </p>
       </div>
 
@@ -666,7 +666,7 @@ End-to-end encrypted.
       </div>
 
       <div class="mt-10 mono text-[12px] muted reveal">
-        <span aria-hidden="true">↳ </span>BIP-39 · 128-bit entropy · device-bound · zero exfiltration
+        <span aria-hidden="true">↳ </span>BIP-39 · 128 бит энтропии · только на устройстве · никакой утечки
       </div>
     </div>
 
@@ -687,12 +687,12 @@ End-to-end encrypted.
               <button type="button" class="ident-back" aria-label="Back">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3 5 8l5 5"/></svg>
               </button>
-              <span class="ident-nav-title">Identities</span>
+              <span class="ident-nav-title">Идентичности</span>
               <span style="width:32px"></span>
             </div>
-            <h3 class="ident-title">Identities</h3>
-            <p class="ident-desc">Tap an identity to open it. Each identity has its own keys, chats, and recovery phrase.</p>
-            <p class="ident-section-label">YOUR IDENTITIES</p>
+            <h3 class="ident-title">Идентичности</h3>
+            <p class="ident-desc">Коснитесь идентичности, чтобы открыть. У каждой свои ключи, чаты и фраза восстановления.</p>
+            <p class="ident-section-label">ВАШИ ИДЕНТИЧНОСТИ</p>
             <div class="ident-card">
               <div class="ident-row">
                 <span class="ident-avatar ident-avatar-active" aria-hidden="true">
@@ -702,7 +702,7 @@ End-to-end encrypted.
                   <div class="ident-name">Alice</div>
                   <div class="ident-key">BLS&nbsp;&nbsp;a35c74815b15…</div>
                 </div>
-                <span class="ident-pill">Active</span>
+                <span class="ident-pill">Активна</span>
                 <span class="ident-chevron">›</span>
               </div>
               <div class="ident-divider"></div>
@@ -719,22 +719,22 @@ End-to-end encrypted.
             </div>
             <div class="ident-add">
               <span class="ident-add-icon" aria-hidden="true">+</span>
-              <span class="ident-add-text">Add Identity</span>
+              <span class="ident-add-text">Добавить</span>
             </div>
-            <p class="ident-foot">Only the active identity's chats are visible. Switch between identities to see different inboxes.</p>
+            <p class="ident-foot">Видны только чаты активной идентичности. Переключайтесь, чтобы увидеть другие.</p>
             <div class="ident-bottom" aria-hidden="true">
               <div class="ident-tabbar">
                 <span class="ident-tab">
                   <span class="ident-tab-icon">
                     <svg viewBox="0 0 28 24" fill="currentColor"><path d="M14 8a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v5a4 4 0 0 1-4 4v3l-3-3h-3a4 4 0 0 1-4-4V8z"/><path d="M0 4a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v6a4 4 0 0 1-4 4H8l-4 4v-4a4 4 0 0 1-4-4V4z"/></svg>
                   </span>
-                  <span class="ident-tab-label">Chats</span>
+                  <span class="ident-tab-label">Чаты</span>
                 </span>
                 <span class="ident-tab is-active">
                   <span class="ident-tab-icon">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
                   </span>
-                  <span class="ident-tab-label">Settings</span>
+                  <span class="ident-tab-label">Настройки</span>
                 </span>
               </div>
               <span class="ident-search" aria-label="Search">
@@ -752,35 +752,35 @@ End-to-end encrypted.
 <section id="phone" class="section-div" style="padding: min(14vh, 9rem) 0;">
   <div class="max-w-[1200px] mx-auto px-6 grid md:grid-cols-[1fr_minmax(280px,440px)] gap-16 md:gap-24 items-start">
     <div class="order-2 md:order-1">
-      <p class="eyebrow mb-5">The product</p>
-      <h2 class="display display-lg">Trust no one,<br/>just math and physics.</h2>
+      <p class="eyebrow mb-5">Продукт</p>
+      <h2 class="display display-lg">Не доверяйте никому —<br/>только математике и физике.</h2>
 
       <ol class="mt-12 space-y-12 list-none" id="phoneSteps">
         <li class="reveal" data-step="0">
           <div class="flex items-baseline gap-4">
             <span class="mono text-[12px] muted">01</span>
-            <h3 class="display display-md">Every other messenger has a server.</h3>
+            <h3 class="display display-md">У каждого мессенджера есть сервер.</h3>
           </div>
           <p class="mt-3 muted text-[clamp(.95rem,1.1vw,1.05rem)] max-w-[52ch] pl-9">
-            A binary on hardware you don't own, run by a company you have to trust — its owners, its admins, and whoever can serve them a warrant. Their privacy ends where their org chart begins.
+            Бинарник на чужом железе, под управлением компании, которой приходится доверять — её владельцам, администраторам и тем, кто пришлёт им повестку. Их приватность заканчивается там, где начинается их оргструктура.
           </p>
         </li>
         <li class="reveal" data-step="1">
           <div class="flex items-baseline gap-4">
             <span class="mono text-[12px] muted">02</span>
-            <h3 class="display display-md">Onym replaces the server with a public smart contract.</h3>
+            <h3 class="display display-md">Onym заменяет сервер публичным смарт-контрактом.</h3>
           </div>
           <p class="mt-3 muted text-[clamp(.95rem,1.1vw,1.05rem)] max-w-[52ch] pl-9">
-            Group membership and governance live on Stellar. Anyone can audit the rules. No one can override them. The contract is the only shared state — and it's public by design.
+            Состав группы и правила управления живут в Stellar. Любой может проверить правила. Никто не может их переопределить. Контракт — единственное общее состояние, и оно публично по умолчанию.
           </p>
         </li>
         <li class="reveal" data-step="2">
           <div class="flex items-baseline gap-4">
             <span class="mono text-[12px] muted">03</span>
-            <h3 class="display display-md">Everything else lives on your device.</h3>
+            <h3 class="display display-md">Всё остальное — на вашем устройстве.</h3>
           </div>
           <p class="mt-3 muted text-[clamp(.95rem,1.1vw,1.05rem)] max-w-[52ch] pl-9">
-            Identity, keys, contacts, message history — generated locally, stored on device, never synced anywhere. No metadata leaks. Full sovereignty. Freedom of association, by default.
+            Идентичность, ключи, контакты, история сообщений — генерируются локально, хранятся на устройстве, никуда не синхронизируются. Никаких утечек метаданных. Полный суверенитет. Свобода объединений по умолчанию.
           </p>
         </li>
       </ol>
@@ -796,22 +796,22 @@ End-to-end encrypted.
             <div class="flex items-center justify-between ph-fg text-[11px] mono px-1 mb-3" style="opacity:.7">
               <span>9:41</span><span>onym · e2ee</span>
             </div>
-            <div class="text-center ph-sub text-[11px] mono mb-4">— end-to-end encrypted —</div>
+            <div class="text-center ph-sub text-[11px] mono mb-4">— сквозное шифрование —</div>
             <div class="flex flex-col gap-2 px-1">
-              <div class="chat-bubble b-them">keys are local. relayer never sees plaintext.</div>
-              <div class="chat-bubble b-them">group state is on stellar. provable.</div>
-              <div class="chat-bubble b-me">and only members can read it?</div>
-              <div class="chat-bubble b-them">only members. zk proof of membership.</div>
-              <div class="chat-bubble b-me">good.</div>
+              <div class="chat-bubble b-them">ключи локальные. ретранслятор не видит открытый текст.</div>
+              <div class="chat-bubble b-them">состояние группы в stellar. проверяемо.</div>
+              <div class="chat-bubble b-me">и читать могут только участники?</div>
+              <div class="chat-bubble b-them">только участники. zk-доказательство членства.</div>
+              <div class="chat-bubble b-me">хорошо.</div>
             </div>
           </div>
           <!-- State 1: recovery -->
           <div class="phone-state" data-state="1">
             <div class="flex items-center justify-between ph-fg text-[11px] mono px-1 mb-3" style="opacity:.7">
-              <span>9:41</span><span>recovery phrase</span>
+              <span>9:41</span><span>фраза восстановления</span>
             </div>
-            <p class="ph-fg text-[15px] font-medium px-1 mb-1">Twelve words.</p>
-            <p class="ph-sub text-[11px] px-1 mb-4">Write these down. Never share them.</p>
+            <p class="ph-fg text-[15px] font-medium px-1 mb-1">Двенадцать слов.</p>
+            <p class="ph-sub text-[11px] px-1 mb-4">Запишите. Никому не показывайте.</p>
             <div class="grid grid-cols-2 gap-2 px-1">
               <div class="word-mini"><span>1</span>private</div>
               <div class="word-mini"><span>2</span>shield</div>
@@ -830,16 +830,16 @@ End-to-end encrypted.
           <!-- State 2: governance -->
           <div class="phone-state" data-state="2">
             <div class="flex items-center justify-between ph-fg text-[11px] mono px-1 mb-3" style="opacity:.7">
-              <span>9:41</span><span>new group</span>
+              <span>9:41</span><span>новая группа</span>
             </div>
-            <p class="ph-fg text-[15px] font-medium px-1 mb-1">Choose governance.</p>
-            <p class="ph-sub text-[11px] px-1 mb-4">Set the rules for who can admit, remove, post.</p>
+            <p class="ph-fg text-[15px] font-medium px-1 mb-1">Выберите модель.</p>
+            <p class="ph-sub text-[11px] px-1 mb-4">Установите правила: кто принимает, удаляет, пишет.</p>
             <div class="flex flex-col gap-2 px-1">
-              <div class="gov-row"><span>One-on-one</span><span class="check"></span></div>
-              <div class="gov-row"><span>Anarchy</span><span class="check"></span></div>
-              <div class="gov-row"><span>Tyranny</span><span class="check"></span></div>
-              <div class="gov-row is-sel"><span>Democracy</span><span class="check"></span></div>
-              <div class="gov-row"><span>Oligarchy</span><span class="check"></span></div>
+              <div class="gov-row"><span>Один на один</span><span class="check"></span></div>
+              <div class="gov-row"><span>Анархия</span><span class="check"></span></div>
+              <div class="gov-row"><span>Тирания</span><span class="check"></span></div>
+              <div class="gov-row is-sel"><span>Демократия</span><span class="check"></span></div>
+              <div class="gov-row"><span>Олигархия</span><span class="check"></span></div>
             </div>
           </div>
         </div>
@@ -856,14 +856,14 @@ End-to-end encrypted.
   <div class="absolute inset-0" style="background: radial-gradient(60% 60% at 50% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,.55) 75%);"></div>
   <div class="relative h-full flex items-center justify-center px-6">
     <div class="max-w-[1100px] text-center">
-      <p class="mono text-[11px] tracking-[.2em] uppercase" style="color:rgba(255,255,255,.55)">No one — not even Onym</p>
+      <p class="mono text-[11px] tracking-[.2em] uppercase" style="color:rgba(255,255,255,.55)">Никто — даже Onym</p>
       <h2 class="display display-lg mt-6" style="color:#fff;">
         <span id="smokeText" style="background-image: linear-gradient(90deg,#fff 0%,#fff var(--p,0%), rgba(255,255,255,.18) var(--p,0%), rgba(255,255,255,.18) 100%);" class="clip-text">
-          can see your social graph.
+          не увидит ваш социальный граф.
         </span>
       </h2>
       <p class="mt-7 mono text-[12.5px]" style="color:rgba(255,255,255,.55)">
-        Anonymous identities · No phone numbers · No address book.
+        Анонимные идентичности · Без телефонных номеров · Без адресной книги.
       </p>
     </div>
   </div>
@@ -873,8 +873,8 @@ End-to-end encrypted.
 <section id="governance" class="h-pin" style="height: 480vh;">
   <div class="h-stage" style="position:sticky; top:0; height:100vh; overflow:hidden;">
     <div class="max-w-[1200px] mx-auto px-6 pt-16">
-      <p class="eyebrow mb-4">Five governance models</p>
-      <h2 class="display display-md max-w-[24ch]">Pick the rules. Then prove them, on chain.</h2>
+      <p class="eyebrow mb-4">Пять моделей управления</p>
+      <h2 class="display display-md max-w-[24ch]">Выберите правила. Докажите их в блокчейне.</h2>
     </div>
     <div class="absolute inset-0 flex items-center" style="top:170px;">
       <div class="h-track" id="hTrack">
@@ -888,9 +888,9 @@ End-to-end encrypted.
           </div>
           <div>
             <p class="mono text-[11px] muted">01 / 05</p>
-            <h3 class="display display-md mt-6">One-on-one.</h3>
+            <h3 class="display display-md mt-6">Один на один.</h3>
           </div>
-          <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">A two-party encrypted thread. No admins, no votes — just two devices and their keys.</p>
+          <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">Зашифрованный диалог двоих. Без админов, без голосований — только два устройства и их ключи.</p>
         </article>
         <article class="gov-card gov-card--anarchy">
           <div class="gov-diagram" aria-hidden="true">
@@ -916,9 +916,9 @@ End-to-end encrypted.
           </div>
           <div>
             <p class="mono text-[11px] muted">02 / 05</p>
-            <h3 class="display display-md mt-6">Anarchy.</h3>
+            <h3 class="display display-md mt-6">Анархия.</h3>
           </div>
-          <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">Anyone in can invite anyone. Anyone can leave. The group is what its members make it.</p>
+          <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">Любой участник может пригласить кого угодно. Любой может уйти. Группа — это то, что делают из неё её участники.</p>
         </article>
         <article class="gov-card gov-card--tyranny">
           <div class="gov-diagram" aria-hidden="true">
@@ -940,9 +940,9 @@ End-to-end encrypted.
           </div>
           <div>
             <p class="mono text-[11px] muted">03 / 05</p>
-            <h3 class="display display-md mt-6">Tyranny.</h3>
+            <h3 class="display display-md mt-6">Тирания.</h3>
           </div>
-          <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">A single founder admits and removes. Honest about who holds the keys.</p>
+          <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">Один основатель принимает и исключает. Честно о том, у кого ключи.</p>
         </article>
         <article class="gov-card gov-card--democracy">
           <div class="gov-diagram" aria-hidden="true">
@@ -960,9 +960,9 @@ End-to-end encrypted.
           </div>
           <div>
             <p class="mono text-[11px] muted">04 / 05</p>
-            <h3 class="display display-md mt-6">Democracy.</h3>
+            <h3 class="display display-md mt-6">Демократия.</h3>
           </div>
-          <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">A majority of members admits and removes. Every change is a signed, on-chain vote.</p>
+          <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">Большинство принимает и исключает. Каждое изменение — это подписанное голосование в блокчейне.</p>
         </article>
         <article class="gov-card gov-card--oligarchy">
           <div class="gov-diagram" aria-hidden="true">
@@ -987,9 +987,9 @@ End-to-end encrypted.
           </div>
           <div>
             <p class="mono text-[11px] muted">05 / 05</p>
-            <h3 class="display display-md mt-6">Oligarchy.</h3>
+            <h3 class="display display-md mt-6">Олигархия.</h3>
           </div>
-          <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">A small council of admins. Threshold signatures decide who's in and who's out.</p>
+          <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">Маленький совет администраторов. Пороговые подписи решают, кто внутри, а кто снаружи.</p>
         </article>
       </div>
     </div>
@@ -1000,21 +1000,21 @@ End-to-end encrypted.
 <section id="specs" class="section-div" style="padding: min(14vh, 9rem) 0;">
   <div class="max-w-[1200px] mx-auto px-6">
     <div class="max-w-[820px]">
-      <p class="eyebrow mb-5">Cryptographic primitives</p>
-      <h2 class="display display-lg">Boring math. Nothing exotic.</h2>
+      <p class="eyebrow mb-5">Криптографические примитивы</p>
+      <h2 class="display display-lg">Скучная математика. Ничего экзотического.</h2>
       <p class="mt-6 muted text-[clamp(1rem,1.2vw,1.15rem)] max-w-[58ch]">
-        Onym is built from primitives that have been deployed, attacked, and studied by cryptographers for decades. No new crypto.
+        Onym построен на примитивах, которые криптографы развёртывают, атакуют и изучают десятилетиями. Никакой новой криптографии.
       </p>
     </div>
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mt-14" id="specGrid">
-      <div class="spec"><p class="mono text-[11px] muted">Identity</p><p class="mono text-[15px] mt-2">BIP-39</p><p class="muted text-[13px] mt-3 leading-[1.55]">12-word seed, 128-bit entropy.</p></div>
-      <div class="spec"><p class="mono text-[11px] muted">Group proofs</p><p class="mono text-[15px] mt-2">BLS12-381</p><p class="muted text-[13px] mt-3 leading-[1.55]">Pairing-friendly curve for aggregate signatures.</p></div>
-      <div class="spec"><p class="mono text-[11px] muted">Zero-knowledge</p><p class="mono text-[15px] mt-2">PLONK</p><p class="muted text-[13px] mt-3 leading-[1.55]">Universal SNARK for membership proofs.</p></div>
-      <div class="spec"><p class="mono text-[11px] muted">Hashing</p><p class="mono text-[15px] mt-2">Poseidon</p><p class="muted text-[13px] mt-3 leading-[1.55]">SNARK-friendly hash inside the circuit.</p></div>
-      <div class="spec"><p class="mono text-[11px] muted">Nostr keys</p><p class="mono text-[15px] mt-2">secp256k1</p><p class="muted text-[13px] mt-3 leading-[1.55]">Schnorr signatures over the standard curve.</p></div>
-      <div class="spec"><p class="mono text-[11px] muted">Stellar keys</p><p class="mono text-[15px] mt-2">Ed25519</p><p class="muted text-[13px] mt-3 leading-[1.55]">Fast, deterministic signatures for chain anchors.</p></div>
-      <div class="spec"><p class="mono text-[11px] muted">Inbox</p><p class="mono text-[15px] mt-2">X25519</p><p class="muted text-[13px] mt-3 leading-[1.55]">ECDH for sealed inbox messages.</p></div>
-      <div class="spec"><p class="mono text-[11px] muted">Anchors</p><p class="mono text-[15px] mt-2">Soroban</p><p class="muted text-[13px] mt-3 leading-[1.55]">Group state lives in a Stellar smart contract.</p></div>
+      <div class="spec"><p class="mono text-[11px] muted">Идентичность</p><p class="mono text-[15px] mt-2">BIP-39</p><p class="muted text-[13px] mt-3 leading-[1.55]">12 слов, 128 бит энтропии.</p></div>
+      <div class="spec"><p class="mono text-[11px] muted">Групповые подписи</p><p class="mono text-[15px] mt-2">BLS12-381</p><p class="muted text-[13px] mt-3 leading-[1.55]">Кривая для агрегированных подписей.</p></div>
+      <div class="spec"><p class="mono text-[11px] muted">Zero-knowledge</p><p class="mono text-[15px] mt-2">PLONK</p><p class="muted text-[13px] mt-3 leading-[1.55]">Универсальный SNARK для доказательств членства.</p></div>
+      <div class="spec"><p class="mono text-[11px] muted">Хеширование</p><p class="mono text-[15px] mt-2">Poseidon</p><p class="muted text-[13px] mt-3 leading-[1.55]">Хеш для SNARK-схем.</p></div>
+      <div class="spec"><p class="mono text-[11px] muted">Ключи Nostr</p><p class="mono text-[15px] mt-2">secp256k1</p><p class="muted text-[13px] mt-3 leading-[1.55]">Подписи Шнорра на стандартной кривой.</p></div>
+      <div class="spec"><p class="mono text-[11px] muted">Ключи Stellar</p><p class="mono text-[15px] mt-2">Ed25519</p><p class="muted text-[13px] mt-3 leading-[1.55]">Быстрые детерминированные подписи для якорей в блокчейне.</p></div>
+      <div class="spec"><p class="mono text-[11px] muted">Входящие</p><p class="mono text-[15px] mt-2">X25519</p><p class="muted text-[13px] mt-3 leading-[1.55]">ECDH для запечатанных входящих.</p></div>
+      <div class="spec"><p class="mono text-[11px] muted">Якоря</p><p class="mono text-[15px] mt-2">Soroban</p><p class="muted text-[13px] mt-3 leading-[1.55]">Состояние группы живёт в смарт-контракте Stellar.</p></div>
     </div>
   </div>
 </section>
@@ -1024,11 +1024,11 @@ End-to-end encrypted.
   <div class="max-w-[1200px] mx-auto px-6 grid md:grid-cols-2 gap-14 items-center">
     <div class="reveal">
       <p class="eyebrow mb-5">Open source · MIT</p>
-      <h2 class="display display-lg">The whole stack,<br/>in the open.</h2>
+      <h2 class="display display-lg">Весь стек —<br/>в открытом доступе.</h2>
       <p class="mt-6 muted text-[clamp(1rem,1.2vw,1.15rem)] max-w-[52ch]">
-        Apps, contracts, relayer — every layer is MIT-licensed.
-        Clone the source, audit the math, build reproducible binaries yourself.
-        Onym never has to be in the path.
+        Приложения, контракты, ретранслятор — каждый слой под лицензией MIT.
+        Клонируйте код, проверяйте математику, собирайте воспроизводимые бинарники сами.
+        Onym не обязан быть в пути.
       </p>
       <div class="mt-8 flex flex-wrap gap-3">
         <a href="https://github.com/onymchat/onym-ios" class="pill text-[13px] px-4 py-2.5 hair border focus-ring mono" style="border-style:solid;">github.com/onymchat/onym-ios</a>
@@ -1037,7 +1037,7 @@ End-to-end encrypted.
         <a href="https://github.com/onymchat/onym-relayer" class="pill text-[13px] px-4 py-2.5 hair border focus-ring mono" style="border-style:solid;">github.com/onymchat/onym-relayer</a>
       </div>
     </div>
-    <div class="terminal reveal" role="img" aria-label="Terminal session showing Soroban contract build and deploy">
+    <div class="terminal reveal" role="img" aria-label="Терминал: сборка и деплой контракта Soroban">
       <div><span class="term-prompt">$</span> <span class="term-cmd">git clone https://github.com/onymchat/onym-contracts</span></div>
       <div class="term-out">Cloning into 'onym-contracts'... done.</div>
       <div><span class="term-prompt">$</span> <span class="term-cmd">stellar contract build --optimize \</span></div>
@@ -1065,7 +1065,7 @@ End-to-end encrypted.
     </div>
     <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-8 text-[13px]">
       <div>
-        <p class="eyebrow mb-3" style="font-size:.7rem">Product</p>
+        <p class="eyebrow mb-3" style="font-size:.7rem">Продукт</p>
         <ul class="space-y-2 muted">
           <li><a href="/qa/" class="hover:text-[var(--fg)] focus-ring">QA Dashboard</a></li>
           <li><a href="/changelog/" class="hover:text-[var(--fg)] focus-ring">Changelog</a></li>
@@ -1085,26 +1085,26 @@ End-to-end encrypted.
         </ul>
       </div>
       <div>
-        <p class="eyebrow mb-3" style="font-size:.7rem">Reading</p>
+        <p class="eyebrow mb-3" style="font-size:.7rem">Документы</p>
         <ul class="space-y-2 muted">
-          <li>Whitepaper <span class="ml-1 text-[10px] uppercase tracking-wider opacity-50">soon</span></li>
-          <li>Threat model <span class="ml-1 text-[10px] uppercase tracking-wider opacity-50">soon</span></li>
-          <li>Cryptography <span class="ml-1 text-[10px] uppercase tracking-wider opacity-50">soon</span></li>
+          <li>Whitepaper <span class="ml-1 text-[10px] uppercase tracking-wider opacity-50">скоро</span></li>
+          <li>Модель угроз <span class="ml-1 text-[10px] uppercase tracking-wider opacity-50">скоро</span></li>
+          <li>Криптография <span class="ml-1 text-[10px] uppercase tracking-wider opacity-50">скоро</span></li>
         </ul>
       </div>
       <div>
-        <p class="eyebrow mb-3" style="font-size:.7rem">Foundation</p>
+        <p class="eyebrow mb-3" style="font-size:.7rem">Фонд</p>
         <ul class="space-y-2 muted">
-          <li><a href="/about/" class="hover:text-[var(--fg)] focus-ring">About</a></li>
-          <li><a href="/press/" class="hover:text-[var(--fg)] focus-ring">Press</a></li>
-          <li><a href="mailto:lead@onym.app" class="hover:text-[var(--fg)] focus-ring">Contact</a></li>
+          <li><a href="/about/" class="hover:text-[var(--fg)] focus-ring">О нас</a></li>
+          <li><a href="/press/" class="hover:text-[var(--fg)] focus-ring">Пресса</a></li>
+          <li><a href="mailto:lead@onym.app" class="hover:text-[var(--fg)] focus-ring">Связаться</a></li>
         </ul>
       </div>
     </div>
     <div class="mt-14 pt-8 hair border-t flex flex-wrap items-center justify-between gap-3 text-[12px] muted mono" style="border-top-style:solid;">
       <span>© 2026 · Onym Foundation</span>
-      <span>Released under the MIT license</span>
-      <span>Never pay with your identity.</span>
+      <span>Распространяется по лицензии MIT</span>
+      <span>Никогда не платите своей идентичностью.</span>
     </div>
   </div>
 </footer>

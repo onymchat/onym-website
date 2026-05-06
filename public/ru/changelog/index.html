@@ -1,17 +1,17 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Changelog · Onym</title>
-<meta name="description" content="Unified release history across Onym's open-source repos -- iOS, Android, Stellar contracts, relayer." />
+<meta name="description" content="Единая история выпусков по всем open-source репозиториям Onym — iOS, Android, контракты Stellar, ретранслятор." />
 <meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
 <link rel="icon" type="image/png" href="/assets/icon-dark.png" />
 <link rel="apple-touch-icon" href="/assets/icon-dark.png" />
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Changelog · Onym" />
-<meta property="og:description" content="Release history across Onym's open-source repos." />
+<meta property="og:description" content="История выпусков по open-source репозиториям Onym." />
 <meta property="og:image" content="/assets/icon-dark.png" />
 <script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -174,8 +174,8 @@
 <body>
 
 <div class="toggle" role="group" aria-label="Theme">
-  <button id="themeDark" aria-pressed="true">Dark</button>
-  <button id="themeLight" aria-pressed="false">Light</button>
+  <button id="themeDark" aria-pressed="true">Тёмная</button>
+  <button id="themeLight" aria-pressed="false">Светлая</button>
 </div>
 
 <header class="nav">
@@ -184,24 +184,24 @@
       <span class="mark" role="img" aria-label="Onym"></span>
       <span class="text-[14px] font-medium tracking-tight">Onym <span class="muted">· Changelog</span></span>
     </a>
-    <div class="lang-switch" role="group" aria-label="Language"><a href="/changelog/" aria-current="true">EN</a><a href="/ru/changelog/" aria-current="false">RU</a></div> <a href="/" class="text-[12.5px] muted hover:text-[var(--fg)]">&larr; Back</a>
+    <div class="lang-switch" role="group" aria-label="Language"><a href="/changelog/" aria-current="false">EN</a><a href="/ru/changelog/" aria-current="true">RU</a></div> <a href="/" class="text-[12.5px] muted hover:text-[var(--fg)]">&larr; Назад</a>
   </div>
 </header>
 
 <main class="max-w-[820px] mx-auto px-6 py-16 md:py-24">
-  <p class="eyebrow mb-5">Releases</p>
+  <p class="eyebrow mb-5">Релизы</p>
   <h1 class="display display-xl mb-6">Changelog.</h1>
   <p class="text-[clamp(1.05rem,1.3vw,1.2rem)] muted leading-[1.55] max-w-[58ch]">
-    A unified, live history of every release across Onym's open-source repos. Pulled directly from GitHub at page load.
+    Единая живая история всех выпусков по open-source репозиториям Onym. Подтягивается напрямую из GitHub при загрузке страницы.
   </p>
 
   <div class="flex flex-wrap items-center gap-2 mt-12 mb-8" id="filters">
-    <span class="muted text-[11px] uppercase tracking-[.18em] mr-2">Repo</span>
-    <button class="filter-pill" data-value="all" aria-pressed="true">All</button>
+    <span class="muted text-[11px] uppercase tracking-[.18em] mr-2">Репозиторий</span>
+    <button class="filter-pill" data-value="all" aria-pressed="true">Все</button>
     <button class="filter-pill" data-value="onym-ios" aria-pressed="false">iOS</button>
     <button class="filter-pill" data-value="onym-android" aria-pressed="false">Android</button>
-    <button class="filter-pill" data-value="onym-contracts" aria-pressed="false">Contracts</button>
-    <button class="filter-pill" data-value="onym-relayer" aria-pressed="false">Relayer</button>
+    <button class="filter-pill" data-value="onym-contracts" aria-pressed="false">Контракты</button>
+    <button class="filter-pill" data-value="onym-relayer" aria-pressed="false">Ретранслятор</button>
   </div>
 
   <div id="list" class="space-y-4">
@@ -210,17 +210,17 @@
     <div class="skeleton"><div class="skeleton-bar w-1/3 mb-3"></div><div class="skeleton-bar w-2/3"></div></div>
   </div>
 
-  <div id="empty" class="hidden text-center py-16 muted">No releases match your filter.</div>
+  <div id="empty" class="hidden text-center py-16 muted">Под фильтр ничего не подходит.</div>
   <div id="error" class="hidden text-center py-16 muted">
-    Couldn't reach GitHub. <button id="retry" class="underline">Retry</button>
+    Не удалось достучаться до GitHub. <button id="retry" class="underline">Повторить</button>
   </div>
 </main>
 
 <footer class="hair border-t mt-12" style="border-top-style:solid;">
   <div class="max-w-[1100px] mx-auto px-6 py-10 flex flex-wrap items-center justify-between gap-4 text-[12px] muted mono">
     <span>&copy; 2026 &middot; Onym Foundation</span>
-    <span>Released under the MIT license</span>
-    <span>Never pay with your identity.</span>
+    <span>Распространяется по лицензии MIT</span>
+    <span>Никогда не платите своей идентичностью.</span>
   </div>
 </footer>
 
@@ -231,8 +231,8 @@
   const REPO_LABEL = {
     'onym-ios':       'iOS',
     'onym-android':   'Android',
-    'onym-contracts': 'Contracts',
-    'onym-relayer':   'Relayer'
+    'onym-contracts': 'Контракты',
+    'onym-relayer':   'Ретранслятор'
   };
 
   const state = { releases: [], filter: 'all' };

@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Onym · QA Dashboard</title>
 <meta name="robots" content="noindex,nofollow" />
-<meta name="description" content="Internal QA builds for the Onym iOS and Android apps." />
+<meta name="description" content="Внутренние QA-сборки приложений Onym для iOS и Android." />
 <meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
 <link rel="icon" type="image/png" href="/assets/icon-dark.png" />
@@ -151,8 +151,8 @@
 <body class="antialiased">
 
 <div class="toggle" role="group" aria-label="Theme">
-  <button id="themeDark" aria-pressed="true">Dark</button>
-  <button id="themeLight" aria-pressed="false">Light</button>
+  <button id="themeDark" aria-pressed="true">Тёмная</button>
+  <button id="themeLight" aria-pressed="false">Светлая</button>
 </div>
 
 <header class="max-w-[1100px] mx-auto px-6 pt-10 pb-6">
@@ -163,9 +163,9 @@
     </a>
     <div class="text-[12px] muted mono" id="lastUpdated">—</div>
   </div>
-  <h1 class="text-[clamp(1.875rem,4vw,2.75rem)] font-bold tracking-tight" style="letter-spacing:-0.025em;line-height:1.05">Internal builds</h1>
+  <h1 class="text-[clamp(1.875rem,4vw,2.75rem)] font-bold tracking-tight" style="letter-spacing:-0.025em;line-height:1.05">Внутренние сборки</h1>
   <p class="muted mt-3 max-w-[60ch]">
-    Pick a build, install on a registered device, test, file issues. Android installs APKs directly; iOS needs device registration (see below).
+    Выберите сборку, установите на зарегистрированное устройство, протестируйте, заведите тикет. Android ставит APK напрямую; iOS требует регистрации устройства (см. ниже).
   </p>
 </header>
 
@@ -174,8 +174,8 @@
   <div class="note-card mb-8" role="note">
     <svg class="note-icon" viewBox="0 0 16 17" fill="currentColor" width="18" height="19" aria-hidden="true"><path d="M11.7 9.1c0-2 1.6-3 1.7-3-.9-1.4-2.4-1.5-2.9-1.6-1.2-.1-2.4.7-3 .7-.6 0-1.6-.7-2.6-.7-1.4 0-2.6.8-3.3 2-1.4 2.4-.4 6 1 8 .7 1 1.5 2 2.5 2 1 0 1.4-.6 2.6-.6s1.5.6 2.6.6c1.1 0 1.7-1 2.4-2 .7-1 1-2 1-2.1 0 0-2-.7-2-3.3zM9.7 3.4c.5-.6.8-1.5.7-2.4-.7 0-1.6.5-2.1 1.1-.5.5-.9 1.4-.7 2.3.8.1 1.6-.4 2.1-1z"/></svg>
     <div>
-      <strong>iOS installs require device registration.</strong>
-      iOS builds are signed with our Apple Developer provisioning profile, which limits installation to a whitelist of devices. To get added, send your device <span class="mono" title="Find it under Settings -> General -> About -> tap once on the bottom-of-screen line, or via macOS Finder when the device is connected.">UDID</span> plus a short cover letter (who you are, what you'll test) to <a href="mailto:lead@onym.app?subject=iOS%20QA%20device%20registration&amp;body=UDID%3A%20%0ANote%3A%20">lead@onym.app</a>. Android testers can skip this -- APKs install on any device with installs-from-unknown-sources enabled.
+      <strong>Установка на iOS требует регистрации устройства.</strong>
+      iOS-сборки подписаны нашим Apple Developer provisioning profile, который ограничивает установку списком устройств. Чтобы попасть в список, пришлите <span class="mono" title="Settings -> General -> About -> один раз по нижней строке, либо через macOS Finder при подключённом устройстве.">UDID</span> устройства и короткое сопроводительное письмо (кто вы, что будете тестировать) на <a href="mailto:lead@onym.app?subject=iOS%20QA%20device%20registration&amp;body=UDID%3A%20%0ANote%3A%20">lead@onym.app</a>. Тестировщики на Android могут это пропустить — APK ставится на любое устройство с включённой установкой из неизвестных источников.
     </div>
   </div>
 </div>
@@ -183,45 +183,45 @@
 <section class="max-w-[1100px] mx-auto px-6">
   <!-- Filters -->
   <div class="flex flex-wrap items-center gap-2 mb-8" id="filters">
-    <span class="muted text-[11px] uppercase tracking-[.18em] mr-2">Platform</span>
-    <button class="filter-pill pill px-3 py-1.5 text-[12.5px]" data-filter="platform" data-value="all" aria-pressed="true">All</button>
+    <span class="muted text-[11px] uppercase tracking-[.18em] mr-2">Платформа</span>
+    <button class="filter-pill pill px-3 py-1.5 text-[12.5px]" data-filter="platform" data-value="all" aria-pressed="true">Все</button>
     <button class="filter-pill pill px-3 py-1.5 text-[12.5px]" data-filter="platform" data-value="ios" aria-pressed="false">iOS</button>
     <button class="filter-pill pill px-3 py-1.5 text-[12.5px]" data-filter="platform" data-value="android" aria-pressed="false">Android</button>
 
-    <span class="muted text-[11px] uppercase tracking-[.18em] ml-4 mr-2">Kind</span>
-    <button class="filter-pill pill px-3 py-1.5 text-[12.5px]" data-filter="kind" data-value="all" aria-pressed="true">All</button>
-    <button class="filter-pill pill px-3 py-1.5 text-[12.5px]" data-filter="kind" data-value="tag" aria-pressed="false">Tag</button>
-    <button class="filter-pill pill px-3 py-1.5 text-[12.5px]" data-filter="kind" data-value="branch" aria-pressed="false">Branch</button>
+    <span class="muted text-[11px] uppercase tracking-[.18em] ml-4 mr-2">Тип</span>
+    <button class="filter-pill pill px-3 py-1.5 text-[12.5px]" data-filter="kind" data-value="all" aria-pressed="true">Все</button>
+    <button class="filter-pill pill px-3 py-1.5 text-[12.5px]" data-filter="kind" data-value="tag" aria-pressed="false">Тег</button>
+    <button class="filter-pill pill px-3 py-1.5 text-[12.5px]" data-filter="kind" data-value="branch" aria-pressed="false">Ветка</button>
 
-    <input type="search" id="search" placeholder="Search version, commit, branch, issue…" class="ml-auto px-3.5 py-1.5 text-[13px] pill" style="min-width:260px"/>
+    <input type="search" id="search" placeholder="Поиск по версии, коммиту, ветке, issue…" class="ml-auto px-3.5 py-1.5 text-[13px] pill" style="min-width:260px"/>
   </div>
 
   <!-- Latest -->
   <div id="latestSection" class="mb-10 hidden">
-    <p class="text-[11px] uppercase tracking-[.18em] muted mb-3">Latest</p>
+    <p class="text-[11px] uppercase tracking-[.18em] muted mb-3">Свежая</p>
     <div id="latestCard"></div>
   </div>
 
   <!-- Tag releases -->
   <div id="tagSection" class="mb-10 hidden">
-    <p class="text-[11px] uppercase tracking-[.18em] muted mb-3">Tag releases</p>
+    <p class="text-[11px] uppercase tracking-[.18em] muted mb-3">Релизы по тегам</p>
     <div id="tagList" class="space-y-3"></div>
   </div>
 
   <!-- Branch builds -->
   <div id="branchSection" class="mb-10 hidden">
-    <p class="text-[11px] uppercase tracking-[.18em] muted mb-3">Branch builds</p>
+    <p class="text-[11px] uppercase tracking-[.18em] muted mb-3">Сборки из веток</p>
     <div id="branchList" class="space-y-3"></div>
   </div>
 
   <!-- Empty -->
   <div id="emptyState" class="hidden text-center py-16 muted">
-    <p class="text-[15px]" id="emptyText">No builds match your filters.</p>
+    <p class="text-[15px]" id="emptyText">Под фильтр ничего не подходит.</p>
   </div>
 
   <footer class="text-[12px] muted py-12 mt-10 hair border-t flex flex-wrap items-center justify-between gap-3" style="border-top-style:solid">
-    <span>Source · <a href="/qa/builds.json" class="ghost-link mono underline">builds.json</a></span>
-    <a href="/" class="ghost-link">← Back to onym.app</a>
+    <span>Источник · <a href="/qa/builds.json" class="ghost-link mono underline">builds.json</a></span>
+    <div class="lang-switch" role="group" aria-label="Language"><a href="/qa/" aria-current="false">EN</a><a href="/ru/qa/" aria-current="true">RU</a></div> <a href="/ru/" class="ghost-link">← Назад на onym.app</a>
   </footer>
 </section>
 
@@ -264,11 +264,11 @@
     if (isNaN(d.getTime())) return '—';
     const diff = Date.now() - d.getTime();
     const min = Math.round(diff / 60000);
-    if (min < 60) return min + 'm ago';
+    if (min < 60) return min + 'м назад';
     const hr = Math.round(min / 60);
-    if (hr < 24) return hr + 'h ago';
+    if (hr < 24) return hr + 'ч назад';
     const day = Math.round(hr / 24);
-    if (day < 7) return day + 'd ago';
+    if (day < 7) return day + 'д назад';
     return d.toISOString().slice(0, 10);
   }
   function fmtBytes(n){
@@ -308,7 +308,7 @@
       platformIcon(b.platform) + platformLabel(b.platform) + '</span>';
 
     const latestPill = isLatest
-      ? '<span class="pill pill-latest mono uppercase tracking-[.12em] px-2 py-0.5 text-[10px]">latest</span>'
+      ? '<span class="pill pill-latest mono uppercase tracking-[.12em] px-2 py-0.5 text-[10px]">свежая</span>'
       : '';
 
     const issueHTML = b.issue && b.issue.url
@@ -317,9 +317,9 @@
 
     const installBtn = b.install_url
       ? (b.platform === 'ios'
-          ? '<a href="' + esc(b.install_url) + '" class="install-btn pill px-4 py-2 text-[13px] font-medium">Install on iOS</a>'
-          : '<a href="' + esc(b.install_url) + '" class="install-btn pill px-4 py-2 text-[13px] font-medium" download>Download APK</a>')
-      : '<span class="muted text-[12px]">no install link</span>';
+          ? '<a href="' + esc(b.install_url) + '" class="install-btn pill px-4 py-2 text-[13px] font-medium">Установить на iOS</a>'
+          : '<a href="' + esc(b.install_url) + '" class="install-btn pill px-4 py-2 text-[13px] font-medium" download>Скачать APK</a>')
+      : '<span class="muted text-[12px]">нет ссылки на установку</span>';
 
     const commitLink = b.commit_url
       ? '<a href="' + esc(b.commit_url) + '" target="_blank" rel="noopener" class="ghost-link mono hover:underline">' + esc(b.commit_short || '—') + '</a>'
@@ -390,8 +390,8 @@
       els.branchSection.classList.add('hidden');
       els.emptyState.classList.remove('hidden');
       els.emptyText.textContent = state.builds.length === 0
-        ? 'No builds yet. Once a release pipeline publishes, it will show up here.'
-        : 'No builds match your filters.';
+        ? 'Сборок пока нет. Как только конвейер релизов что-то опубликует, оно появится здесь.'
+        : 'Под фильтр ничего не подходит.';
       return;
     }
     els.emptyState.classList.add('hidden');
@@ -423,10 +423,10 @@
         .sort((a, b) => new Date(b.built_at).getTime() - new Date(a.built_at).getTime());
 
       if (state.generated_at){
-        els.lastUpdated.textContent = 'updated ' + fmtDate(state.generated_at);
+        els.lastUpdated.textContent = 'обновлено ' + fmtDate(state.generated_at);
       }
       if (state.is_sample){
-        els.banner.textContent = 'Showing sample data. Once onym-ios / onym-android publish their first builds, this banner will disappear.';
+        els.banner.textContent = 'Показаны тестовые данные. Когда onym-ios / onym-android опубликуют первые сборки, этот баннер исчезнет.';
         els.banner.classList.remove('hidden');
       } else {
         els.banner.classList.add('hidden');
@@ -434,7 +434,7 @@
     } catch (err){
       state.builds = [];
       state.is_sample = false;
-      els.banner.textContent = 'Could not load builds.json. Check the link below.';
+      els.banner.textContent = 'Не удалось загрузить builds.json. Проверьте ссылку ниже.';
       els.banner.classList.remove('hidden');
       console.warn('builds.json load failed:', err);
     }
