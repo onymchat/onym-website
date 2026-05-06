@@ -1,8 +1,8 @@
-name: Release · deploy site
+name: Release - deploy site
 
 # Idempotent deploy of public/ to the onym-web droplet.
 # - First run: creates the droplet via doctl + cloud-init.
-# - Every run: rsyncs public/ → /var/www/onym/, excluding qa/
+# - Every run: rsyncs public/ -> /var/www/onym/, excluding qa/
 #   so we never wipe the iOS team's QA dashboard uploads.
 
 on:
@@ -66,6 +66,7 @@ jobs:
           echo "ip=$ip" >> "$GITHUB_OUTPUT"
 
       - name: Wait for cloud-init to finish
+        timeout-minutes: 15
         env:
           IP: ${{ steps.find.outputs.ip }}
           SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
@@ -75,20 +76,49 @@ jobs:
           printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-          # Fresh droplets need 60-180s before deploy@ is reachable
-          # (cloud-init mirrors the SSH keys mid-boot). Retry SSH
-          # until it works, then `cloud-init status --wait` blocks
-          # until provisioning is fully complete.
-          for i in $(seq 1 30); do
-            if ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 \
-                   -i ~/.ssh/id_ed25519 deploy@"$IP" \
-                   'cloud-init status --wait' 2>/dev/null; then
-              echo "::notice::cloud-init complete on $IP"
-              exit 0
+          SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+                    -o BatchMode=yes -o ConnectTimeout=5 -o ServerAliveInterval=15 \
+                    -i ~/.ssh/id_ed25519"
+
+          # Phase 1: SSH availability (root@ keys are mirrored very
+          # early in runcmd, so this should succeed within ~30-60s on
+          # a fresh droplet).
+          echo "Phase 1: waiting up to 3 min for SSH on root@$IP..."
+          ssh_up=0
+          for i in $(seq 1 36); do
+            if ssh $SSH_OPTS root@"$IP" 'true' 2>/dev/null; then
+              echo "::notice::SSH up after $((i*5))s"
+              ssh_up=1
+              break
             fi
-            sleep 10
+            sleep 5
           done
-          echo "::error::cloud-init didn't finish within 5 minutes"
+          if [ "$ssh_up" -ne 1 ]; then
+            echo "::error::SSH never came up on $IP. Likely cloud-init failed before mirroring deploy keys; check the DO console."
+            exit 1
+          fi
+
+          # Phase 2: block on cloud-init's own --wait. The slow step
+          # is the Caddy install (apt update + install). Budget 12 min;
+          # the step's timeout-minutes wraps the whole thing.
+          echo "Phase 2: waiting for cloud-init to report 'done'..."
+          if ssh $SSH_OPTS -o ConnectTimeout=10 root@"$IP" \
+               'cloud-init status --wait'; then
+            echo "::notice::cloud-init complete on $IP"
+            exit 0
+          fi
+
+          echo "::error::cloud-init did not report 'done'. Dumping diagnostics:"
+          ssh $SSH_OPTS root@"$IP" '
+            echo "=== cloud-init status ==="
+            cloud-init status --long || true
+            echo
+            echo "=== last 80 lines of /var/log/cloud-init-output.log ==="
+            sudo tail -n 80 /var/log/cloud-init-output.log 2>/dev/null || true
+            echo
+            echo "=== last 40 lines of /var/log/cloud-init.log ==="
+            sudo tail -n 40 /var/log/cloud-init.log 2>/dev/null || true
+          ' || true
           exit 1
 
   deploy-site:
@@ -110,7 +140,7 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H "$IP" >> ~/.ssh/known_hosts 2>/dev/null
 
-      - name: Sync public/ → /var/www/onym/
+      - name: Sync public/ -> /var/www/onym/
         run: |
           set -euo pipefail
           # --delete-after removes stale files, but we exclude qa/
@@ -119,25 +149,25 @@ jobs:
           rsync -avz --delete-after \
             --exclude='qa/' \
             -e 'ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no' \
-            public/ "deploy@${IP}:/var/www/onym/"
+            public/ "root@${IP}:/var/www/onym/"
 
       - name: Smoke test
         # Non-fatal: on the first run DNS may not point at the droplet
         # yet, in which case the smoke test will fail and the user
-        # needs to point onym.app A → IP, then rerun.
+        # needs to point onym.app A -> IP, then rerun.
         continue-on-error: true
         env:
           HOST: ${{ secrets.DEPLOY_HOST }}
         run: |
           if [ -z "$HOST" ]; then
-            echo "::warning::DEPLOY_HOST not set — skipping smoke test"
+            echo "::warning::DEPLOY_HOST not set -- skipping smoke test"
             exit 0
           fi
           for i in $(seq 1 12); do
             for scheme in https http; do
               code=$(curl -sk --max-time 10 -o /dev/null \
                             -w '%{http_code}' "${scheme}://${HOST}/" || echo 000)
-              echo "${scheme}://${HOST} → ${code}"
+              echo "${scheme}://${HOST} -> ${code}"
               if [ "$code" = "200" ]; then
                 echo "::notice::Site reachable at ${scheme}://${HOST}"
                 exit 0
@@ -145,4 +175,4 @@ jobs:
             done
             sleep 5
           done
-          echo "::warning::Site not yet 200. If this is a fresh droplet, point DNS A '${HOST}' → ${IP} and rerun."
+          echo "::warning::Site not yet 200. If this is a fresh droplet, point DNS A '${HOST}' -> ${IP} and rerun."

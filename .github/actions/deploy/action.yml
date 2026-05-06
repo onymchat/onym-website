@@ -8,8 +8,8 @@ description: |
   inside the caller's job and has access to the caller's checkout.
 
   Org-wide secrets the caller is expected to pass:
-    DEPLOY_SSH_KEY  — private ed25519 key for deploy@droplet
-    DEPLOY_HOST     — hostname (e.g. onym.app) once DNS is wired
+    DEPLOY_SSH_KEY  -- private ed25519 key for root@droplet
+    DEPLOY_HOST     -- hostname (e.g. onym.app) once DNS is wired
 
 inputs:
   source_path:
@@ -87,7 +87,7 @@ runs:
         set -euo pipefail
 
         ssh -i ~/.ssh/id_onym_deploy -o StrictHostKeyChecking=no \
-            "deploy@${HOST}" "mkdir -p /var/www/onym/${TARGET}"
+            "root@${HOST}" "mkdir -p /var/www/onym/${TARGET}"
 
         delete_flag=""
         if [ "$DELETE" = "true" ]; then
@@ -98,11 +98,11 @@ runs:
           # Trailing slash on source: copy contents, not the dir itself
           rsync -avz $delete_flag \
             -e 'ssh -i ~/.ssh/id_onym_deploy -o StrictHostKeyChecking=no' \
-            "${SOURCE%/}/" "deploy@${HOST}:/var/www/onym/${TARGET}/"
+            "${SOURCE%/}/" "root@${HOST}:/var/www/onym/${TARGET}/"
         else
           rsync -avz \
             -e 'ssh -i ~/.ssh/id_onym_deploy -o StrictHostKeyChecking=no' \
-            "$SOURCE" "deploy@${HOST}:/var/www/onym/${TARGET}/"
+            "$SOURCE" "root@${HOST}:/var/www/onym/${TARGET}/"
         fi
 
-        echo "::notice::Uploaded ${SOURCE} → ${HOST}:/var/www/onym/${TARGET}/"
+        echo "::notice::Uploaded ${SOURCE} -> ${HOST}:/var/www/onym/${TARGET}/"
