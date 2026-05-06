@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Press · Onym</title>
+<meta name="description" content="Press kit, boilerplate, brand assets, and contact for journalists and researchers covering Onym." />
+<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+<link rel="icon" type="image/png" href="/assets/icon-dark.png" />
+<link rel="apple-touch-icon" href="/assets/icon-dark.png" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Press · Onym" />
+<meta property="og:description" content="Press kit, boilerplate, brand assets, and contact." />
+<meta property="og:image" content="/assets/icon-dark.png" />
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
+    --hair:rgba(245,245,247,.10);
+    --card:#101013;
+    --shadow: 0 1px 0 rgba(0,0,0,.4), 0 30px 60px -30px rgba(0,0,0,.6);
+    --nav-bg: rgba(8,8,10,.72);
+  }
+  html[data-theme="light"]{
+    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
+    --hair:rgba(10,10,10,.08);
+    --card:#fbfbfd;
+    --shadow: 0 1px 2px rgba(10,10,10,.04), 0 12px 40px -24px rgba(10,10,10,.18);
+    --nav-bg: rgba(245,245,247,.72);
+  }
+  html,body{ background:var(--bg); color:var(--fg); }
+  body{
+    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  .mono{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; }
+  .display{ font-weight:700; letter-spacing:-.04em; line-height:.95; }
+  .display-xl{ font-size: clamp(2.5rem, 7vw, 5rem); }
+  .display-md{ font-size: clamp(1.5rem, 3vw, 2.25rem); letter-spacing:-.03em; line-height:1.1; }
+  .eyebrow{ font-size:.78rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+  .hair{ border-color:var(--hair); }
+  .muted{ color:var(--muted); }
+  .pill{ border-radius:999px; }
+  .card{
+    background:var(--card); border:1px solid var(--hair);
+    border-radius:14px; box-shadow:var(--shadow);
+  }
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:var(--nav-bg);
+    backdrop-filter:saturate(160%) blur(14px);
+    -webkit-backdrop-filter:saturate(160%) blur(14px);
+    border-bottom:1px solid var(--hair);
+  }
+  .mark{
+    display:inline-block; width:22px; height:22px; border-radius:22%;
+    background:url('/assets/icon-dark.png') center/cover no-repeat;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.06),
+      0 4px 16px -2px rgba(255,255,255,.14),
+      0 .5px 0 rgba(255,255,255,.10) inset;
+  }
+  html[data-theme="light"] .mark{
+    background:url('/assets/icon-light.png') center/cover no-repeat;
+    box-shadow:
+      0 4px 12px -3px rgba(10,10,10,.18),
+      0 .5px 0 rgba(255,255,255,.6) inset;
+  }
+  .toggle{
+    position:fixed; bottom:18px; right:18px; z-index:60;
+    background:var(--nav-bg);
+    border:1px solid var(--hair); border-radius:999px;
+    padding:4px; display:flex; gap:2px;
+    backdrop-filter:saturate(180%) blur(14px);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    box-shadow:0 8px 24px -10px rgba(10,10,10,.18);
+  }
+  .toggle button{
+    font-size:12px; letter-spacing:.04em; padding:7px 12px; border-radius:999px;
+    color:var(--muted);
+  }
+  .toggle button[aria-pressed="true"]{ background:var(--fg); color:var(--bg); }
+  a.link{
+    color:var(--fg); text-decoration:underline;
+    text-decoration-color:var(--hair); text-underline-offset:3px;
+    transition:text-decoration-color .15s ease;
+  }
+  a.link:hover{ text-decoration-color:var(--fg); }
+
+  .quote{
+    border-left: 2px solid var(--hair);
+    padding: 4px 16px;
+    line-height: 1.6;
+    color: var(--fg);
+  }
+  .swatch{
+    width: 56px; height: 56px;
+    border-radius: 12px;
+    border: 1px solid var(--hair);
+    flex-shrink: 0;
+  }
+  .asset-tile{
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    background: var(--card);
+    border: 1px solid var(--hair);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    text-decoration: none; color: var(--fg);
+    transition: border-color .15s ease;
+  }
+  .asset-tile:hover{ border-color: var(--fg); }
+  .asset-tile .preview{
+    width: 44px; height: 44px;
+    border-radius: 22%;
+    background-size: cover; background-position: center;
+  }
+  .asset-tile .preview-dark{ background-image: url('/assets/icon-dark.png'); }
+  .asset-tile .preview-light{ background-image: url('/assets/icon-light.png'); }
+</style>
+</head>
+<body>
+
+<div class="toggle" role="group" aria-label="Theme">
+  <button id="themeDark" aria-pressed="true">Dark</button>
+  <button id="themeLight" aria-pressed="false">Light</button>
+</div>
+
+<header class="nav">
+  <div class="max-w-[1100px] mx-auto px-6 h-[52px] flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3 hover:opacity-80" aria-label="Onym home">
+      <span class="mark" role="img" aria-label="Onym"></span>
+      <span class="text-[14px] font-medium tracking-tight">Onym <span class="muted">· Press</span></span>
+    </a>
+    <a href="/" class="text-[12.5px] muted hover:text-[var(--fg)]">&larr; Back</a>
+  </div>
+</header>
+
+<main class="max-w-[820px] mx-auto px-6 py-16 md:py-24">
+  <p class="eyebrow mb-5">Resources</p>
+  <h1 class="display display-xl mb-6">Press kit.</h1>
+  <p class="text-[clamp(1.05rem,1.3vw,1.2rem)] muted leading-[1.55] max-w-[58ch]">
+    Quick facts, brand assets, and a single contact for journalists, researchers, and anyone covering Onym.
+    For interviews or anything not in this kit, mail <a href="mailto:lead@onym.app?subject=Press%20inquiry" class="link">lead@onym.app</a> -- we usually reply within a working day.
+  </p>
+
+  <hr class="hair border-t my-14" style="border-top-style:solid;" />
+
+  <section class="mb-14">
+    <h2 class="display display-md mb-6">Boilerplate</h2>
+
+    <p class="eyebrow mb-3" style="font-size:.7rem">One-liner</p>
+    <p class="quote mb-8 mono text-[14px]">Onym is an open-source, end-to-end encrypted messenger anchored on Stellar -- no accounts, no phone numbers, no metadata trail.</p>
+
+    <p class="eyebrow mb-3" style="font-size:.7rem">50 words</p>
+    <p class="quote mb-8 text-[clamp(.95rem,1.05vw,1.05rem)]">
+      Onym is an open-source messenger that replaces the trusted server with a public Stellar smart contract. Identity, keys, and message history live on the user's device. Group rules are anchored on chain, anyone can audit them, no one can override them. There are no accounts, no phone numbers, and no metadata trail to subpoena.
+    </p>
+
+    <p class="eyebrow mb-3" style="font-size:.7rem">200 words</p>
+    <p class="quote text-[clamp(.95rem,1.05vw,1.05rem)]">
+      Onym is a privacy-first messenger built on a single principle: no one, including its makers, should be able to read your conversations or reconstruct your social graph. Where most messengers run on a trusted company's servers, Onym replaces the server with a public Stellar smart contract that defines a group's rules -- who can admit, who can remove, who can speak -- and a swarm of replaceable Nostr relays that carry encrypted blobs. Identity is twelve BIP-39 words generated and stored on the user's device; there are no accounts, phone numbers, or email addresses to compromise. Group membership is verified with zero-knowledge proofs (PLONK over BLS12-381) so admins can prove a user belongs without revealing the rest of the roster. Every cryptographic primitive in use -- BIP-39, secp256k1 / Schnorr, Ed25519, X25519, BLS12-381, PLONK, Poseidon -- has been studied, deployed, and attacked by cryptographers for decades. The iOS app, the Android app, the Stellar contracts, and the relayer are all MIT-licensed and on GitHub. Onym is built by a small team of independent cryptographers and engineers operating as the Onym Foundation.
+    </p>
+  </section>
+
+  <section class="mb-14">
+    <h2 class="display display-md mb-6">Brand assets</h2>
+    <p class="muted text-[14px] mb-6 max-w-[58ch]">Two PNG variants of the Onym mark, sized for editorial use. Right-click and save, or use the download links.</p>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <a class="asset-tile" href="/assets/icon-dark.png" download="onym-mark-dark.png">
+        <span class="preview preview-dark" aria-hidden="true"></span>
+        <span>
+          <span class="block text-[14px] font-medium">Dark mark</span>
+          <span class="block text-[12px] muted mono">PNG &middot; 1024&times;1024</span>
+        </span>
+      </a>
+      <a class="asset-tile" href="/assets/icon-light.png" download="onym-mark-light.png">
+        <span class="preview preview-light" aria-hidden="true"></span>
+        <span>
+          <span class="block text-[14px] font-medium">Light mark</span>
+          <span class="block text-[12px] muted mono">PNG &middot; 1024&times;1024</span>
+        </span>
+      </a>
+    </div>
+    <p class="muted text-[12px] mt-4">
+      For larger sizes, vector exports, or a wordmark variant, mail <a href="mailto:lead@onym.app" class="link">lead@onym.app</a>.
+    </p>
+  </section>
+
+  <section class="mb-14">
+    <h2 class="display display-md mb-6">Brand colors</h2>
+    <div class="space-y-3">
+      <div class="flex items-center gap-4">
+        <span class="swatch" style="background:#08080a"></span>
+        <div>
+          <div class="text-[14px] font-medium">Onym black</div>
+          <div class="mono text-[12px] muted">#08080a &middot; primary surface, dark theme</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="swatch" style="background:#f5f5f7"></span>
+        <div>
+          <div class="text-[14px] font-medium">Onym ivory</div>
+          <div class="mono text-[12px] muted">#f5f5f7 &middot; primary surface, light theme</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="swatch" style="background:#0A84FF"></span>
+        <div>
+          <div class="text-[14px] font-medium">Onym blue</div>
+          <div class="mono text-[12px] muted">#0A84FF &middot; primary action, accents</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mb-14">
+    <h2 class="display display-md mb-6">Quick facts</h2>
+    <dl class="space-y-2 text-[14px]">
+      <div class="flex gap-4"><dt class="muted w-[140px] flex-shrink-0">Founded</dt><dd>2026</dd></div>
+      <div class="flex gap-4"><dt class="muted w-[140px] flex-shrink-0">License</dt><dd>MIT, every layer</dd></div>
+      <div class="flex gap-4"><dt class="muted w-[140px] flex-shrink-0">Platforms</dt><dd>iOS, Android (alpha)</dd></div>
+      <div class="flex gap-4"><dt class="muted w-[140px] flex-shrink-0">Distribution</dt><dd>Direct APK; iOS via dev profile (alpha)</dd></div>
+      <div class="flex gap-4"><dt class="muted w-[140px] flex-shrink-0">Chain</dt><dd>Stellar (Soroban smart contracts)</dd></div>
+      <div class="flex gap-4"><dt class="muted w-[140px] flex-shrink-0">Transport</dt><dd>Nostr relays (replaceable, run-your-own)</dd></div>
+      <div class="flex gap-4"><dt class="muted w-[140px] flex-shrink-0">Source</dt><dd><a class="link mono" href="https://github.com/onymchat">github.com/onymchat</a></dd></div>
+    </dl>
+  </section>
+
+  <section class="mb-14">
+    <h2 class="display display-md mb-6">Press releases</h2>
+    <p class="muted text-[14px]">No releases yet -- we'll add them here as they go out. Subscribe by emailing <a href="mailto:lead@onym.app?subject=Press%20list" class="link">lead@onym.app</a> with subject "Press list".</p>
+  </section>
+
+  <section>
+    <h2 class="display display-md mb-6">Contact</h2>
+    <p class="text-[clamp(1rem,1.1vw,1.05rem)] mb-2">
+      Press inquiries, interviews, embargoed access: <a href="mailto:lead@onym.app?subject=Press%20inquiry" class="link mono">lead@onym.app</a>
+    </p>
+    <p class="muted text-[13px]">
+      Please include outlet, deadline, and a one-line description of the angle. We try to reply within a working day.
+    </p>
+  </section>
+</main>
+
+<footer class="hair border-t mt-12" style="border-top-style:solid;">
+  <div class="max-w-[1100px] mx-auto px-6 py-10 flex flex-wrap items-center justify-between gap-4 text-[12px] muted mono">
+    <span>&copy; 2026 &middot; Onym Foundation</span>
+    <span>Released under the MIT license</span>
+    <span>Never pay with your identity.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const root = document.documentElement;
+  const tD = document.getElementById('themeDark');
+  const tL = document.getElementById('themeLight');
+  function setTheme(t){
+    if (t === 'light'){
+      root.setAttribute('data-theme', 'light');
+      tD.setAttribute('aria-pressed', 'false');
+      tL.setAttribute('aria-pressed', 'true');
+    } else {
+      root.removeAttribute('data-theme');
+      tD.setAttribute('aria-pressed', 'true');
+      tL.setAttribute('aria-pressed', 'false');
+    }
+    try{ localStorage.setItem('onym.theme', t); }catch(e){}
+  }
+  tD.addEventListener('click', () => setTheme('dark'));
+  tL.addEventListener('click', () => setTheme('light'));
+  try{
+    const saved = localStorage.getItem('onym.theme');
+    if (saved) setTheme(saved);
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

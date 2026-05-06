@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Changelog · Onym</title>
+<meta name="description" content="Unified release history across Onym's open-source repos -- iOS, Android, Stellar contracts, relayer." />
+<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+<link rel="icon" type="image/png" href="/assets/icon-dark.png" />
+<link rel="apple-touch-icon" href="/assets/icon-dark.png" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Changelog · Onym" />
+<meta property="og:description" content="Release history across Onym's open-source repos." />
+<meta property="og:image" content="/assets/icon-dark.png" />
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
+    --hair:rgba(245,245,247,.10);
+    --card:#101013;
+    --shadow: 0 1px 0 rgba(0,0,0,.4), 0 30px 60px -30px rgba(0,0,0,.6);
+    --nav-bg: rgba(8,8,10,.72);
+    --pre-bg: rgba(255,255,255,.04);
+    --link: #5fa5ff;
+  }
+  html[data-theme="light"]{
+    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
+    --hair:rgba(10,10,10,.08);
+    --card:#fbfbfd;
+    --shadow: 0 1px 2px rgba(10,10,10,.04), 0 12px 40px -24px rgba(10,10,10,.18);
+    --nav-bg: rgba(245,245,247,.72);
+    --pre-bg: rgba(10,10,10,.04);
+    --link: #0660d0;
+  }
+  html,body{ background:var(--bg); color:var(--fg); }
+  body{
+    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  .mono{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; }
+  .display{ font-weight:700; letter-spacing:-.04em; line-height:.95; }
+  .display-xl{ font-size: clamp(2.5rem, 7vw, 5rem); }
+  .eyebrow{ font-size:.78rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+  .hair{ border-color:var(--hair); }
+  .muted{ color:var(--muted); }
+  .pill{ border-radius:999px; }
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:var(--nav-bg);
+    backdrop-filter:saturate(160%) blur(14px);
+    -webkit-backdrop-filter:saturate(160%) blur(14px);
+    border-bottom:1px solid var(--hair);
+  }
+  .mark{
+    display:inline-block; width:22px; height:22px; border-radius:22%;
+    background:url('/assets/icon-dark.png') center/cover no-repeat;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.06),
+      0 4px 16px -2px rgba(255,255,255,.14),
+      0 .5px 0 rgba(255,255,255,.10) inset;
+  }
+  html[data-theme="light"] .mark{
+    background:url('/assets/icon-light.png') center/cover no-repeat;
+    box-shadow:
+      0 4px 12px -3px rgba(10,10,10,.18),
+      0 .5px 0 rgba(255,255,255,.6) inset;
+  }
+  .toggle{
+    position:fixed; bottom:18px; right:18px; z-index:60;
+    background:var(--nav-bg);
+    border:1px solid var(--hair); border-radius:999px;
+    padding:4px; display:flex; gap:2px;
+    backdrop-filter:saturate(180%) blur(14px);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    box-shadow:0 8px 24px -10px rgba(10,10,10,.18);
+  }
+  .toggle button{
+    font-size:12px; letter-spacing:.04em; padding:7px 12px; border-radius:999px;
+    color:var(--muted);
+  }
+  .toggle button[aria-pressed="true"]{ background:var(--fg); color:var(--bg); }
+
+  .filter-pill{
+    background: transparent;
+    border: 1px solid var(--hair);
+    color: var(--fg);
+    cursor: pointer; user-select: none;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 12.5px;
+  }
+  .filter-pill:hover{ border-color: var(--fg); }
+  .filter-pill[aria-pressed="true"]{
+    background: var(--fg); color: var(--bg); border-color: var(--fg);
+  }
+
+  .release{
+    border: 1px solid var(--hair);
+    border-radius: 14px;
+    background: var(--card);
+    box-shadow: var(--shadow);
+    padding: 22px 24px;
+  }
+  .repo-pill{
+    display: inline-block;
+    border: 1px solid var(--hair);
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  .release h3{ font-weight: 600; }
+  .release a{ color: var(--link); }
+  .release a:hover{ text-decoration: underline; }
+  .release pre{
+    background: var(--pre-bg);
+    border: 1px solid var(--hair);
+    border-radius: 8px;
+    padding: 10px 12px;
+    overflow-x: auto;
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: 12px;
+  }
+  .release code{
+    background: var(--pre-bg);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: .92em;
+  }
+  .release ul{ list-style: disc; padding-left: 1.4em; }
+  .release ol{ list-style: decimal; padding-left: 1.4em; }
+  .release li{ margin: .2em 0; line-height: 1.5; }
+  .release p{ line-height: 1.55; margin: .5em 0; }
+  .release h1, .release h2, .release h3, .release h4{ margin-top: 1em; margin-bottom: .4em; }
+  .release blockquote{ border-left: 2px solid var(--hair); padding-left: 12px; color: var(--muted); }
+  .release hr{ border: 0; border-top: 1px solid var(--hair); margin: 1em 0; }
+
+  .skeleton{
+    border: 1px solid var(--hair);
+    border-radius: 14px;
+    background: var(--card);
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+  }
+  .skeleton-bar{
+    height: 12px; border-radius: 6px;
+    background: linear-gradient(90deg, var(--hair) 0%, transparent 50%, var(--hair) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s linear infinite;
+  }
+  @keyframes shimmer{ to{ background-position: -200% 0; } }
+</style>
+</head>
+<body>
+
+<div class="toggle" role="group" aria-label="Theme">
+  <button id="themeDark" aria-pressed="true">Dark</button>
+  <button id="themeLight" aria-pressed="false">Light</button>
+</div>
+
+<header class="nav">
+  <div class="max-w-[1100px] mx-auto px-6 h-[52px] flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3 hover:opacity-80" aria-label="Onym home">
+      <span class="mark" role="img" aria-label="Onym"></span>
+      <span class="text-[14px] font-medium tracking-tight">Onym <span class="muted">· Changelog</span></span>
+    </a>
+    <a href="/" class="text-[12.5px] muted hover:text-[var(--fg)]">&larr; Back</a>
+  </div>
+</header>
+
+<main class="max-w-[820px] mx-auto px-6 py-16 md:py-24">
+  <p class="eyebrow mb-5">Releases</p>
+  <h1 class="display display-xl mb-6">Changelog.</h1>
+  <p class="text-[clamp(1.05rem,1.3vw,1.2rem)] muted leading-[1.55] max-w-[58ch]">
+    A unified, live history of every release across Onym's open-source repos. Pulled directly from GitHub at page load.
+  </p>
+
+  <div class="flex flex-wrap items-center gap-2 mt-12 mb-8" id="filters">
+    <span class="muted text-[11px] uppercase tracking-[.18em] mr-2">Repo</span>
+    <button class="filter-pill" data-value="all" aria-pressed="true">All</button>
+    <button class="filter-pill" data-value="onym-ios" aria-pressed="false">iOS</button>
+    <button class="filter-pill" data-value="onym-android" aria-pressed="false">Android</button>
+    <button class="filter-pill" data-value="onym-contracts" aria-pressed="false">Contracts</button>
+    <button class="filter-pill" data-value="onym-relayer" aria-pressed="false">Relayer</button>
+  </div>
+
+  <div id="list" class="space-y-4">
+    <div class="skeleton"><div class="skeleton-bar w-1/3 mb-3"></div><div class="skeleton-bar w-2/3"></div></div>
+    <div class="skeleton"><div class="skeleton-bar w-1/4 mb-3"></div><div class="skeleton-bar w-3/4"></div></div>
+    <div class="skeleton"><div class="skeleton-bar w-1/3 mb-3"></div><div class="skeleton-bar w-2/3"></div></div>
+  </div>
+
+  <div id="empty" class="hidden text-center py-16 muted">No releases match your filter.</div>
+  <div id="error" class="hidden text-center py-16 muted">
+    Couldn't reach GitHub. <button id="retry" class="underline">Retry</button>
+  </div>
+</main>
+
+<footer class="hair border-t mt-12" style="border-top-style:solid;">
+  <div class="max-w-[1100px] mx-auto px-6 py-10 flex flex-wrap items-center justify-between gap-4 text-[12px] muted mono">
+    <span>&copy; 2026 &middot; Onym Foundation</span>
+    <span>Released under the MIT license</span>
+    <span>Never pay with your identity.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const ORG = 'onymchat';
+  const REPOS = ['onym-ios', 'onym-android', 'onym-contracts', 'onym-relayer'];
+  const REPO_LABEL = {
+    'onym-ios':       'iOS',
+    'onym-android':   'Android',
+    'onym-contracts': 'Contracts',
+    'onym-relayer':   'Relayer'
+  };
+
+  const state = { releases: [], filter: 'all' };
+
+  const $ = (id) => document.getElementById(id);
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+
+  function fmtDate(iso){
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return d.toISOString().slice(0, 10);
+  }
+
+  // Tiny markdown renderer -- handles the subset GitHub release notes
+  // typically use: headers, lists, code, links, bold/italic, hr, quotes.
+  // Not a full CommonMark parser; deliberately small.
+  function md(src){
+    if (!src) return '';
+    let out = '';
+    const lines = src.replace(/\r\n/g, '\n').split('\n');
+    let inCode = false, codeLang = '', codeBuf = [];
+    let listType = null; // 'ul' | 'ol' | null
+    let para = [];
+
+    function flushPara(){
+      if (!para.length) return;
+      out += '<p>' + inline(para.join(' ')) + '</p>';
+      para = [];
+    }
+    function flushList(){
+      if (listType){ out += '</' + listType + '>'; listType = null; }
+    }
+    function inline(s){
+      // escape first; then re-introduce supported markup via tagged tokens
+      s = esc(s);
+      // links [text](url)
+      s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, t, u) => `<a href="${u}" target="_blank" rel="noopener">${t}</a>`);
+      // inline code
+      s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+      // bold
+      s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      // italic (avoid clashing with bold by requiring single asterisk)
+      s = s.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>');
+      // bare urls
+      s = s.replace(/(^|\s)(https?:\/\/[^\s<]+)/g, '$1<a href="$2" target="_blank" rel="noopener">$2</a>');
+      return s;
+    }
+
+    for (let i = 0; i < lines.length; i++){
+      const line = lines[i];
+
+      // fenced code
+      const fence = line.match(/^```(.*)$/);
+      if (fence){
+        if (!inCode){
+          flushPara(); flushList();
+          inCode = true; codeLang = fence[1]; codeBuf = [];
+        } else {
+          out += '<pre><code>' + esc(codeBuf.join('\n')) + '</code></pre>';
+          inCode = false; codeLang = ''; codeBuf = [];
+        }
+        continue;
+      }
+      if (inCode){ codeBuf.push(line); continue; }
+
+      // blank line
+      if (!line.trim()){ flushPara(); flushList(); continue; }
+
+      // hr
+      if (/^---+$/.test(line.trim())){ flushPara(); flushList(); out += '<hr/>'; continue; }
+
+      // headers
+      const h = line.match(/^(#{1,6})\s+(.*)$/);
+      if (h){
+        flushPara(); flushList();
+        const level = Math.min(h[1].length + 1, 6); // bump h1->h2 (page already has h1)
+        out += `<h${level}>${inline(h[2])}</h${level}>`;
+        continue;
+      }
+
+      // blockquote
+      const q = line.match(/^>\s?(.*)$/);
+      if (q){
+        flushPara(); flushList();
+        out += '<blockquote>' + inline(q[1]) + '</blockquote>';
+        continue;
+      }
+
+      // unordered list
+      const ul = line.match(/^[-*+]\s+(.*)$/);
+      if (ul){
+        flushPara();
+        if (listType !== 'ul'){ flushList(); out += '<ul>'; listType = 'ul'; }
+        out += '<li>' + inline(ul[1]) + '</li>';
+        continue;
+      }
+      // ordered list
+      const ol = line.match(/^\d+\.\s+(.*)$/);
+      if (ol){
+        flushPara();
+        if (listType !== 'ol'){ flushList(); out += '<ol>'; listType = 'ol'; }
+        out += '<li>' + inline(ol[1]) + '</li>';
+        continue;
+      }
+
+      // paragraph
+      flushList();
+      para.push(line);
+    }
+    flushPara();
+    flushList();
+    if (inCode){
+      out += '<pre><code>' + esc(codeBuf.join('\n')) + '</code></pre>';
+    }
+    return out;
+  }
+
+  async function fetchRepo(repo){
+    const url = `https://api.github.com/repos/${ORG}/${repo}/releases?per_page=20`;
+    const res = await fetch(url, { headers: { 'Accept': 'application/vnd.github+json' } });
+    if (!res.ok) throw new Error(`${repo}: HTTP ${res.status}`);
+    const data = await res.json();
+    return data
+      .filter(r => !r.draft)
+      .map(r => ({
+        repo,
+        tag: r.tag_name,
+        name: r.name || r.tag_name,
+        published_at: r.published_at || r.created_at,
+        html_url: r.html_url,
+        body: r.body || '',
+        prerelease: !!r.prerelease
+      }));
+  }
+
+  async function load(){
+    $('error').classList.add('hidden');
+    $('list').innerHTML = `
+      <div class="skeleton"><div class="skeleton-bar w-1/3 mb-3"></div><div class="skeleton-bar w-2/3"></div></div>
+      <div class="skeleton"><div class="skeleton-bar w-1/4 mb-3"></div><div class="skeleton-bar w-3/4"></div></div>
+      <div class="skeleton"><div class="skeleton-bar w-1/3 mb-3"></div><div class="skeleton-bar w-2/3"></div></div>
+    `;
+    const results = await Promise.allSettled(REPOS.map(fetchRepo));
+    const ok = results.filter(r => r.status === 'fulfilled').flatMap(r => r.value);
+    const fails = results.filter(r => r.status === 'rejected').map(r => r.reason && r.reason.message);
+    if (fails.length) console.warn('Some repos failed:', fails);
+    if (!ok.length){
+      $('list').innerHTML = '';
+      $('error').classList.remove('hidden');
+      return;
+    }
+    state.releases = ok.sort((a,b) => new Date(b.published_at) - new Date(a.published_at));
+    render();
+  }
+
+  function render(){
+    const filtered = state.filter === 'all'
+      ? state.releases
+      : state.releases.filter(r => r.repo === state.filter);
+
+    if (!filtered.length){
+      $('list').innerHTML = '';
+      $('empty').classList.remove('hidden');
+      return;
+    }
+    $('empty').classList.add('hidden');
+    $('list').innerHTML = filtered.map(card).join('');
+  }
+
+  function card(r){
+    const date = fmtDate(r.published_at);
+    const pre = r.prerelease
+      ? '<span class="repo-pill" style="color:#f5a524;border-color:rgba(245,165,36,.30)">pre</span>'
+      : '';
+    return `
+      <article class="release">
+        <div class="flex flex-wrap items-baseline gap-3 mb-3">
+          <span class="repo-pill">${esc(REPO_LABEL[r.repo] || r.repo)}</span>
+          <h3 class="text-[16px] mono">
+            <a href="${esc(r.html_url)}" target="_blank" rel="noopener">${esc(r.tag)}</a>
+          </h3>
+          ${pre}
+          <span class="muted mono text-[12px] ml-auto">${esc(date)}</span>
+        </div>
+        ${r.name && r.name !== r.tag ? `<p class="muted text-[14px] mb-3">${esc(r.name)}</p>` : ''}
+        <div class="text-[14px]">${md(r.body)}</div>
+      </article>
+    `;
+  }
+
+  // Filters
+  document.querySelectorAll('.filter-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.filter = btn.dataset.value;
+      document.querySelectorAll('.filter-pill').forEach(b => {
+        b.setAttribute('aria-pressed', b.dataset.value === state.filter ? 'true' : 'false');
+      });
+      const params = new URLSearchParams(window.location.search);
+      if (state.filter === 'all') params.delete('repo');
+      else params.set('repo', state.filter);
+      const qs = params.toString();
+      window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
+      render();
+    });
+  });
+
+  // Initial filter from URL (?repo=onym-ios)
+  const initial = new URLSearchParams(window.location.search).get('repo');
+  if (initial && REPOS.includes(initial)){
+    state.filter = initial;
+    document.querySelectorAll('.filter-pill').forEach(b => {
+      b.setAttribute('aria-pressed', b.dataset.value === initial ? 'true' : 'false');
+    });
+  }
+
+  $('retry').addEventListener('click', load);
+
+  // Theme
+  const root = document.documentElement;
+  const tD = $('themeDark');
+  const tL = $('themeLight');
+  function setTheme(t){
+    if (t === 'light'){
+      root.setAttribute('data-theme', 'light');
+      tD.setAttribute('aria-pressed', 'false');
+      tL.setAttribute('aria-pressed', 'true');
+    } else {
+      root.removeAttribute('data-theme');
+      tD.setAttribute('aria-pressed', 'true');
+      tL.setAttribute('aria-pressed', 'false');
+    }
+    try{ localStorage.setItem('onym.theme', t); }catch(e){}
+  }
+  tD.addEventListener('click', () => setTheme('dark'));
+  tL.addEventListener('click', () => setTheme('light'));
+  try{
+    const saved = localStorage.getItem('onym.theme');
+    if (saved) setTheme(saved);
+  }catch(e){}
+
+  load();
+})();
+</script>
+</body>
+</html>
