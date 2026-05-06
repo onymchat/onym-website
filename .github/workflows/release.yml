@@ -143,11 +143,20 @@ jobs:
       - name: Sync public/ -> /var/www/onym/
         run: |
           set -euo pipefail
-          # --delete-after removes stale files, but we exclude qa/
-          # because onym-ios owns that subtree. The marketing deploy
-          # must never wipe the QA dashboard.
+          # The marketing deploy owns everything under public/, including
+          # the QA dashboard HTML at qa/index.html. But three things under
+          # qa/ are owned by platform pipelines (onym-ios, onym-android)
+          # and must never be touched here:
+          #   - qa/builds.json   merged dashboard manifest
+          #   - qa/ios/          iOS IPAs + manifest.plists
+          #   - qa/android/      Android APKs
+          # Excluding them from rsync (combined with --delete-after) means
+          # they're invisible to the deploy in both directions: not pushed,
+          # and not deleted from the destination if absent in source.
           rsync -avz --delete-after \
-            --exclude='qa/' \
+            --exclude='qa/builds.json' \
+            --exclude='qa/ios/' \
+            --exclude='qa/android/' \
             -e 'ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no' \
             public/ "root@${IP}:/var/www/onym/"
 
