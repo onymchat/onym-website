@@ -21,10 +21,10 @@ inputs:
       Must NOT start with / and must NOT contain ".." segments.
     required: true
   ssh_key:
-    description: 'Private SSH key (PEM). Pass ${{ secrets.DEPLOY_SSH_KEY }}.'
+    description: 'Private SSH key (PEM). Caller wires this from secrets.DEPLOY_SSH_KEY.'
     required: true
   host:
-    description: 'Hostname or IP. Pass ${{ secrets.DEPLOY_HOST }}.'
+    description: 'Hostname or IP. Caller wires this from secrets.DEPLOY_HOST.'
     required: true
   delete_stale:
     description: 'When source is a directory, remove files in target that are not in source.'
