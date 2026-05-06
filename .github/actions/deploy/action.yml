@@ -1,0 +1,108 @@
+name: Deploy to onym droplet
+description: |
+  Upload a file or directory from the caller's workspace into
+  /var/www/onym/<target_subpath>/ on the production droplet.
+
+  Used by onymchat repos (e.g. onym-ios publishing the QA dashboard
+  to /qa/ alongside the marketing site). Composite action so it runs
+  inside the caller's job and has access to the caller's checkout.
+
+  Org-wide secrets the caller is expected to pass:
+    DEPLOY_SSH_KEY  — private ed25519 key for deploy@droplet
+    DEPLOY_HOST     — hostname (e.g. onym.app) once DNS is wired
+
+inputs:
+  source_path:
+    description: 'Local path (file or directory), relative to GITHUB_WORKSPACE'
+    required: true
+  target_subpath:
+    description: |
+      Relative path under /var/www/onym/ (e.g. "qa", "qa/builds").
+      Must NOT start with / and must NOT contain ".." segments.
+    required: true
+  ssh_key:
+    description: 'Private SSH key (PEM). Pass ${{ secrets.DEPLOY_SSH_KEY }}.'
+    required: true
+  host:
+    description: 'Hostname or IP. Pass ${{ secrets.DEPLOY_HOST }}.'
+    required: true
+  delete_stale:
+    description: 'When source is a directory, remove files in target that are not in source.'
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+  steps:
+    - name: Validate inputs
+      shell: bash
+      env:
+        TARGET: ${{ inputs.target_subpath }}
+        SOURCE: ${{ inputs.source_path }}
+        SSH_KEY: ${{ inputs.ssh_key }}
+        HOST: ${{ inputs.host }}
+      run: |
+        set -euo pipefail
+        if [ -z "$SSH_KEY" ] || [ -z "$HOST" ]; then
+          echo "::error::ssh_key and host inputs are required (pass org secrets)"
+          exit 1
+        fi
+        if [ -z "$TARGET" ]; then
+          echo "::error::target_subpath is required and must be non-empty"
+          exit 1
+        fi
+        # Reject absolute paths and any '..' segments so a misconfigured
+        # caller can't write outside /var/www/onym/.
+        case "$TARGET" in
+          /*) echo "::error::target_subpath must be relative (got: $TARGET)"; exit 1 ;;
+        esac
+        case "/$TARGET/" in
+          *"/../"*) echo "::error::target_subpath must not contain '..' (got: $TARGET)"; exit 1 ;;
+        esac
+        if [ ! -e "$SOURCE" ]; then
+          echo "::error::source_path '$SOURCE' does not exist in this workspace"
+          exit 1
+        fi
+
+    - name: Configure SSH
+      shell: bash
+      env:
+        SSH_KEY: ${{ inputs.ssh_key }}
+        HOST: ${{ inputs.host }}
+      run: |
+        set -euo pipefail
+        mkdir -p ~/.ssh
+        printf '%s\n' "$SSH_KEY" > ~/.ssh/id_onym_deploy
+        chmod 600 ~/.ssh/id_onym_deploy
+        ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+    - name: Upload
+      shell: bash
+      env:
+        HOST: ${{ inputs.host }}
+        SOURCE: ${{ inputs.source_path }}
+        TARGET: ${{ inputs.target_subpath }}
+        DELETE: ${{ inputs.delete_stale }}
+      run: |
+        set -euo pipefail
+
+        ssh -i ~/.ssh/id_onym_deploy -o StrictHostKeyChecking=no \
+            "deploy@${HOST}" "mkdir -p /var/www/onym/${TARGET}"
+
+        delete_flag=""
+        if [ "$DELETE" = "true" ]; then
+          delete_flag="--delete-after"
+        fi
+
+        if [ -d "$SOURCE" ]; then
+          # Trailing slash on source: copy contents, not the dir itself
+          rsync -avz $delete_flag \
+            -e 'ssh -i ~/.ssh/id_onym_deploy -o StrictHostKeyChecking=no' \
+            "${SOURCE%/}/" "deploy@${HOST}:/var/www/onym/${TARGET}/"
+        else
+          rsync -avz \
+            -e 'ssh -i ~/.ssh/id_onym_deploy -o StrictHostKeyChecking=no' \
+            "$SOURCE" "deploy@${HOST}:/var/www/onym/${TARGET}/"
+        fi
+
+        echo "::notice::Uploaded ${SOURCE} → ${HOST}:/var/www/onym/${TARGET}/"

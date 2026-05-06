@@ -1,0 +1,148 @@
+name: Release · deploy site
+
+# Idempotent deploy of public/ to the onym-web droplet.
+# - First run: creates the droplet via doctl + cloud-init.
+# - Every run: rsyncs public/ → /var/www/onym/, excluding qa/
+#   so we never wipe the iOS team's QA dashboard uploads.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Serialize deploys so two releases don't race against the same droplet.
+concurrency:
+  group: deploy-onym-web
+  cancel-in-progress: false
+
+jobs:
+  ensure-droplet:
+    name: Ensure droplet
+    runs-on: ubuntu-latest
+    outputs:
+      ip: ${{ steps.find.outputs.ip }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_TOKEN }}
+
+      - name: Find or create droplet
+        id: find
+        env:
+          NAME: onym-web
+          REGION: fra1
+          SIZE: s-1vcpu-1gb
+          IMAGE: ubuntu-24-04-x64
+          KEY_FP: ${{ secrets.DEPLOY_SSH_KEY_FINGERPRINT }}
+        run: |
+          set -euo pipefail
+          ip=$(doctl compute droplet list --format Name,PublicIPv4 --no-header \
+                 | awk -v n="$NAME" '$1==n{print $2; exit}')
+          if [ -z "$ip" ]; then
+            echo "::notice::Droplet '$NAME' not found, creating in $REGION"
+            doctl compute droplet create "$NAME" \
+              --region "$REGION" \
+              --size "$SIZE" \
+              --image "$IMAGE" \
+              --ssh-keys "$KEY_FP" \
+              --user-data-file infra/cloud-init.yml \
+              --tag-names onym,web \
+              --wait
+            ip=$(doctl compute droplet list --format Name,PublicIPv4 --no-header \
+                   | awk -v n="$NAME" '$1==n{print $2; exit}')
+          else
+            echo "::notice::Droplet '$NAME' already exists at $ip"
+          fi
+          if [ -z "$ip" ]; then
+            echo "::error::Could not resolve droplet IP after create"
+            exit 1
+          fi
+          echo "ip=$ip" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for cloud-init to finish
+        env:
+          IP: ${{ steps.find.outputs.ip }}
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          # Fresh droplets need 60-180s before deploy@ is reachable
+          # (cloud-init mirrors the SSH keys mid-boot). Retry SSH
+          # until it works, then `cloud-init status --wait` blocks
+          # until provisioning is fully complete.
+          for i in $(seq 1 30); do
+            if ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 \
+                   -i ~/.ssh/id_ed25519 deploy@"$IP" \
+                   'cloud-init status --wait' 2>/dev/null; then
+              echo "::notice::cloud-init complete on $IP"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::cloud-init didn't finish within 5 minutes"
+          exit 1
+
+  deploy-site:
+    name: Deploy site
+    needs: ensure-droplet
+    runs-on: ubuntu-latest
+    env:
+      IP: ${{ needs.ensure-droplet.outputs.ip }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$IP" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Sync public/ → /var/www/onym/
+        run: |
+          set -euo pipefail
+          # --delete-after removes stale files, but we exclude qa/
+          # because onym-ios owns that subtree. The marketing deploy
+          # must never wipe the QA dashboard.
+          rsync -avz --delete-after \
+            --exclude='qa/' \
+            -e 'ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no' \
+            public/ "deploy@${IP}:/var/www/onym/"
+
+      - name: Smoke test
+        # Non-fatal: on the first run DNS may not point at the droplet
+        # yet, in which case the smoke test will fail and the user
+        # needs to point onym.app A → IP, then rerun.
+        continue-on-error: true
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          if [ -z "$HOST" ]; then
+            echo "::warning::DEPLOY_HOST not set — skipping smoke test"
+            exit 0
+          fi
+          for i in $(seq 1 12); do
+            for scheme in https http; do
+              code=$(curl -sk --max-time 10 -o /dev/null \
+                            -w '%{http_code}' "${scheme}://${HOST}/" || echo 000)
+              echo "${scheme}://${HOST} → ${code}"
+              if [ "$code" = "200" ]; then
+                echo "::notice::Site reachable at ${scheme}://${HOST}"
+                exit 0
+              fi
+            done
+            sleep 5
+          done
+          echo "::warning::Site not yet 200. If this is a fresh droplet, point DNS A '${HOST}' → ${IP} and rerun."

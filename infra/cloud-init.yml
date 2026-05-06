@@ -1,0 +1,77 @@
+#cloud-config
+# Onym droplet bootstrap. Runs once at first boot.
+# Provisions Caddy + deploy user + web root + firewall.
+#
+# Re-running this file requires destroying & recreating the droplet.
+# For ad-hoc tweaks (e.g. Caddyfile changes), edit on the box and
+# `systemctl reload caddy`.
+
+package_update: true
+package_upgrade: false
+packages:
+  - debian-keyring
+  - debian-archive-keyring
+  - apt-transport-https
+  - curl
+  - rsync
+  - ufw
+
+users:
+  - name: deploy
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: 'ALL=(ALL) NOPASSWD:ALL'
+    # Authorized keys are mirrored from /root/.ssh/authorized_keys
+    # in runcmd below. DigitalOcean injects the --ssh-keys public
+    # keys into root's authorized_keys before runcmd executes.
+
+write_files:
+  - path: /etc/caddy/Caddyfile
+    owner: root:root
+    permissions: '0644'
+    content: |
+      # Onym site config. TLS auto-provisioned by Caddy via Let's
+      # Encrypt as soon as DNS for onym.app points to this droplet.
+      onym.app, www.onym.app {
+        root * /var/www/onym
+        try_files {path} {path}.html {path}/
+        encode gzip
+        file_server
+
+        # iOS OTA install needs the right Content-Types on the
+        # manifest.plist + .ipa so itms-services:// can hand off.
+        @plist path *.plist
+        header @plist Content-Type application/xml
+        @ipa path *.ipa
+        header @ipa Content-Type application/octet-stream
+      }
+
+runcmd:
+  # 1. Caddy from the official Cloudsmith repo
+  - 'curl -1sLf "https://dl.cloudsmith.io/public/caddy/stable/gpg.key" | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg'
+  - 'curl -1sLf "https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt" | tee /etc/apt/sources.list.d/caddy-stable.list'
+  - apt-get update
+  - DEBIAN_FRONTEND=noninteractive apt-get install -y caddy
+
+  # 2. Mirror root's authorized_keys → deploy@. By the time runcmd
+  # runs, DO has already injected the --ssh-keys public keys into
+  # /root/.ssh/authorized_keys via the DigitalOcean datasource.
+  - mkdir -p /home/deploy/.ssh
+  - cp /root/.ssh/authorized_keys /home/deploy/.ssh/authorized_keys
+  - chown -R deploy:deploy /home/deploy/.ssh
+  - chmod 700 /home/deploy/.ssh
+  - chmod 600 /home/deploy/.ssh/authorized_keys
+
+  # 3. Web root: deploy-owned, world-readable so caddy user can serve
+  - mkdir -p /var/www/onym
+  - chown -R deploy:deploy /var/www/onym
+  - chmod 755 /var/www/onym
+
+  # 4. Firewall
+  - ufw allow OpenSSH
+  - ufw allow http
+  - ufw allow https
+  - ufw --force enable
+
+  # 5. Boot Caddy
+  - systemctl enable --now caddy
