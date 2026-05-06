@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Onym · QA Dashboard</title>
+<meta name="robots" content="noindex,nofollow" />
+<meta name="description" content="Internal QA builds for the Onym iOS and Android apps." />
+<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+<link rel="icon" type="image/png" href="/assets/icon-dark.png" />
+<link rel="apple-touch-icon" href="/assets/icon-dark.png" />
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
+    --hair:rgba(245,245,247,.10);
+    --card:#101013;
+    --tag-fg:#30d158; --tag-bg:rgba(48,209,88,.15); --tag-border:rgba(48,209,88,.30);
+    --branch-fg:#0A84FF; --branch-bg:rgba(10,132,255,.15); --branch-border:rgba(10,132,255,.30);
+    --warn-fg:#f5a524; --warn-bg:rgba(245,165,36,.10); --warn-border:rgba(245,165,36,.30);
+    --shadow: 0 1px 0 rgba(0,0,0,.4), 0 30px 60px -30px rgba(0,0,0,.6);
+    --nav-bg: rgba(8,8,10,.72);
+  }
+  html[data-theme="light"]{
+    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
+    --hair:rgba(10,10,10,.08);
+    --card:#fbfbfd;
+    --tag-fg:#1d8a3a; --tag-bg:#dcf5e1; --tag-border:rgba(48,209,88,.35);
+    --branch-fg:#0660d0; --branch-bg:#e3eefb; --branch-border:rgba(10,132,255,.35);
+    --warn-fg:#a36906; --warn-bg:#fdf3df; --warn-border:rgba(245,165,36,.40);
+    --shadow: 0 1px 2px rgba(10,10,10,.04), 0 12px 40px -24px rgba(10,10,10,.18);
+    --nav-bg: rgba(245,245,247,.72);
+  }
+  html,body{ background:var(--bg); color:var(--fg); }
+  body{
+    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  .mono{ font-family: "SF Mono","JetBrains Mono", ui-monospace, Menlo, monospace; }
+  .hair{ border-color: var(--hair); }
+  .muted{ color: var(--muted); }
+  .pill{ border-radius: 999px; }
+  .card{
+    background: var(--card);
+    border: 1px solid var(--hair);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+  }
+  .card.is-latest{ border-color: var(--fg); border-width: 1.5px; }
+  .pill-tag{ background: var(--tag-bg); color: var(--tag-fg); border: 1px solid var(--tag-border); }
+  .pill-branch{ background: var(--branch-bg); color: var(--branch-fg); border: 1px solid var(--branch-border); }
+  .pill-platform{ background: transparent; border: 1px solid var(--hair); color: var(--fg); }
+  .pill-latest{ background: var(--fg); color: var(--bg); border: 1px solid var(--fg); }
+  .filter-pill{
+    background: transparent;
+    border: 1px solid var(--hair);
+    color: var(--fg);
+    cursor: pointer; user-select: none;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .filter-pill:hover{ border-color: var(--fg); }
+  .filter-pill[aria-pressed="true"]{
+    background: var(--fg); color: var(--bg); border-color: var(--fg);
+  }
+  .install-btn{
+    background: var(--fg); color: var(--bg);
+    transition: opacity .15s ease;
+  }
+  .install-btn:hover{ opacity: .85; }
+  .ghost-link{ color: var(--muted); }
+  .ghost-link:hover{ color: var(--fg); }
+  input[type="search"]{
+    background: var(--card);
+    border: 1px solid var(--hair);
+    color: var(--fg);
+  }
+  input[type="search"]::placeholder{ color: var(--muted); }
+  input[type="search"]:focus{
+    outline: 2px solid var(--fg); outline-offset: 2px;
+  }
+  .toggle{
+    position: fixed; bottom: 18px; right: 18px; z-index:60;
+    background: var(--nav-bg);
+    border: 1px solid var(--hair); border-radius: 999px;
+    padding: 4px; display: flex; gap: 2px;
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    box-shadow: 0 8px 24px -10px rgba(10,10,10,.18);
+  }
+  .toggle button{
+    font-size: 12px; letter-spacing: .04em; padding: 7px 12px; border-radius: 999px;
+    color: var(--muted);
+  }
+  .toggle button[aria-pressed="true"]{ background: var(--fg); color: var(--bg); }
+  .banner{
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    color: var(--warn-fg);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+  .platform-icon{
+    display: inline-block; vertical-align: -2px; margin-right: 4px;
+  }
+  /* Onym-style mark for the header logo */
+  .mark{
+    display: inline-block;
+    width: 22px; height: 22px;
+    border-radius: 22%;
+    background: url('/assets/icon-dark.png') center/cover no-repeat;
+  }
+  html[data-theme="light"] .mark{
+    background: url('/assets/icon-light.png') center/cover no-repeat;
+  }
+</style>
+</head>
+<body class="antialiased">
+
+<div class="toggle" role="group" aria-label="Theme">
+  <button id="themeDark" aria-pressed="true">Dark</button>
+  <button id="themeLight" aria-pressed="false">Light</button>
+</div>
+
+<header class="max-w-[1100px] mx-auto px-6 pt-10 pb-6">
+  <div class="flex items-center justify-between gap-4 mb-10">
+    <a href="/" class="flex items-center gap-3 hover:opacity-80" aria-label="Onym home">
+      <span class="mark" role="img" aria-label="Onym"></span>
+      <span class="text-[14px] font-medium tracking-tight">Onym <span class="muted">· QA Dashboard</span></span>
+    </a>
+    <div class="text-[12px] muted mono" id="lastUpdated">—</div>
+  </div>
+  <h1 class="text-[clamp(1.875rem,4vw,2.75rem)] font-bold tracking-tight" style="letter-spacing:-0.025em;line-height:1.05">Internal builds</h1>
+  <p class="muted mt-3 max-w-[60ch]">
+    Pick a build, install on a registered device, test, file issues. iOS requires the device to be on the developer provisioning profile; Android installs the APK directly.
+  </p>
+</header>
+
+<div class="max-w-[1100px] mx-auto px-6">
+  <div id="banner" class="banner mb-6 hidden"></div>
+</div>
+
+<section class="max-w-[1100px] mx-auto px-6">
+  <!-- Filters -->
+  <div class="flex flex-wrap items-center gap-2 mb-8" id="filters">
+    <span class="muted text-[11px] uppercase tracking-[.18em] mr-2">Platform</span>
+    <button class="filter-pill pill px-3 py-1.5 text-[12.5px]" data-filter="platform" data-value="all" aria-pressed="true">All</button>
+    <button class="filter-pill pill px-3 py-1.5 text-[12.5px]" data-filter="platform" data-value="ios" aria-pressed="false">iOS</button>
+    <button class="filter-pill pill px-3 py-1.5 text-[12.5px]" data-filter="platform" data-value="android" aria-pressed="false">Android</button>
+
+    <span class="muted text-[11px] uppercase tracking-[.18em] ml-4 mr-2">Kind</span>
+    <button class="filter-pill pill px-3 py-1.5 text-[12.5px]" data-filter="kind" data-value="all" aria-pressed="true">All</button>
+    <button class="filter-pill pill px-3 py-1.5 text-[12.5px]" data-filter="kind" data-value="tag" aria-pressed="false">Tag</button>
+    <button class="filter-pill pill px-3 py-1.5 text-[12.5px]" data-filter="kind" data-value="branch" aria-pressed="false">Branch</button>
+
+    <input type="search" id="search" placeholder="Search version, commit, branch, issue…" class="ml-auto px-3.5 py-1.5 text-[13px] pill" style="min-width:260px"/>
+  </div>
+
+  <!-- Latest -->
+  <div id="latestSection" class="mb-10 hidden">
+    <p class="text-[11px] uppercase tracking-[.18em] muted mb-3">Latest</p>
+    <div id="latestCard"></div>
+  </div>
+
+  <!-- Tag releases -->
+  <div id="tagSection" class="mb-10 hidden">
+    <p class="text-[11px] uppercase tracking-[.18em] muted mb-3">Tag releases</p>
+    <div id="tagList" class="space-y-3"></div>
+  </div>
+
+  <!-- Branch builds -->
+  <div id="branchSection" class="mb-10 hidden">
+    <p class="text-[11px] uppercase tracking-[.18em] muted mb-3">Branch builds</p>
+    <div id="branchList" class="space-y-3"></div>
+  </div>
+
+  <!-- Empty -->
+  <div id="emptyState" class="hidden text-center py-16 muted">
+    <p class="text-[15px]" id="emptyText">No builds match your filters.</p>
+  </div>
+
+  <footer class="text-[12px] muted py-12 mt-10 hair border-t flex flex-wrap items-center justify-between gap-3" style="border-top-style:solid">
+    <span>Source · <a href="/qa/builds.json" class="ghost-link mono underline">builds.json</a></span>
+    <a href="/" class="ghost-link">← Back to onym.app</a>
+  </footer>
+</section>
+
+<script>
+(function(){
+  const BUILDS_URL = '/qa/builds.json';
+
+  const state = {
+    builds: [],
+    is_sample: false,
+    generated_at: null,
+    filters: { platform: 'all', kind: 'all', search: '' }
+  };
+
+  // ---- DOM refs ----
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    banner: $('banner'),
+    lastUpdated: $('lastUpdated'),
+    latestSection: $('latestSection'),
+    latestCard: $('latestCard'),
+    tagSection: $('tagSection'),
+    tagList: $('tagList'),
+    branchSection: $('branchSection'),
+    branchList: $('branchList'),
+    emptyState: $('emptyState'),
+    emptyText: $('emptyText'),
+    search: $('search'),
+  };
+
+  // ---- helpers ----
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+  function fmtDate(iso){
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '—';
+    const diff = Date.now() - d.getTime();
+    const min = Math.round(diff / 60000);
+    if (min < 60) return min + 'm ago';
+    const hr = Math.round(min / 60);
+    if (hr < 24) return hr + 'h ago';
+    const day = Math.round(hr / 24);
+    if (day < 7) return day + 'd ago';
+    return d.toISOString().slice(0, 10);
+  }
+  function fmtBytes(n){
+    if (!n || n < 0) return '';
+    if (n < 1024 * 1024) return Math.round(n / 1024) + ' KB';
+    return (n / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+  function platformLabel(p){
+    return p === 'ios' ? 'iOS' : p === 'android' ? 'Android' : esc(p || '?');
+  }
+  function platformIcon(p){
+    if (p === 'ios') {
+      // Apple-style mark, simplified
+      return '<svg class="platform-icon" width="13" height="14" viewBox="0 0 16 17" fill="currentColor" aria-hidden="true"><path d="M11.7 9.1c0-2 1.6-3 1.7-3-.9-1.4-2.4-1.5-2.9-1.6-1.2-.1-2.4.7-3 .7-.6 0-1.6-.7-2.6-.7-1.4 0-2.6.8-3.3 2-1.4 2.4-.4 6 1 8 .7 1 1.5 2 2.5 2 1 0 1.4-.6 2.6-.6s1.5.6 2.6.6c1.1 0 1.7-1 2.4-2 .7-1 1-2 1-2.1 0 0-2-.7-2-3.3zM9.7 3.4c.5-.6.8-1.5.7-2.4-.7 0-1.6.5-2.1 1.1-.5.5-.9 1.4-.7 2.3.8.1 1.6-.4 2.1-1z"/></svg>';
+    }
+    if (p === 'android') {
+      // Android-style robot head, simplified
+      return '<svg class="platform-icon" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 7v4.5c0 .3.2.5.5.5H4v1.7c0 .4.4.8.9.8s.9-.4.9-.8V12h2.4v1.7c0 .4.4.8.9.8s.9-.4.9-.8V12h.5c.3 0 .5-.2.5-.5V7H3zM2.4 7H2c-.4 0-.8.4-.8.8v3.4c0 .4.4.8.8.8.4 0 .8-.4.8-.8V7.8c0-.4-.4-.8-.8-.8zm11.2 0c-.4 0-.8.4-.8.8v3.4c0 .4.4.8.8.8s.8-.4.8-.8V7.8c0-.4-.4-.8-.8-.8zM10.4 3.5l.7-1.1a.2.2 0 0 0-.4-.2l-.7 1.1c-.7-.3-1.4-.4-2-.4s-1.3.1-2 .4l-.7-1.1a.2.2 0 0 0-.4.2l.7 1.1A4.4 4.4 0 0 0 3 6.5h10a4.4 4.4 0 0 0-2.6-3zM5.7 5.4a.4.4 0 1 1 0-.7.4.4 0 0 1 0 .7zm4.6 0a.4.4 0 1 1 0-.7.4.4 0 0 1 0 .7z"/></svg>';
+    }
+    return '';
+  }
+
+  function repoFromCommitUrl(url){
+    if (!url) return null;
+    const m = String(url).match(/github\.com\/([^\/]+\/[^\/]+)/);
+    return m ? m[1] : null;
+  }
+
+  // ---- card render ----
+  function renderCard(b, isLatest){
+    const kindPill = b.kind === 'tag'
+      ? '<span class="pill pill-tag mono px-2 py-0.5 text-[11px]">tag · ' + esc(b.tag || '—') + '</span>'
+      : '<span class="pill pill-branch mono px-2 py-0.5 text-[11px]">branch · ' + esc(b.branch || '—') + '</span>';
+
+    const platformPill =
+      '<span class="pill pill-platform px-2.5 py-0.5 text-[12px] font-medium">' +
+      platformIcon(b.platform) + platformLabel(b.platform) + '</span>';
+
+    const latestPill = isLatest
+      ? '<span class="pill pill-latest mono uppercase tracking-[.12em] px-2 py-0.5 text-[10px]">latest</span>'
+      : '';
+
+    const issueHTML = b.issue && b.issue.url
+      ? '<a href="' + esc(b.issue.url) + '" target="_blank" rel="noopener" class="ghost-link text-[12.5px] hover:underline">#' + esc(b.issue.number) + ' · ' + esc(b.issue.title || '') + '</a>'
+      : '';
+
+    const installBtn = b.install_url
+      ? (b.platform === 'ios'
+          ? '<a href="' + esc(b.install_url) + '" class="install-btn pill px-4 py-2 text-[13px] font-medium">Install on iOS</a>'
+          : '<a href="' + esc(b.install_url) + '" class="install-btn pill px-4 py-2 text-[13px] font-medium" download>Download APK</a>')
+      : '<span class="muted text-[12px]">no install link</span>';
+
+    const commitLink = b.commit_url
+      ? '<a href="' + esc(b.commit_url) + '" target="_blank" rel="noopener" class="ghost-link mono hover:underline">' + esc(b.commit_short || '—') + '</a>'
+      : '<span class="muted mono">' + esc(b.commit_short || '—') + '</span>';
+
+    const repo = repoFromCommitUrl(b.commit_url) || repoFromCommitUrl(b.release_url);
+    const repoLink = repo
+      ? '<a href="https://github.com/' + esc(repo) + '" target="_blank" rel="noopener" class="ghost-link mono hover:underline">' + esc(repo) + '</a>'
+      : '';
+
+    const sizeBit = b.size_bytes ? '<span class="muted">· ' + esc(fmtBytes(b.size_bytes)) + '</span>' : '';
+    const releaseBit = b.release_url
+      ? ' <a href="' + esc(b.release_url) + '" target="_blank" rel="noopener" class="ghost-link hover:underline">release ↗</a>'
+      : '';
+    const workflowBit = b.workflow_url
+      ? ' <a href="' + esc(b.workflow_url) + '" target="_blank" rel="noopener" class="ghost-link hover:underline">CI ↗</a>'
+      : '';
+
+    return '' +
+      '<article class="card p-5' + (isLatest ? ' is-latest' : '') + '">' +
+        '<div class="flex items-start justify-between gap-4 mb-3 flex-wrap">' +
+          '<div class="flex items-center gap-2 flex-wrap">' +
+            platformPill +
+            '<span class="mono text-[14px] font-medium">' + esc(b.version) + '</span>' +
+            kindPill +
+            latestPill +
+          '</div>' +
+          '<span class="muted mono text-[12px]" title="' + esc(b.built_at) + '">' + fmtDate(b.built_at) + '</span>' +
+        '</div>' +
+        (b.description ? '<p class="text-[14px] mb-3" style="line-height:1.5">' + esc(b.description) + '</p>' : '') +
+        '<div class="flex items-end justify-between gap-4 flex-wrap">' +
+          '<div class="flex items-center gap-2 text-[12px] flex-wrap">' +
+            commitLink + (repoLink ? ' <span class="muted">·</span> ' + repoLink : '') +
+            sizeBit + releaseBit + workflowBit +
+          '</div>' +
+          '<div class="flex items-center gap-3 flex-wrap">' +
+            issueHTML +
+            installBtn +
+          '</div>' +
+        '</div>' +
+      '</article>';
+  }
+
+  // ---- filtering / rendering ----
+  function applyFilters(builds){
+    const { platform, kind, search } = state.filters;
+    const q = search.trim().toLowerCase();
+    return builds.filter((b) => {
+      if (platform !== 'all' && b.platform !== platform) return false;
+      if (kind !== 'all' && b.kind !== kind) return false;
+      if (q){
+        const hay = [
+          b.version, b.commit, b.commit_short, b.branch, b.tag,
+          b.description, b.issue && b.issue.title, b.issue && ('#' + b.issue.number)
+        ].filter(Boolean).join(' ').toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }
+
+  function render(){
+    const filtered = applyFilters(state.builds);
+
+    if (filtered.length === 0){
+      els.latestSection.classList.add('hidden');
+      els.tagSection.classList.add('hidden');
+      els.branchSection.classList.add('hidden');
+      els.emptyState.classList.remove('hidden');
+      els.emptyText.textContent = state.builds.length === 0
+        ? 'No builds yet. Once a release pipeline publishes, it will show up here.'
+        : 'No builds match your filters.';
+      return;
+    }
+    els.emptyState.classList.add('hidden');
+
+    const latest = filtered[0];
+    els.latestCard.innerHTML = renderCard(latest, true);
+    els.latestSection.classList.remove('hidden');
+
+    const tags = filtered.filter((b) => b !== latest && b.kind === 'tag');
+    const branches = filtered.filter((b) => b !== latest && b.kind === 'branch');
+
+    els.tagList.innerHTML = tags.map((b) => renderCard(b, false)).join('');
+    els.branchList.innerHTML = branches.map((b) => renderCard(b, false)).join('');
+
+    els.tagSection.classList.toggle('hidden', tags.length === 0);
+    els.branchSection.classList.toggle('hidden', branches.length === 0);
+  }
+
+  // ---- data load ----
+  async function load(){
+    try{
+      const res = await fetch(BUILDS_URL, { cache: 'no-cache' });
+      if (!res.ok) throw new Error('builds.json HTTP ' + res.status);
+      const data = await res.json();
+      state.is_sample = !!data.is_sample;
+      state.generated_at = data.generated_at || null;
+      state.builds = (Array.isArray(data.builds) ? data.builds : [])
+        .slice()
+        .sort((a, b) => new Date(b.built_at).getTime() - new Date(a.built_at).getTime());
+
+      if (state.generated_at){
+        els.lastUpdated.textContent = 'updated ' + fmtDate(state.generated_at);
+      }
+      if (state.is_sample){
+        els.banner.textContent = 'Showing sample data. Once onym-ios / onym-android publish their first builds, this banner will disappear.';
+        els.banner.classList.remove('hidden');
+      } else {
+        els.banner.classList.add('hidden');
+      }
+    } catch (err){
+      state.builds = [];
+      state.is_sample = false;
+      els.banner.textContent = 'Could not load builds.json. Check the link below.';
+      els.banner.classList.remove('hidden');
+      console.warn('builds.json load failed:', err);
+    }
+    render();
+  }
+
+  // ---- filters wiring ----
+  document.querySelectorAll('.filter-pill').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const filter = btn.dataset.filter;
+      const value = btn.dataset.value;
+      state.filters[filter] = value;
+      document.querySelectorAll('[data-filter="' + filter + '"]').forEach((b) => {
+        b.setAttribute('aria-pressed', b.dataset.value === value ? 'true' : 'false');
+      });
+      syncFiltersToURL();
+      render();
+    });
+  });
+
+  els.search.addEventListener('input', (e) => {
+    state.filters.search = e.target.value;
+    render();
+  });
+
+  function syncFiltersToURL(){
+    const params = new URLSearchParams();
+    if (state.filters.platform !== 'all') params.set('platform', state.filters.platform);
+    if (state.filters.kind !== 'all') params.set('kind', state.filters.kind);
+    const qs = params.toString();
+    const url = (qs ? '?' + qs : window.location.pathname);
+    window.history.replaceState(null, '', url);
+  }
+
+  function readFiltersFromURL(){
+    const params = new URLSearchParams(window.location.search);
+    const p = params.get('platform');
+    const k = params.get('kind');
+    if (p === 'ios' || p === 'android' || p === 'all') state.filters.platform = p;
+    if (k === 'tag' || k === 'branch' || k === 'all') state.filters.kind = k;
+    document.querySelectorAll('.filter-pill').forEach((b) => {
+      b.setAttribute(
+        'aria-pressed',
+        state.filters[b.dataset.filter] === b.dataset.value ? 'true' : 'false'
+      );
+    });
+  }
+
+  // ---- theme ----
+  const root = document.documentElement;
+  const tD = $('themeDark');
+  const tL = $('themeLight');
+  function setTheme(t){
+    if (t === 'light'){
+      root.setAttribute('data-theme', 'light');
+      tD.setAttribute('aria-pressed', 'false');
+      tL.setAttribute('aria-pressed', 'true');
+    } else {
+      root.removeAttribute('data-theme');
+      tD.setAttribute('aria-pressed', 'true');
+      tL.setAttribute('aria-pressed', 'false');
+    }
+    try{ localStorage.setItem('onym.theme', t); }catch(e){}
+  }
+  tD.addEventListener('click', () => setTheme('dark'));
+  tL.addEventListener('click', () => setTheme('light'));
+  try{
+    const saved = localStorage.getItem('onym.theme');
+    if (saved) setTheme(saved);
+  }catch(e){}
+
+  // ---- boot ----
+  readFiltersFromURL();
+  load();
+})();
+</script>
+</body>
+</html>
