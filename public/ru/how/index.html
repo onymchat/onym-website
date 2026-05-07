@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Как устроен Onym · Onym</title>
+<meta name="description" content="Никакого сервера, которому надо доверять. Только математика — в публичном реестре. Храповик ключей на телефоне, доказательство участия в группе с нулевым разглашением, сменный транспорт и правила в публичном смарт-контракте." />
+<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+<link rel="icon" type="image/png" href="/assets/icon-dark.png" />
+<link rel="apple-touch-icon" href="/assets/icon-dark.png" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Как устроен Onym · Onym" />
+<meta property="og:description" content="Никакого сервера, которому надо доверять. Только математика — в публичном реестре." />
+<meta property="og:image" content="/assets/icon-dark.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Как устроен Onym · Onym" />
+<meta name="twitter:description" content="Никакого сервера, которому надо доверять. Только математика — в публичном реестре." />
+<meta name="twitter:image" content="/assets/icon-dark.png" />
+<link rel="alternate" hreflang="en" href="https://onym.app/how/" />
+<link rel="alternate" hreflang="ru" href="https://onym.app/ru/how/" />
+<link rel="alternate" hreflang="x-default" href="https://onym.app/how/" />
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
+    --hair:rgba(245,245,247,.10);
+    --card:#101013;
+    --shadow: 0 1px 0 rgba(0,0,0,.4), 0 30px 60px -30px rgba(0,0,0,.6);
+    --nav-bg: rgba(8,8,10,.72);
+  }
+  html[data-theme="light"]{
+    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
+    --hair:rgba(10,10,10,.08);
+    --card:#fbfbfd;
+    --shadow: 0 1px 2px rgba(10,10,10,.04), 0 12px 40px -24px rgba(10,10,10,.18);
+    --nav-bg: rgba(245,245,247,.72);
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ background:var(--bg); color:var(--fg); margin:0; padding:0; }
+  body{
+    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+    font-feature-settings: "ss01","ss02";
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+    line-height:1.5;
+    transition: background-color .35s ease, color .35s ease;
+  }
+  .mono{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; }
+  .hair{ border-color:var(--hair); }
+  .muted{ color:var(--muted); }
+
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:var(--nav-bg);
+    backdrop-filter:saturate(160%) blur(14px);
+    -webkit-backdrop-filter:saturate(160%) blur(14px);
+    border-bottom:1px solid var(--hair);
+  }
+  .mark{
+    display:inline-block; width:22px; height:22px; border-radius:22%;
+    background:url('/assets/icon-dark.png') center/cover no-repeat;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.06),
+      0 4px 16px -2px rgba(255,255,255,.14),
+      0 .5px 0 rgba(255,255,255,.10) inset;
+  }
+  html[data-theme="light"] .mark{
+    background:url('/assets/icon-light.png') center/cover no-repeat;
+    box-shadow:
+      0 4px 12px -3px rgba(10,10,10,.18),
+      0 .5px 0 rgba(255,255,255,.6) inset;
+  }
+  .toggle{
+    position:fixed; bottom:18px; right:18px; z-index:60;
+    background:var(--nav-bg);
+    border:1px solid var(--hair); border-radius:999px;
+    padding:4px; display:flex; gap:2px;
+    backdrop-filter:saturate(180%) blur(14px);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    box-shadow:0 8px 24px -10px rgba(10,10,10,.18);
+  }
+  .toggle button{
+    font-size:12px; letter-spacing:.04em; padding:7px 12px; border-radius:999px;
+    color:var(--muted);
+  }
+  .toggle button[aria-pressed="true"]{ background:var(--fg); color:var(--bg); }
+  .lang-switch{
+    display:inline-flex; align-items:center; gap:1px;
+    border:1px solid var(--hair); border-radius:999px;
+    padding:2px; margin-left:12px;
+    font-size:11px; letter-spacing:.04em;
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  .lang-switch a{
+    padding:3px 9px; border-radius:999px;
+    color:var(--muted); text-decoration:none;
+    transition: background-color .15s ease, color .15s ease;
+  }
+  .lang-switch a[aria-current="true"]{ background:var(--fg); color:var(--bg); }
+  .lang-switch a:not([aria-current="true"]):hover{ color:var(--fg); }
+
+  .scene{
+    min-height:100vh;
+    padding: clamp(40px, 7vw, 96px) clamp(24px, 6vw, 96px);
+    display:flex; flex-direction:column; justify-content:center;
+    border-bottom:1px solid var(--hair);
+    position:relative; max-width:1280px; margin:0 auto;
+  }
+  .scene:last-of-type{ border-bottom:none; }
+  .eyebrow{
+    font-size:.78rem; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--muted);
+    margin: 0 0 clamp(28px, 4vw, 56px) 0;
+    font-weight:500;
+  }
+  .display, .display-xl{
+    font-weight:700; letter-spacing:-0.04em; line-height:0.95;
+    margin:0; text-wrap:balance;
+  }
+  .display-xl{ font-size: clamp(2.4rem, 6.5vw, 6rem); }
+  .display{    font-size: clamp(2rem, 4.8vw, 4.4rem); }
+  .lede{
+    font-size: clamp(1.05rem, 1.35vw, 1.25rem);
+    color:var(--muted); max-width:56ch;
+    margin: clamp(28px, 3vw, 40px) 0 0 0;
+    line-height:1.55;
+  }
+  .caption{
+    font-size:.98rem; color:var(--muted);
+    max-width:64ch; line-height:1.55;
+    margin: clamp(28px, 3vw, 40px) 0 0 0;
+  }
+
+  /* Scene 1 */
+  .scene-1 .triplet{
+    display:grid; grid-template-columns:1fr 1px 1fr 1px 1fr;
+    align-items:stretch;
+    margin-top: clamp(48px, 8vw, 96px);
+    min-height:140px;
+  }
+  @media (max-width:760px){
+    .scene-1 .triplet{ grid-template-columns:1fr; }
+    .scene-1 .triplet .rule{ display:none; }
+  }
+  .scene-1 .triplet .col{ padding:12px 24px; }
+  .scene-1 .triplet .col:first-child{ padding-left:0; }
+  .scene-1 .triplet .col:last-child{ padding-right:0; }
+  .scene-1 .triplet .rule{ background:var(--hair); width:1px; }
+  .scene-1 .label{ font-size:.78rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+  .scene-1 .word{ margin-top:14px; font-size: clamp(1rem, 1.3vw, 1.15rem); color:var(--fg); }
+  .scene-1 .sub{ margin-top:6px; font-size:.85rem; color:var(--muted); line-height:1.45; max-width:30ch; }
+  .scene-1 .center{ text-align:center; }
+  .scene-1 .right{  text-align:right; }
+  .scene-1 .right .sub{ margin-left:auto; }
+  .scene-1 .center .sub{ margin-left:auto; margin-right:auto; }
+
+  /* Scene 2 */
+  .scene-2 .stage{ margin-top: clamp(36px, 5vw, 64px); display:grid; grid-template-columns:1fr; gap: clamp(32px, 4vw, 48px); }
+  .actors{ display:grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); gap: clamp(16px, 3vw, 36px); align-items:stretch; }
+  @media (max-width:760px){ .actors{ grid-template-columns:1fr; } .actors .arrow-mid{ transform:rotate(90deg); justify-self:center; } }
+
+  .device, .chain{
+    border:1px solid var(--hair); border-radius:14px;
+    padding:18px 20px 22px; background:var(--card);
+    position:relative; min-height:260px; display:flex; flex-direction:column;
+  }
+  .device .head, .chain .head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px; }
+  .device .head .who, .chain .head .who{ font-size:.92rem; letter-spacing:-0.005em; color:var(--fg); }
+  .device .head .meta, .chain .head .meta{ font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+
+  .ratchet{ margin-top:4px; }
+  .ratchet .label{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-size:.68rem; letter-spacing:.08em; color:var(--muted); margin-bottom:8px; }
+  .ratchet .cells{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+  .ratchet .cell{
+    border:1px solid var(--hair); border-radius:4px;
+    aspect-ratio:1.2/1; display:grid; place-items:center;
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.62rem; color:var(--muted); letter-spacing:.04em;
+    transition: color .35s ease, border-color .35s ease, background-color .35s ease;
+  }
+  .ratchet .cell.spent{ color:var(--muted); opacity:.35; border-style:dashed; }
+  .ratchet .cell.active{
+    color:var(--fg);
+    border-color: color-mix(in oklab, var(--fg) 45%, transparent);
+    background: color-mix(in oklab, var(--fg) 6%, transparent);
+  }
+  .ratchet .arrow{ margin-top:10px; font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-size:.65rem; color:var(--muted); letter-spacing:.14em; }
+  .ratchet .arrow .glyph{ color:var(--fg); }
+
+  .roles{ margin-top:18px; display:grid; grid-template-columns:1fr 1fr; gap:10px 14px; border-top:1px solid var(--hair); padding-top:14px; }
+  .roles .role{ display:flex; align-items:center; gap:10px; }
+  .roles .glyph{ width:18px; height:18px; display:grid; place-items:center; color:var(--fg); font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-size:.9rem; line-height:1; }
+  .roles .name{ font-size:.78rem; color:var(--fg); }
+  .roles .name .tag{ color:var(--muted); font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-size:.58rem; letter-spacing:.14em; text-transform:uppercase; margin-left:6px; opacity:.8; }
+
+  .arrow-mid{ align-self:center; width: clamp(120px, 18vw, 220px); position:relative; display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--muted); }
+  .arrow-mid .label{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; }
+  .arrow-mid svg{ display:block; width:100%; height:26px; }
+  .arrow-mid .track{ stroke:currentColor; stroke-width:1; opacity:.55; }
+  .arrow-mid .head{  stroke:currentColor; stroke-width:1; fill:none; opacity:.8; }
+  @keyframes proofPulse{
+    0%   { opacity:0; transform:translateX(0); }
+    8%   { opacity:1; }
+    85%  { opacity:1; transform:translateX(calc(100% - 12px)); }
+    92%  { opacity:0; transform:translateX(calc(100% - 12px)); }
+    100% { opacity:0; transform:translateX(calc(100% - 12px)); }
+  }
+  .arrow-mid .pulse-host{ position:absolute; left:0; right:12px; top: calc(8px + 1.4em); height:0; width: calc(100% - 12px); pointer-events:none; }
+  .arrow-mid .pulse-host .blip{
+    position:absolute; top:-5px; left:0; width:12px; height:10px;
+    border:1px solid var(--fg); background:var(--bg); border-radius:2px;
+    animation: proofPulse 6.4s ease-in-out infinite;
+  }
+  .arrow-mid .pulse-host .blip::before{
+    content:"π"; position:absolute; inset:0; display:grid; place-items:center;
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:7px; color:var(--fg); line-height:1;
+  }
+
+  .chain .verifier{ flex:1; border:1px dashed color-mix(in oklab, var(--fg) 22%, transparent); border-radius:8px; padding:14px; margin-top:4px; display:flex; flex-direction:column; gap:10px; }
+  .chain .verifier .row{ display:flex; align-items:center; justify-content:space-between; font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-size:.72rem; color:var(--muted); }
+  .chain .verifier .row .lhs{ color:var(--fg); letter-spacing:.02em; }
+  .chain .verifier .row .check{ width:18px; height:18px; border:1px solid var(--hair); border-radius:4px; display:grid; place-items:center; color:var(--fg); font-size:.82rem; line-height:1; }
+  @keyframes verifierBlink{
+    0%, 88%  { opacity:.25; }
+    90%, 96% { opacity:1; }
+    100%     { opacity:.25; }
+  }
+  .chain .verifier .row .check span{ animation: verifierBlink 6.4s ease-in-out infinite; }
+  .chain .rules{ margin-top:14px; border-top:1px solid var(--hair); padding-top:12px; display:grid; gap:6px; font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-size:.68rem; color:var(--muted); letter-spacing:.04em; }
+  .chain .rules .k{ color:var(--fg); }
+
+  .scene-2 .actor-captions{ display:grid; grid-template-columns:repeat(4, 1fr); gap: clamp(16px, 2vw, 28px); margin-top: clamp(24px, 3vw, 36px); }
+  @media (max-width:760px){ .scene-2 .actor-captions{ grid-template-columns:1fr 1fr; } }
+  .scene-2 .actor-captions .ac{ border-top:1px solid var(--hair); padding-top:12px; }
+  .scene-2 .actor-captions .name{ font-size:.82rem; color:var(--fg); margin-bottom:4px; }
+  .scene-2 .actor-captions .name .tag{ margin-left:6px; color:var(--muted); font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-size:.55rem; letter-spacing:.14em; text-transform:uppercase; }
+  .scene-2 .actor-captions .desc{ font-size:.82rem; color:var(--muted); line-height:1.5; }
+
+  /* Scene 3 */
+  .scene-3 .relays{ margin-top: clamp(36px, 5vw, 64px); display:grid; grid-template-columns:repeat(4, 1fr); gap: clamp(12px, 2vw, 22px); position:relative; }
+  @media (max-width:760px){ .scene-3 .relays{ grid-template-columns:1fr 1fr; } }
+  .relay{ border:1px solid var(--hair); border-radius:12px; background:var(--card); padding:16px; min-height:152px; display:flex; flex-direction:column; justify-content:space-between; gap:10px; position:relative; }
+  .relay .top{ display:flex; align-items:center; justify-content:space-between; }
+  .relay .name{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-size:.78rem; color:var(--fg); letter-spacing:.02em; }
+  .relay .pill{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-size:.55rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); border:1px solid var(--hair); border-radius:99px; padding:2px 7px; }
+  .relay .meta{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-size:.62rem; color:var(--muted); letter-spacing:.04em; line-height:1.6; }
+  .relay .meta div + div{ opacity:.8; }
+  .relay .slot{ height:22px; border-top:1px dashed var(--hair); padding-top:8px; display:flex; align-items:center; gap:8px; }
+  .relay .slot .label{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-size:.58rem; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+  .relay.add{ border-style:dashed; color:var(--muted); align-items:center; justify-content:center; flex-direction:row; gap:8px; }
+  .relay.add .plus{ width:18px; height:18px; border:1px solid var(--hair); border-radius:4px; display:grid; place-items:center; font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-size:.8rem; color:var(--fg); line-height:1; }
+  .relay.add .name{ color:var(--muted); }
+
+  .blob-stage{ position:relative; margin-top:18px; height:36px; display:grid; grid-template-columns:repeat(4, 1fr); gap: clamp(12px, 2vw, 22px); }
+  .blob-stage .lane{ position:relative; border-top:1px dashed var(--hair); }
+  .blob-stage .lane::before{ content:""; position:absolute; left:50%; top:-6px; width:1px; height:12px; background:var(--hair); }
+  .blob{
+    position:absolute; top:8px; left:50%;
+    transform:translateX(-50%);
+    width:64px; height:18px;
+    border:1px solid var(--fg); background:var(--bg); border-radius:3px;
+    display:grid; place-items:center;
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.5rem; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--fg); overflow:hidden; opacity:0;
+  }
+  .blob::before{
+    content:""; position:absolute; inset:0;
+    background: repeating-linear-gradient(135deg,
+      color-mix(in oklab, var(--fg) 10%, transparent) 0 1px,
+      transparent 1px 4px);
+  }
+  .blob span{ position:relative; z-index:1; background:var(--bg); padding:0 4px; }
+  @keyframes blobAt0 { 0%, 18%{ opacity:1; } 22%, 100%{ opacity:0; } }
+  @keyframes blobAt1 { 0%, 25%{ opacity:0; } 28%, 46%{ opacity:1; } 50%, 100%{ opacity:0; } }
+  @keyframes blobAt2 { 0%, 53%{ opacity:0; } 56%, 74%{ opacity:1; } 78%, 100%{ opacity:0; } }
+  @keyframes blobAt3 { 0%, 81%{ opacity:0; } 84%, 100%{ opacity:1; } }
+  .blob-stage .lane:nth-child(1) .blob{ animation: blobAt0 8s ease-in-out infinite; }
+  .blob-stage .lane:nth-child(2) .blob{ animation: blobAt1 8s ease-in-out infinite; }
+  .blob-stage .lane:nth-child(3) .blob{ animation: blobAt2 8s ease-in-out infinite; }
+  .blob-stage .lane:nth-child(4) .blob{ animation: blobAt3 8s ease-in-out infinite; }
+  @keyframes relayActive  { 0%,18%{ border-color: color-mix(in oklab, var(--fg) 35%, transparent); } 22%,100%{ border-color:var(--hair); } }
+  @keyframes relayActive2 { 0%,25%{ border-color:var(--hair); } 28%,46%{ border-color: color-mix(in oklab, var(--fg) 35%, transparent); } 50%,100%{ border-color:var(--hair); } }
+  @keyframes relayActive3 { 0%,53%{ border-color:var(--hair); } 56%,74%{ border-color: color-mix(in oklab, var(--fg) 35%, transparent); } 78%,100%{ border-color:var(--hair); } }
+  .scene-3 .relays .relay:nth-child(1){ animation: relayActive  8s ease-in-out infinite; }
+  .scene-3 .relays .relay:nth-child(2){ animation: relayActive2 8s ease-in-out infinite; }
+  .scene-3 .relays .relay:nth-child(3){ animation: relayActive3 8s ease-in-out infinite; }
+
+  /* Scene 4 */
+  .scene-4 .contract{ margin-top: clamp(36px, 5vw, 64px); width: min(820px, 100%); background:var(--card); border:1px solid var(--hair); border-radius:14px; overflow:hidden; }
+  .scene-4 .contract .head{ padding:14px 18px; border-bottom:1px solid var(--hair); display:flex; align-items:center; justify-content:space-between; font-size:.85rem; }
+  .scene-4 .contract .head .title{ letter-spacing:-0.005em; }
+  .scene-4 .contract .head .meta{ color:var(--muted); font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; }
+  .scene-4 .contract .body{ padding:18px; display:grid; grid-template-columns:1fr; gap:14px; }
+  .scene-4 .contract .stamp{ display:flex; gap:14px; flex-wrap:wrap; font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-size:.66rem; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; }
+  .scene-4 .contract .stamp .k{ color:var(--fg); }
+  .scene-4 .contract .rule{ border:1px solid var(--hair); border-radius:8px; padding:12px 14px; display:grid; grid-template-columns:14px 1fr auto; gap:12px; align-items:baseline; font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-size:.82rem; }
+  .scene-4 .contract .rule .marker{ color:var(--muted); }
+  .scene-4 .contract .rule .sig{ color:var(--fg); letter-spacing:.01em; }
+  .scene-4 .contract .rule .sig .arg{ color:var(--muted); }
+  .scene-4 .contract .rule .req{ color:var(--muted); font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; }
+  .scene-4 .repos{ margin-top: clamp(28px, 3.5vw, 40px); display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  .scene-4 .repos .lbl{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-right:6px; }
+  .scene-4 .repos .chip{ border:1px solid var(--hair); border-radius:99px; padding:6px 12px 6px 10px; font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-size:.72rem; color:var(--fg); display:inline-flex; align-items:center; gap:8px; background:var(--card); text-decoration:none; }
+  .scene-4 .repos a.chip:hover{ border-color: color-mix(in oklab, var(--fg) 25%, transparent); }
+  .scene-4 .repos .chip .lic{ color:var(--muted); font-size:.58rem; letter-spacing:.14em; text-transform:uppercase; border-left:1px solid var(--hair); padding-left:8px; }
+
+  /* Scene 5 */
+  .scene-5 .ledger{ margin-top: clamp(36px, 5vw, 64px); border-top:1px solid var(--hair); border-bottom:1px solid var(--hair); }
+  .scene-5 .ledger .row{
+    display:grid; grid-template-columns:28px 1fr;
+    align-items:baseline; padding:18px 4px;
+    border-bottom:1px solid var(--hair);
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: clamp(.95rem, 1.2vw, 1.05rem);
+    letter-spacing:.01em; color:var(--fg);
+    opacity:0; transform:translateY(6px);
+    transition: opacity .9s ease, transform .9s ease;
+  }
+  .scene-5 .ledger .row:last-child{ border-bottom:none; }
+  .scene-5 .ledger .row .box{ color:var(--muted); }
+  .scene-5 .ledger .row.in{ opacity:1; transform:translateY(0); }
+  .scene-5 .closing{
+    margin-top: clamp(48px, 6vw, 80px);
+    color:var(--muted); font-weight:600;
+    letter-spacing:-0.02em; line-height:1.2;
+    font-size: clamp(1.4rem, 2.4vw, 2rem);
+    max-width:36ch; text-wrap:balance;
+  }
+
+  .outro-thin{
+    max-width:1280px; margin:0 auto;
+    padding: clamp(32px, 4vw, 56px) clamp(24px, 6vw, 96px) clamp(48px, 6vw, 80px);
+    border-top:1px solid var(--hair);
+    display:flex; flex-wrap:wrap; gap: clamp(20px, 3vw, 36px);
+    align-items:center; justify-content:flex-start;
+    font-size:14px;
+  }
+  .outro-thin a{
+    color:var(--muted); text-decoration:underline;
+    text-decoration-color:var(--hair); text-underline-offset:4px;
+    transition: color .15s ease, text-decoration-color .15s ease;
+  }
+  .outro-thin a:hover{ color:var(--fg); text-decoration-color:var(--fg); }
+
+  @media (prefers-reduced-motion: reduce){
+    .arrow-mid .pulse-host .blip,
+    .chain .verifier .row .check span,
+    .scene-3 .relays .relay,
+    .blob-stage .lane .blob{ animation:none !important; }
+    .blob-stage .lane:nth-child(2) .blob{ opacity:1; }
+    .scene-5 .ledger .row{ opacity:1; transform:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toggle" role="group" aria-label="Тема">
+  <button id="themeDark" aria-pressed="true">Тёмная</button>
+  <button id="themeLight" aria-pressed="false">Светлая</button>
+</div>
+
+<header class="nav">
+  <div class="max-w-[1100px] mx-auto px-6 h-[52px] flex items-center justify-between">
+    <a href="/ru/" class="flex items-center gap-3 hover:opacity-80" aria-label="Onym — главная">
+      <span class="mark" role="img" aria-label="Onym"></span>
+      <span class="text-[14px] font-medium tracking-tight">Onym <span class="muted">· Как</span></span>
+    </a>
+    <div class="flex items-center">
+      <div class="lang-switch" role="group" aria-label="Language"><a href="/how/" aria-current="false">EN</a><a href="/ru/how/" aria-current="true">RU</a></div>
+      <a href="/ru/" class="ml-3 text-[12.5px] muted hover:text-[var(--fg)]">&larr; Назад</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- Сцена 1: Заголовок -->
+<section class="scene scene-1" data-screen-label="01 Hero">
+  <p class="eyebrow">ответ</p>
+  <h1 class="display-xl">Никакого сервера, которому надо доверять.<br/>Только математика — в публичном реестре.</h1>
+  <p class="lede">Onym заменяет доверенного оператора четырьмя деталями: ключевой храповик на телефоне, доказательство участия в группе с нулевым разглашением, сменный транспорт и правила группы, закреплённые в публичном смарт-контракте. Вместе они скрывают всё, что мог видеть мессенджер.</p>
+
+  <div class="triplet" aria-hidden="true">
+    <div class="col">
+      <div class="label">на устройстве</div>
+      <div class="word">ключи</div>
+      <div class="sub">храповик, продвигающийся с каждым сообщением; ключи никогда не покидают телефон</div>
+    </div>
+    <div class="rule"></div>
+    <div class="col center">
+      <div class="label">в эфире</div>
+      <div class="word">доказательство</div>
+      <div class="sub">отправитель подтверждает участие в группе, не раскрывая, кто он</div>
+    </div>
+    <div class="rule"></div>
+    <div class="col right">
+      <div class="label">в блокчейне</div>
+      <div class="word">правила</div>
+      <div class="sub">кого добавлять, исключать, кому говорить &mdash; открытый код, переопределить не может никто</div>
+    </div>
+  </div>
+</section>
+
+<!-- Сцена 2: Храповик · Свидетель · Автор · Верификатор -->
+<section class="scene scene-2" data-screen-label="02 Proof">
+  <p class="eyebrow">математика в работе</p>
+  <h2 class="display">Ключи не покидают телефон.<br/>Чейн видит только доказательство.</h2>
+
+  <div class="stage">
+    <div class="actors">
+      <div class="device" aria-hidden="true">
+        <div class="head">
+          <div class="who">ваше устройство</div>
+          <div class="meta mono">on-device</div>
+        </div>
+        <div class="ratchet">
+          <div class="label mono">храповик · только вперёд</div>
+          <div class="cells" id="ratchetCells">
+            <div class="cell spent">k₁</div>
+            <div class="cell spent">k₂</div>
+            <div class="cell spent">k₃</div>
+            <div class="cell active">k₄</div>
+            <div class="cell">k₅</div>
+            <div class="cell">k₆</div>
+            <div class="cell">k₇</div>
+          </div>
+          <div class="arrow mono"><span class="glyph">▶</span> продвигается с каждым сообщением; старые ключи стираются</div>
+        </div>
+        <div class="roles">
+          <div class="role"><span class="glyph">◆</span><span class="name">свидетель <span class="tag mono">на устройстве</span></span></div>
+          <div class="role"><span class="glyph">✎</span><span class="name">автор <span class="tag mono">при отправке</span></span></div>
+        </div>
+      </div>
+
+      <div class="arrow-mid">
+        <span class="label mono">доказательство</span>
+        <svg viewBox="0 0 100 26" preserveAspectRatio="none" aria-hidden="true">
+          <line class="track" x1="0" y1="13" x2="92" y2="13" stroke-dasharray="3 3"/>
+          <polyline class="head" points="86,7 94,13 86,19"/>
+        </svg>
+        <div class="pulse-host"><div class="blip" aria-hidden="true"></div></div>
+      </div>
+
+      <div class="chain" aria-hidden="true">
+        <div class="head">
+          <div class="who">публичный чейн</div>
+          <div class="meta mono">верификатор</div>
+        </div>
+        <div class="verifier">
+          <div class="row"><span class="lhs">membership ∈ group</span><span class="check"><span>✓</span></span></div>
+          <div class="row"><span class="lhs">сообщение подлинное</span><span class="check"><span>✓</span></span></div>
+          <div class="row"><span class="lhs">личность</span><span>—</span></div>
+          <div class="row"><span class="lhs">прежние сообщения</span><span>—</span></div>
+        </div>
+        <div class="rules">
+          <div><span class="k">verify</span>(proof, group_root)</div>
+          <div><span class="k">accept</span> ⟺ ✓ ✓</div>
+          <div>// больше ничего не узнаёт</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actor-captions">
+      <div class="ac">
+        <div class="name">храповик</div>
+        <div class="desc">Цепочка одноразовых ключей, идущая только вперёд. Утечка одного ключа не вскрывает ни предыдущие сообщения, ни последующие.</div>
+      </div>
+      <div class="ac">
+        <div class="name">свидетель <span class="tag mono">секрет на устройстве</span></div>
+        <div class="desc">Подтверждение того, что вы в группе. Создаётся при вступлении, хранится на телефоне, никому не показывается.</div>
+      </div>
+      <div class="ac">
+        <div class="name">автор <span class="tag mono">при отправке</span></div>
+        <div class="desc">Когда вы отправляете сообщение, телефон собирает крошечное доказательство: <em>&laquo;это отправил кто-то из группы&raquo;</em>.</div>
+      </div>
+      <div class="ac">
+        <div class="name">верификатор <span class="tag mono">в чейне</span></div>
+        <div class="desc">Публичный контракт проверяет доказательство. Он узнаёт, что оно валидно &mdash; и больше ни единого факта.</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="caption">Отправитель доказывает &laquo;это отправил один из участников&raquo;, не раскрывая, кто именно. Группа не узнаёт, кто. Транспорт не узнаёт вообще ничего.</p>
+</section>
+
+<!-- Сцена 3: Сменный транспорт -->
+<section class="scene scene-3" data-screen-label="03 Transport">
+  <p class="eyebrow">канал сменный</p>
+  <h2 class="display">Релэи &mdash; это тупые трубы.<br/>Меняйте их, как кабели.</h2>
+  <p class="lede">Сегодня Onym идёт с Nostr и одинаково относится к тому, что появится завтра. Релэй видит мимо себя только непрозрачные блобы &mdash; ни отправителя, ни получателя, ни сообщения. Пользуйтесь стандартным, поднимите свой или одолжите у друга.</p>
+
+  <div class="relays">
+    <div class="relay">
+      <div class="top"><div class="name">nostr.example</div><div class="pill">стандарт</div></div>
+      <div class="meta"><div>релэй · публичный</div><div>uptime 99.97%</div></div>
+      <div class="slot"><span class="label">в полёте</span></div>
+    </div>
+    <div class="relay">
+      <div class="top"><div class="name">your-relay.lan</div><div class="pill">свой</div></div>
+      <div class="meta"><div>релэй · приватный</div><div>виден 4с назад</div></div>
+      <div class="slot"><span class="label">в полёте</span></div>
+    </div>
+    <div class="relay">
+      <div class="top"><div class="name">friend.box</div><div class="pill">общий</div></div>
+      <div class="meta"><div>релэй · по приглашению</div><div>uptime 99.4%</div></div>
+      <div class="slot"><span class="label">в полёте</span></div>
+    </div>
+    <div class="relay add">
+      <div class="plus">+</div>
+      <div class="name">добавить релэй</div>
+    </div>
+  </div>
+
+  <div class="blob-stage" aria-hidden="true">
+    <div class="lane"><div class="blob"><span>зашифровано</span></div></div>
+    <div class="lane"><div class="blob"><span>зашифровано</span></div></div>
+    <div class="lane"><div class="blob"><span>зашифровано</span></div></div>
+    <div class="lane"></div>
+  </div>
+
+  <p class="caption">Каждый блоб выглядит одинаково для любого релэя. Поменяйте релэй &mdash; содержимое остаётся непрозрачным. Транспорт &mdash; это курьер с запечатанным конвертом и без обратного адреса.</p>
+</section>
+
+<!-- Сцена 4: Правила в блокчейне -->
+<section class="scene scene-4" data-screen-label="04 Contract">
+  <p class="eyebrow">правила &mdash; публично</p>
+  <h2 class="display">Никакой консоли оператора.<br/>Контракт, который может прочитать любой.</h2>
+
+  <div class="contract">
+    <div class="head">
+      <div class="title">правила группы</div>
+      <div class="meta mono">публичный смарт-контракт</div>
+    </div>
+    <div class="body">
+      <div class="stamp mono">
+        <span><span class="k">addr</span> 0x4e…a1c3</span>
+        <span><span class="k">развёрнут</span> 2026-03-12</span>
+        <span><span class="k">лицензия</span> mit</span>
+        <span><span class="k">переопределение</span> нет</span>
+      </div>
+      <div class="rule">
+        <span class="marker">▸</span>
+        <span class="sig">admit<span class="arg">(участник)</span> требует 2 из 3 админов</span>
+        <span class="req">консенсус</span>
+      </div>
+      <div class="rule">
+        <span class="marker">▸</span>
+        <span class="sig">remove<span class="arg">(участник)</span> требует подпись участника ИЛИ кворум</span>
+        <span class="req">сам · кворум</span>
+      </div>
+      <div class="rule">
+        <span class="marker">▸</span>
+        <span class="sig">message<span class="arg">(payload, proof)</span> требует валидного доказательства участия</span>
+        <span class="req">проверить</span>
+      </div>
+      <div class="rule">
+        <span class="marker">▸</span>
+        <span class="sig">amend<span class="arg">(правило)</span> требует единогласия активных участников</span>
+        <span class="req">единогласно</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="repos" aria-label="Репозитории с открытым кодом">
+    <span class="lbl">открытый код · mit</span>
+    <a class="chip" href="https://github.com/onymchat/onym-contracts" rel="noopener">github.com/onymchat / onym-contracts <span class="lic">mit</span></a>
+    <a class="chip" href="https://github.com/onymchat/onym-relayer" rel="noopener">github.com/onymchat / onym-relayer <span class="lic">mit</span></a>
+    <a class="chip" href="https://github.com/onymchat/onym-ios" rel="noopener">github.com/onymchat / onym-ios <span class="lic">mit</span></a>
+    <a class="chip" href="https://github.com/onymchat/onym-android" rel="noopener">github.com/onymchat / onym-android <span class="lic">mit</span></a>
+  </div>
+
+  <p class="caption">Правила на виду. Среда исполнения &mdash; это и есть правила. Нет админа, который мог бы их переопределить, нет консоли, которая могла бы вас заблокировать, нет версии приложения, которая делала бы что-то отличное от того, что вы можете прочитать.</p>
+</section>
+
+<!-- Сцена 5: Что теперь невидимо -->
+<section class="scene scene-5" data-screen-label="05 Hidden">
+  <p class="eyebrow">результат</p>
+  <h2 class="display">Теперь невидимо для всех,<br/>кроме участников группы.</h2>
+
+  <div class="ledger" id="ledger">
+    <div class="row"><span class="box">▢</span><span>с кем вы говорите</span></div>
+    <div class="row"><span class="box">▢</span><span>когда вы говорите</span></div>
+    <div class="row"><span class="box">▢</span><span>как часто</span></div>
+    <div class="row"><span class="box">▢</span><span>как долго</span></div>
+    <div class="row"><span class="box">▢</span><span>какое устройство отправило какое сообщение</span></div>
+    <div class="row"><span class="box">▢</span><span>какой участник группы &mdash; это вы</span></div>
+    <div class="row"><span class="box">▢</span><span>к какой группе относится сообщение</span></div>
+  </div>
+
+  <p class="closing">Скрыто по конструкции, а не по обещанию.</p>
+</section>
+
+<nav class="outro-thin" aria-label="Дальше">
+  <a href="/ru/why/">&larr; Зачем это нужно</a>
+  <a href="/ru/about/">О проекте</a>
+  <a href="/qa/">Альфа-версия &rarr;</a>
+</nav>
+
+</main>
+
+<footer class="hair border-t" style="border-top-style:solid;">
+  <div class="max-w-[1100px] mx-auto px-6 py-10 flex flex-wrap items-center justify-between gap-4 text-[12px] muted mono">
+    <span>&copy; 2026 &middot; Onym Foundation</span>
+    <span>Распространяется по лицензии MIT</span>
+    <span>Никогда не платите личностью.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const root = document.documentElement;
+  const tD = document.getElementById('themeDark');
+  const tL = document.getElementById('themeLight');
+  function setTheme(t){
+    if (t === 'light'){
+      root.setAttribute('data-theme','light');
+      tD.setAttribute('aria-pressed','false');
+      tL.setAttribute('aria-pressed','true');
+    } else {
+      root.removeAttribute('data-theme');
+      tD.setAttribute('aria-pressed','true');
+      tL.setAttribute('aria-pressed','false');
+    }
+    try{ localStorage.setItem('onym.theme', t); }catch(e){}
+  }
+  tD.addEventListener('click', () => setTheme('dark'));
+  tL.addEventListener('click', () => setTheme('light'));
+  try{
+    const saved = localStorage.getItem('onym.theme');
+    if (saved) setTheme(saved);
+  }catch(e){}
+})();
+</script>
+<script>(function(){
+  document.querySelectorAll('.lang-switch a').forEach(function(a){
+    a.addEventListener('click', function(){
+      try{ localStorage.setItem('onym.lang', a.href.indexOf('/ru/') > -1 ? 'ru' : 'en'); }catch(e){}
+    });
+  });
+})();</script>
+<script>
+  // Храповик: продвижение
+  (function () {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+    const cells = document.querySelectorAll('#ratchetCells .cell');
+    if (!cells.length) return;
+    let active = Array.prototype.findIndex.call(cells, c => c.classList.contains('active'));
+    if (active < 0) active = 0;
+    setInterval(function () {
+      cells[active].classList.remove('active');
+      cells[active].classList.add('spent');
+      let next = active + 1;
+      if (next >= cells.length) {
+        cells.forEach(c => c.classList.remove('spent','active'));
+        for (let i = 0; i < 3; i++) cells[i].classList.add('spent');
+        next = 3;
+      }
+      cells[next].classList.add('active');
+      active = next;
+    }, 1600);
+  })();
+
+  // Реестр: появление при прокрутке
+  (function () {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const rows = document.querySelectorAll('#ledger .row');
+    if (reduce) { rows.forEach(r => r.classList.add('in')); return; }
+    if (!('IntersectionObserver' in window)) { rows.forEach(r => r.classList.add('in')); return; }
+    const io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          const el = e.target;
+          const idx = Array.prototype.indexOf.call(rows, el);
+          setTimeout(function () { el.classList.add('in'); }, idx * 90);
+          io.unobserve(el);
+        }
+      });
+    }, { threshold: 0.2 });
+    rows.forEach(r => io.observe(r));
+  })();
+</script>
+</body>
+</html>
