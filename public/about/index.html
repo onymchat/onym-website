@@ -16,6 +16,7 @@
 <link rel="alternate" hreflang="en" href="https://onym.app/about/" />
 <link rel="alternate" hreflang="ru" href="https://onym.app/ru/about/" />
 <link rel="alternate" hreflang="x-default" href="https://onym.app/about/" />
+<script>(function(){try{var p=(navigator.language||'').toLowerCase();if(p==='ru'||p.startsWith('ru-')){var pa=location.pathname;location.replace('/ru'+(pa==='/'?'/':pa));return;}}catch(e){}})();</script>
 <script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -86,21 +87,6 @@
     transition:text-decoration-color .15s ease;
   }
   a.link:hover{ text-decoration-color:var(--fg); }
-
-  .lang-switch{
-    display: inline-flex; align-items: center; gap: 1px;
-    border: 1px solid var(--hair); border-radius: 999px;
-    padding: 2px; margin-left: 12px;
-    font-size: 11px; letter-spacing: .04em;
-    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
-  }
-  .lang-switch a{
-    padding: 3px 9px; border-radius: 999px;
-    color: var(--muted); text-decoration: none;
-    transition: background-color .15s ease, color .15s ease;
-  }
-  .lang-switch a[aria-current="true"]{ background: var(--fg); color: var(--bg); }
-  .lang-switch a:not([aria-current="true"]):hover{ color: var(--fg); }
 </style>
 </head>
 <body>
@@ -116,7 +102,7 @@
       <span class="mark" role="img" aria-label="Onym"></span>
       <span class="text-[14px] font-medium tracking-tight">Onym <span class="muted">· About</span></span>
     </a>
-    <div class="lang-switch" role="group" aria-label="Language"><a href="/about/" aria-current="true">EN</a><a href="/ru/about/" aria-current="false">RU</a></div> <a href="/" class="text-[12.5px] muted hover:text-[var(--fg)]">&larr; Back</a>
+    <a href="/" class="text-[12.5px] muted hover:text-[var(--fg)]">&larr; Back</a>
   </div>
 </header>
 
@@ -203,12 +189,5 @@
   }catch(e){}
 })();
 </script>
-<script>(function(){
-  document.querySelectorAll('.lang-switch a').forEach(function(a){
-    a.addEventListener('click', function(){
-      try{ localStorage.setItem('onym.lang', a.href.indexOf('/ru/') > -1 ? 'ru' : 'en'); }catch(e){}
-    });
-  });
-})();</script>
 </body>
 </html>
