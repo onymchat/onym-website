@@ -1,0 +1,944 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>The trust problem · Onym</title>
+<meta name="description" content="End-to-end encryption protects what you say. It doesn't protect who you say it to, when, how often, or how long. The rest of the picture stays in plain sight on a server. This is why Onym exists." />
+<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+<link rel="icon" type="image/png" href="/assets/icon-dark.png" />
+<link rel="apple-touch-icon" href="/assets/icon-dark.png" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="The trust problem · Onym" />
+<meta property="og:description" content="Your messages are encrypted. Everything else isn't. Why Onym exists." />
+<meta property="og:image" content="/assets/icon-dark.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="The trust problem · Onym" />
+<meta name="twitter:description" content="Your messages are encrypted. Everything else isn't. Why Onym exists." />
+<meta name="twitter:image" content="/assets/icon-dark.png" />
+<link rel="alternate" hreflang="en" href="https://onym.app/why/" />
+<link rel="alternate" hreflang="ru" href="https://onym.app/ru/why/" />
+<link rel="alternate" hreflang="x-default" href="https://onym.app/why/" />
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
+    --hair:rgba(245,245,247,.10);
+    --card:#101013;
+    --shadow: 0 1px 0 rgba(0,0,0,.4), 0 30px 60px -30px rgba(0,0,0,.6);
+    --nav-bg: rgba(8,8,10,.72);
+  }
+  html[data-theme="light"]{
+    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
+    --hair:rgba(10,10,10,.08);
+    --card:#fbfbfd;
+    --shadow: 0 1px 2px rgba(10,10,10,.04), 0 12px 40px -24px rgba(10,10,10,.18);
+    --nav-bg: rgba(245,245,247,.72);
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ background:var(--bg); color:var(--fg); margin:0; padding:0; }
+  body{
+    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+    font-feature-settings: "ss01","ss02";
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+    line-height:1.5;
+    transition: background-color .35s ease, color .35s ease;
+  }
+  .mono{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; }
+  .hair{ border-color:var(--hair); }
+  .muted{ color:var(--muted); }
+
+  /* ---------- Nav (site standard) ---------- */
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:var(--nav-bg);
+    backdrop-filter:saturate(160%) blur(14px);
+    -webkit-backdrop-filter:saturate(160%) blur(14px);
+    border-bottom:1px solid var(--hair);
+  }
+  .mark{
+    display:inline-block; width:22px; height:22px; border-radius:22%;
+    background:url('/assets/icon-dark.png') center/cover no-repeat;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.06),
+      0 4px 16px -2px rgba(255,255,255,.14),
+      0 .5px 0 rgba(255,255,255,.10) inset;
+  }
+  html[data-theme="light"] .mark{
+    background:url('/assets/icon-light.png') center/cover no-repeat;
+    box-shadow:
+      0 4px 12px -3px rgba(10,10,10,.18),
+      0 .5px 0 rgba(255,255,255,.6) inset;
+  }
+  .toggle{
+    position:fixed; bottom:18px; right:18px; z-index:60;
+    background:var(--nav-bg);
+    border:1px solid var(--hair); border-radius:999px;
+    padding:4px; display:flex; gap:2px;
+    backdrop-filter:saturate(180%) blur(14px);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    box-shadow:0 8px 24px -10px rgba(10,10,10,.18);
+  }
+  .toggle button{
+    font-size:12px; letter-spacing:.04em; padding:7px 12px; border-radius:999px;
+    color:var(--muted);
+  }
+  .toggle button[aria-pressed="true"]{ background:var(--fg); color:var(--bg); }
+  .lang-switch{
+    display:inline-flex; align-items:center; gap:1px;
+    border:1px solid var(--hair); border-radius:999px;
+    padding:2px; margin-left:12px;
+    font-size:11px; letter-spacing:.04em;
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  .lang-switch a{
+    padding:3px 9px; border-radius:999px;
+    color:var(--muted); text-decoration:none;
+    transition: background-color .15s ease, color .15s ease;
+  }
+  .lang-switch a[aria-current="true"]{ background:var(--fg); color:var(--bg); }
+  .lang-switch a:not([aria-current="true"]):hover{ color:var(--fg); }
+  a.link{
+    color:var(--fg); text-decoration:underline;
+    text-decoration-color:var(--hair); text-underline-offset:3px;
+    transition: text-decoration-color .15s ease;
+  }
+  a.link:hover{ text-decoration-color:var(--fg); }
+
+  /* ---------- Scene scaffold ---------- */
+  .scene{
+    min-height:100vh;
+    padding: clamp(40px, 7vw, 96px) clamp(24px, 6vw, 96px);
+    display:flex; flex-direction:column; justify-content:center;
+    border-bottom:1px solid var(--hair);
+    position:relative;
+    max-width:1280px;
+    margin:0 auto;
+  }
+  .scene:last-of-type{ border-bottom:none; }
+
+  .eyebrow{
+    font-size:.78rem; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--muted);
+    margin: 0 0 clamp(28px, 4vw, 56px) 0;
+    font-weight:500;
+  }
+
+  .display, .display-xl{
+    font-weight:700; letter-spacing:-0.04em; line-height:0.95;
+    margin:0; text-wrap:balance;
+  }
+  .display-xl{ font-size: clamp(2.4rem, 6.5vw, 6rem); }
+  .display{    font-size: clamp(2rem, 4.8vw, 4.4rem); }
+
+  .lede{
+    font-size: clamp(1.05rem, 1.35vw, 1.25rem);
+    color:var(--muted);
+    max-width:56ch;
+    margin: clamp(28px, 3vw, 40px) 0 0 0;
+    line-height:1.55;
+  }
+  .caption{
+    font-size:.98rem; color:var(--muted);
+    max-width:64ch; line-height:1.55;
+    margin: clamp(28px, 3vw, 40px) 0 0 0;
+  }
+
+  /* ---------- Scene 1: Hero ---------- */
+  .scene-1 .divide{
+    display:grid; grid-template-columns:1fr 1px 1fr;
+    align-items:stretch;
+    margin-top: clamp(48px, 8vw, 96px);
+    min-height:120px;
+  }
+  .scene-1 .divide .col{ padding:12px 24px 12px 0; }
+  .scene-1 .divide .col + .col{ padding:12px 0 12px 24px; }
+  .scene-1 .divide .rule{ background:var(--hair); width:1px; }
+  .scene-1 .label{
+    font-size:.78rem; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--muted);
+  }
+  .scene-1 .label.right{ text-align:right; }
+  .scene-1 .word{
+    margin-top:14px;
+    font-size: clamp(1rem, 1.3vw, 1.15rem);
+    color:var(--fg);
+  }
+  .scene-1 .word.right{ text-align:right; color:var(--muted); }
+
+  /* ---------- Scene 2: Graph ---------- */
+  .graph-wrap{
+    margin-top: clamp(36px, 5vw, 64px);
+    display:grid;
+    grid-template-columns: minmax(0,1.4fr) minmax(0,1fr);
+    gap: clamp(32px, 5vw, 72px);
+    align-items:center;
+  }
+  @media (max-width:860px){ .graph-wrap{ grid-template-columns:1fr; } }
+  .graph-svg{ width:100%; height:auto; color:var(--fg); display:block; }
+  .graph-svg .edge{ stroke:currentColor; fill:none; opacity:.22; }
+  .graph-svg .edge.t1{ stroke-width:.8; }
+  .graph-svg .edge.t2{ stroke-width:1.4; }
+  .graph-svg .edge.t3{ stroke-width:2.2; }
+  .graph-svg .pulse{ stroke:currentColor; fill:none; stroke-width:2.4; stroke-linecap:round; opacity:0; }
+  .graph-svg circle.node{ fill:var(--bg); stroke:currentColor; stroke-width:1.4; }
+  .graph-svg text.node-label{
+    fill:currentColor;
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:9px; text-anchor:middle; dominant-baseline:central; letter-spacing:.04em;
+  }
+  .graph-svg text.cipher{
+    fill:currentColor;
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:7.5px; letter-spacing:.12em; opacity:.55;
+    text-anchor:middle; dominant-baseline:central;
+  }
+  @keyframes edgePulseA{
+    0%,100%{ opacity:0; stroke-dashoffset:0; }
+    10%   { opacity:.9; }
+    50%   { opacity:0; }
+  }
+  .graph-svg .pulse.a{ animation: edgePulseA 5.4s ease-in-out infinite; }
+  .graph-svg .pulse.b{ animation: edgePulseA 6.8s ease-in-out infinite 1.6s; }
+  .graph-svg .pulse.c{ animation: edgePulseA 7.2s ease-in-out infinite 3.1s; }
+  .graph-svg .pulse.d{ animation: edgePulseA 5.9s ease-in-out infinite 4.2s; }
+  .graph-svg .pulse.e{ animation: edgePulseA 6.2s ease-in-out infinite .8s; }
+  @keyframes nodeBreathe{
+    0%,100%{ opacity:1; }
+    50%   { opacity:.7; }
+  }
+  .graph-svg circle.node{ animation: nodeBreathe 7s ease-in-out infinite; }
+
+  /* server log */
+  .log{
+    border-top:1px solid var(--hair);
+    border-bottom:1px solid var(--hair);
+    margin-top: clamp(36px, 5vw, 56px);
+    background:transparent; overflow:hidden;
+    height:152px; position:relative;
+  }
+  .log::before, .log::after{
+    content:""; position:absolute; left:0; right:0; height:32px;
+    pointer-events:none; z-index:2;
+  }
+  .log::before{ top:0;    background:linear-gradient(to bottom, var(--bg), transparent); }
+  .log::after { bottom:0; background:linear-gradient(to top,    var(--bg), transparent); }
+  .log-track{
+    padding:16px 22px; color:var(--muted);
+    font-size:.82rem; line-height:1.9;
+    white-space:pre;
+    animation: logScroll 28s linear infinite;
+  }
+  @keyframes logScroll{
+    0%   { transform:translateY(0); }
+    100% { transform:translateY(-50%); }
+  }
+  .log-track .arrow, .log-track .tag{ color:var(--fg); }
+  .log-track .tag{ opacity:.55; }
+
+  /* ---------- Scene 3: Operator ---------- */
+  .panel-wrap{ margin-top: clamp(36px, 5vw, 64px); display:grid; grid-template-columns:1fr; justify-items:start; }
+  .panel{
+    width: min(820px, 100%);
+    background:var(--card);
+    border:1px solid var(--hair);
+    border-radius:14px;
+    overflow:hidden;
+  }
+  .panel-head{
+    padding:14px 18px; border-bottom:1px solid var(--hair);
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:.85rem;
+  }
+  .panel-head .title{ letter-spacing:-0.005em; }
+  .panel-head .meta{ color:var(--muted); font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; }
+  .panel-body{
+    display:grid;
+    grid-template-columns: minmax(0,1.3fr) 1px minmax(0,1fr);
+    min-height:360px;
+  }
+  @media (max-width:760px){ .panel-body{ grid-template-columns:1fr; } .panel-body .vrule{ display:none; } }
+  .panel-body .vrule{ background:var(--hair); }
+
+  .chats{ padding:14px; position:relative; overflow:hidden; }
+  .chats .heading, .console .heading{
+    font-size:.68rem; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--muted); padding:4px 10px 12px;
+  }
+  .chats-stack{ display:flex; flex-direction:column; gap:2px; }
+  .chat{
+    display:grid; grid-template-columns:28px 1fr auto;
+    align-items:center; gap:12px;
+    padding:8px 10px; border-radius:8px;
+  }
+  .chat .avatar{
+    width:24px; height:24px; border-radius:50%;
+    border:1px solid var(--hair);
+    display:grid; place-items:center;
+    font-size:.65rem; color:var(--muted); background:var(--bg);
+  }
+  .chat .name{ color:var(--fg); font-size:.85rem; line-height:1.2; }
+  .chat .preview{ color:var(--muted); font-size:.72rem; line-height:1.3; margin-top:2px; }
+  .chat .when{
+    color:var(--muted);
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.65rem; letter-spacing:.04em;
+  }
+  .chat-banner{
+    position:absolute; left:22px; right:22px; top:50%;
+    transform:translateY(-50%);
+    padding:16px 18px;
+    border:1px dashed color-mix(in oklab, var(--fg) 28%, transparent);
+    background:var(--card); border-radius:10px;
+    color:var(--fg); font-size:.82rem; letter-spacing:.02em;
+    text-align:center; opacity:0; z-index:2;
+  }
+  .chat-banner .sub{
+    display:block; margin-top:4px;
+    color:var(--muted); font-size:.72rem; letter-spacing:.04em;
+  }
+
+  .console{
+    padding:14px; position:relative;
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.72rem;
+  }
+  .console .heading{ font-family:-apple-system,"SF Pro Text",system-ui,sans-serif; }
+  .acct{
+    display:grid; grid-template-columns:1fr auto;
+    align-items:center; padding:7px 10px; border-radius:6px;
+    color:var(--muted); gap:10px;
+  }
+  .acct + .acct{ margin-top:2px; }
+  .acct .id{ color:var(--fg); letter-spacing:.04em; }
+  .acct .status{
+    font-size:.62rem; letter-spacing:.14em; text-transform:uppercase;
+    position:relative; min-width:70px; text-align:right;
+  }
+  .acct .status .alt{ position:absolute; right:0; top:0; opacity:0; color:var(--fg); }
+  .acct.you-row{
+    background: color-mix(in oklab, var(--fg) 5%, transparent);
+    outline:1px solid var(--hair);
+  }
+
+  .cursor{
+    position:absolute; width:14px; height:14px;
+    color:var(--fg); pointer-events:none;
+    top:0; left:0; opacity:0; z-index:3;
+  }
+  .cursor svg{ display:block; width:14px; height:14px; }
+  .menu{
+    position:absolute; background:var(--card);
+    border:1px solid var(--hair); border-radius:8px;
+    font-size:.76rem; color:var(--fg);
+    padding:4px; min-width:170px;
+    box-shadow:0 8px 24px rgba(0,0,0,.25);
+    opacity:0; transform:translateY(-4px); pointer-events:none;
+    z-index:2;
+    font-family:-apple-system,"SF Pro Text",system-ui,sans-serif;
+  }
+  .menu .item{ padding:6px 10px; border-radius:5px; }
+  .menu .item.active{ background: color-mix(in oklab, var(--fg) 8%, transparent); }
+
+  @keyframes cursorMoveOp{
+    0%   { opacity:0; transform: translate(20px,20px); }
+    6%   { opacity:1; }
+    20%  { transform: translate(180px,152px); }
+    26%  { transform: translate(180px,152px); }
+    30%  { transform: translate(188px,158px); }
+    34%  { transform: translate(180px,152px); }
+    46%  { transform: translate(110px,244px); }
+    56%  { transform: translate(110px,244px); }
+    60%  { transform: translate(118px,250px); }
+    64%  { transform: translate(110px,244px); }
+    74%  { opacity:1; transform: translate(110px,244px); }
+    84%  { opacity:0; }
+    100% { opacity:0; }
+  }
+  @keyframes menuShowOp{
+    0%,28% { opacity:0; transform:translateY(-4px); }
+    34%    { opacity:1; transform:translateY(0); }
+    58%    { opacity:1; transform:translateY(0); }
+    64%    { opacity:0; transform:translateY(-4px); }
+    100%   { opacity:0; }
+  }
+  @keyframes chatsGrey{
+    0%,60%   { opacity:1; filter:none; }
+    74%,100% { opacity:.22; filter:grayscale(1); }
+  }
+  @keyframes bannerIn{
+    0%,74%   { opacity:0; }
+    88%,100% { opacity:1; }
+  }
+  @keyframes statusFlipMain{
+    0%,60%   { opacity:1; }
+    66%,100% { opacity:0; }
+  }
+  @keyframes statusFlipAlt{
+    0%,60%   { opacity:0; }
+    66%,100% { opacity:1; }
+  }
+  .scene-3 .cursor      { animation: cursorMoveOp 12s ease-in-out infinite; }
+  .scene-3 .menu        { animation: menuShowOp   12s ease-in-out infinite; }
+  .scene-3 .chats-stack { animation: chatsGrey    12s ease-in-out infinite; }
+  .scene-3 .chat-banner { animation: bannerIn     12s ease-in-out infinite; }
+  .scene-3 .you-row .status .main{ animation: statusFlipMain 12s ease-in-out infinite; }
+  .scene-3 .you-row .status .alt { animation: statusFlipAlt  12s ease-in-out infinite; }
+
+  /* ---------- Scene 4: Phone ↔ Rack ---------- */
+  .split{
+    margin-top: clamp(36px, 5vw, 64px);
+    display:grid; grid-template-columns:1fr auto 1fr;
+    gap: clamp(20px, 3vw, 40px);
+    align-items:center;
+  }
+  @media (max-width:760px){ .split{ grid-template-columns:1fr; } .split .arrow-col{ transform:rotate(90deg); } }
+  .phone{
+    justify-self:end;
+    width: min(280px, 100%); aspect-ratio:9/17;
+    background:var(--card); border:1px solid var(--hair);
+    border-radius:28px;
+    padding:14px 10px 10px;
+    display:flex; flex-direction:column; position:relative;
+  }
+  .phone::before{
+    content:""; position:absolute; top:8px; left:50%;
+    transform:translateX(-50%);
+    width:60px; height:5px; border-radius:99px; background:var(--hair);
+  }
+  .phone .pscreen{
+    margin-top:14px; flex:1; border-radius:18px;
+    background:var(--bg); border:1px solid var(--hair);
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  .phone .chat-head{
+    padding:10px 12px; border-bottom:1px solid var(--hair);
+    display:flex; align-items:center; gap:8px;
+  }
+  .phone .chat-head .av{
+    width:22px; height:22px; border-radius:50%;
+    border:1px solid var(--hair);
+    display:grid; place-items:center;
+    font-size:.58rem; color:var(--muted);
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  .phone .chat-head .who{ font-size:.72rem; color:var(--fg); letter-spacing:-0.005em; }
+  .phone .chat-head .pres{ font-size:.56rem; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+  .phone .thread{ flex:1; padding:10px 10px; display:flex; flex-direction:column; gap:6px; overflow:hidden; }
+  .phone .bubble{
+    max-width:78%; padding:6px 9px; border-radius:10px;
+    font-size:.66rem; line-height:1.35; color:var(--fg);
+    border:1px solid var(--hair);
+  }
+  .phone .bubble.them{ align-self:flex-start; border-bottom-left-radius:3px; }
+  .phone .bubble.me  { align-self:flex-end;   border-bottom-right-radius:3px; background: color-mix(in oklab, var(--fg) 7%, transparent); }
+  .phone .stamp{
+    align-self:center; font-size:.54rem; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--muted); margin:4px 0 2px;
+  }
+  .phone .composer{
+    border-top:1px solid var(--hair);
+    padding:8px 10px; display:flex; align-items:center; gap:6px;
+  }
+  .phone .composer .field{
+    flex:1; height:22px; border-radius:99px;
+    border:1px solid var(--hair); padding:0 10px;
+    display:flex; align-items:center;
+    color:var(--muted); font-size:.6rem;
+  }
+  .phone .composer .send{
+    width:22px; height:22px; border-radius:50%;
+    border:1px solid var(--hair);
+    display:grid; place-items:center; color:var(--muted);
+  }
+
+  .arrow-col{
+    display:flex; flex-direction:column;
+    align-items:center; gap:8px; color:var(--muted);
+  }
+  .arrow-col .label{
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.72rem; letter-spacing:.14em; text-transform:uppercase;
+  }
+  .arrow-col svg{ display:block; }
+
+  .rack-wrap{ justify-self:start; position:relative; width: min(220px, 100%); }
+  .rack{
+    width:100%; aspect-ratio:9/17;
+    background:var(--card); border:1px solid var(--hair);
+    border-radius:6px;
+    padding:10px 14px;
+    display:flex; flex-direction:column; gap:8px;
+    position:relative; overflow:hidden;
+  }
+  .rack .unit{
+    height:18px; border:1px solid var(--hair); border-radius:3px;
+    display:flex; align-items:center; gap:6px; padding:0 8px;
+    color:var(--muted);
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.58rem; letter-spacing:.08em;
+  }
+  .rack .unit .dot{ width:4px; height:4px; border-radius:50%; background:currentColor; opacity:.7; }
+  .rack .unit .dot.b{ opacity:.25; }
+  .rack .unit .bars{ flex:1; height:2px; background:var(--hair); border-radius:99px; }
+
+  .frost{
+    position:absolute; inset:0; border-radius:6px;
+    backdrop-filter: blur(6px) saturate(.9);
+    -webkit-backdrop-filter: blur(6px) saturate(.9);
+    background: color-mix(in oklab, var(--bg) 55%, transparent);
+    pointer-events:none;
+  }
+  .frost::before{
+    content:""; position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(135deg,
+        color-mix(in oklab, var(--fg) 4%, transparent) 0 1px,
+        transparent 1px 5px);
+    border-radius:6px; mix-blend-mode:overlay;
+  }
+
+  .ticker{
+    margin-top:14px; width: min(220px, 100%);
+    border-top:1px solid var(--hair);
+    overflow:hidden; height:22px; position:relative;
+  }
+  .ticker-track{
+    white-space:nowrap; color:var(--muted);
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.68rem; letter-spacing:.08em;
+    padding-top:5px;
+    animation: tickerScroll 28s linear infinite;
+  }
+  @keyframes tickerScroll{
+    0%   { transform:translateX(0); }
+    100% { transform:translateX(-50%); }
+  }
+
+  /* ---------- Scene 5: Ledger ---------- */
+  .ledger{
+    margin-top: clamp(36px, 5vw, 64px);
+    border-top:1px solid var(--hair);
+    border-bottom:1px solid var(--hair);
+  }
+  .ledger .row{
+    display:grid; grid-template-columns:28px 1fr;
+    align-items:baseline;
+    padding:18px 4px;
+    border-bottom:1px solid var(--hair);
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: clamp(.95rem, 1.2vw, 1.05rem);
+    letter-spacing:.01em;
+    color:var(--fg);
+    opacity:0; transform:translateY(6px);
+    transition: opacity .9s ease, transform .9s ease;
+  }
+  .ledger .row:last-child{ border-bottom:none; }
+  .ledger .row .box{ color:var(--muted); }
+  .ledger .row.in{ opacity:1; transform:translateY(0); }
+
+  .closing{
+    margin-top: clamp(48px, 6vw, 80px);
+    color:var(--muted); font-weight:600;
+    letter-spacing:-0.02em; line-height:1.2;
+    font-size: clamp(1.4rem, 2.4vw, 2rem);
+    max-width:36ch; text-wrap:balance;
+  }
+
+  /* ---------- Outro CTA ---------- */
+  .outro{
+    max-width:1280px; margin:0 auto;
+    padding: clamp(64px, 9vw, 120px) clamp(24px, 6vw, 96px) clamp(48px, 7vw, 96px);
+    border-top:1px solid var(--hair);
+  }
+  .outro h2{
+    font-weight:700; letter-spacing:-0.035em; line-height:1.02;
+    font-size: clamp(2rem, 4.4vw, 3.75rem);
+    margin:0; text-wrap:balance;
+  }
+  .outro .ctas{
+    margin-top: clamp(32px, 4vw, 48px);
+    display:flex; flex-wrap:wrap; gap:12px;
+  }
+  .outro a.cta{
+    display:inline-block; border-radius:999px;
+    padding: 14px 22px;
+    font-size: 13.5px; letter-spacing:.01em;
+    text-decoration:none;
+  }
+  .outro a.cta.primary{ background:var(--fg); color:var(--bg); }
+  .outro a.cta.secondary{
+    border:1px solid var(--hair); color:var(--fg);
+  }
+  .outro a.cta.secondary:hover{
+    border-color: color-mix(in oklab, var(--fg) 25%, transparent);
+  }
+
+  /* ---------- Reduced motion ---------- */
+  @media (prefers-reduced-motion: reduce){
+    .graph-svg .pulse,
+    .graph-svg circle.node,
+    .log-track,
+    .ticker-track,
+    .scene-3 .cursor,
+    .scene-3 .menu,
+    .scene-3 .chats-stack,
+    .scene-3 .chat-banner,
+    .scene-3 .you-row .status .main,
+    .scene-3 .you-row .status .alt{
+      animation:none !important;
+    }
+    .ledger .row{ opacity:1; transform:none; }
+    .scene-3 .chats-stack{ opacity:.22; filter:grayscale(1); }
+    .scene-3 .chat-banner{ opacity:1; }
+    .scene-3 .you-row .status .main{ opacity:0; }
+    .scene-3 .you-row .status .alt { opacity:1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toggle" role="group" aria-label="Theme">
+  <button id="themeDark" aria-pressed="true">Dark</button>
+  <button id="themeLight" aria-pressed="false">Light</button>
+</div>
+
+<header class="nav">
+  <div class="max-w-[1100px] mx-auto px-6 h-[52px] flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3 hover:opacity-80" aria-label="Onym home">
+      <span class="mark" role="img" aria-label="Onym"></span>
+      <span class="text-[14px] font-medium tracking-tight">Onym <span class="muted">· Why</span></span>
+    </a>
+    <div class="flex items-center">
+      <div class="lang-switch" role="group" aria-label="Language"><a href="/why/" aria-current="true">EN</a><a href="/ru/" aria-current="false">RU</a></div>
+      <a href="/" class="ml-3 text-[12.5px] muted hover:text-[var(--fg)]">&larr; Back</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- Scene 1: Hero -->
+<section class="scene scene-1" data-screen-label="01 Hero">
+  <p class="eyebrow">the trust problem</p>
+  <h1 class="display-xl">Your messages are encrypted.<br/>Everything else isn&rsquo;t.</h1>
+  <p class="lede">End-to-end encryption protects what you say. It doesn&rsquo;t protect who you say it to, when, how often, or how long the conversation lasted. The rest of the picture stays in plain sight on a server.</p>
+
+  <div class="divide" aria-hidden="true">
+    <div class="col">
+      <div class="label">encrypted</div>
+      <div class="word">the words themselves</div>
+    </div>
+    <div class="rule"></div>
+    <div class="col">
+      <div class="label right">in plain sight</div>
+      <div class="word right">everything else</div>
+    </div>
+  </div>
+</section>
+
+<!-- Scene 2: Graph -->
+<section class="scene scene-2" data-screen-label="02 Graph">
+  <p class="eyebrow">even with end-to-end encryption</p>
+  <h2 class="display">They can&rsquo;t read the messages.<br/>They don&rsquo;t need to.</h2>
+
+  <div class="graph-wrap">
+    <svg class="graph-svg" viewBox="0 0 520 360" role="img" aria-label="A network graph of past conversations between abstract nodes. Edges represent contact frequency. Message bodies appear as redacted blocks.">
+      <g>
+        <line class="edge t3" x1="120" y1="90"  x2="260" y2="180" />
+        <line class="edge t3" x1="260" y1="180" x2="400" y2="120" />
+        <line class="edge t2" x1="260" y1="180" x2="380" y2="260" />
+        <line class="edge t2" x1="120" y1="90"  x2="80"  y2="240" />
+        <line class="edge t1" x1="80"  y1="240" x2="220" y2="300" />
+        <line class="edge t1" x1="220" y1="300" x2="380" y2="260" />
+        <line class="edge t1" x1="400" y1="120" x2="460" y2="220" />
+        <line class="edge t2" x1="380" y1="260" x2="460" y2="220" />
+        <line class="edge t1" x1="220" y1="300" x2="260" y2="180" />
+        <line class="edge t1" x1="80"  y1="240" x2="260" y2="180" />
+      </g>
+      <g>
+        <line class="pulse a" x1="120" y1="90"  x2="260" y2="180" />
+        <line class="pulse b" x1="260" y1="180" x2="400" y2="120" />
+        <line class="pulse c" x1="260" y1="180" x2="380" y2="260" />
+        <line class="pulse d" x1="120" y1="90"  x2="80"  y2="240" />
+        <line class="pulse e" x1="380" y1="260" x2="460" y2="220" />
+      </g>
+      <g>
+        <text class="cipher" x="190" y="135">▒▒▒▒</text>
+        <text class="cipher" x="330" y="150">▒▒▒▒</text>
+        <text class="cipher" x="320" y="220">▒▒▒▒</text>
+        <text class="cipher" x="100" y="165">▒▒▒▒</text>
+        <text class="cipher" x="420" y="240">▒▒▒▒</text>
+        <text class="cipher" x="150" y="270">▒▒▒▒</text>
+        <text class="cipher" x="300" y="280">▒▒▒▒</text>
+      </g>
+      <g>
+        <circle class="node" cx="120" cy="90"  r="18"/>
+        <text class="node-label" x="120" y="90">A</text>
+        <circle class="node" cx="260" cy="180" r="22"/>
+        <text class="node-label" x="260" y="180">B</text>
+        <circle class="node" cx="400" cy="120" r="18"/>
+        <text class="node-label" x="400" y="120">C</text>
+        <circle class="node" cx="80"  cy="240" r="14"/>
+        <text class="node-label" x="80"  y="240">D</text>
+        <circle class="node" cx="220" cy="300" r="14"/>
+        <text class="node-label" x="220" y="300">E</text>
+        <circle class="node" cx="380" cy="260" r="16"/>
+        <text class="node-label" x="380" y="260">F</text>
+        <circle class="node" cx="460" cy="220" r="12"/>
+        <text class="node-label" x="460" y="220">G</text>
+      </g>
+    </svg>
+
+    <div>
+      <p class="caption" style="margin-top:0">Encryption hides bodies. The routing log records who, when, how often, and how long. That log is enough to reconstruct most of a life.</p>
+    </div>
+  </div>
+
+  <div class="log" aria-hidden="true">
+    <div class="log-track mono">2026-05-07T19:14:02Z   alice <span class="arrow">&rarr;</span> bob               <span class="tag">[message]</span>
+2026-05-07T19:14:08Z   alice <span class="arrow">&rarr;</span> carol             <span class="tag">[message]</span>
+2026-05-07T19:14:31Z   bob   <span class="arrow">&rarr;</span> alice             <span class="tag">[message]</span>
+2026-05-07T19:15:02Z   alice <span class="arrow">&rarr;</span> group:design-team <span class="tag">[message &times; 3]</span>
+2026-05-07T19:15:47Z   carol <span class="arrow">&rarr;</span> alice             <span class="tag">[message]</span>
+2026-05-07T19:16:12Z   bob   <span class="arrow">&rarr;</span> group:design-team <span class="tag">[message]</span>
+2026-05-07T19:16:40Z   alice <span class="arrow">&rarr;</span> dan               <span class="tag">[message &times; 2]</span>
+2026-05-07T19:17:08Z   dan   <span class="arrow">&rarr;</span> alice             <span class="tag">[message]</span>
+2026-05-07T19:17:33Z   carol <span class="arrow">&rarr;</span> group:design-team <span class="tag">[message]</span>
+2026-05-07T19:18:01Z   alice <span class="arrow">&rarr;</span> bob               <span class="tag">[message]</span>
+2026-05-07T19:18:44Z   bob   <span class="arrow">&rarr;</span> carol             <span class="tag">[message]</span>
+2026-05-07T19:19:06Z   alice <span class="arrow">&rarr;</span> group:design-team <span class="tag">[message]</span>
+2026-05-07T19:14:02Z   alice <span class="arrow">&rarr;</span> bob               <span class="tag">[message]</span>
+2026-05-07T19:14:08Z   alice <span class="arrow">&rarr;</span> carol             <span class="tag">[message]</span>
+2026-05-07T19:14:31Z   bob   <span class="arrow">&rarr;</span> alice             <span class="tag">[message]</span>
+2026-05-07T19:15:02Z   alice <span class="arrow">&rarr;</span> group:design-team <span class="tag">[message &times; 3]</span>
+2026-05-07T19:15:47Z   carol <span class="arrow">&rarr;</span> alice             <span class="tag">[message]</span>
+2026-05-07T19:16:12Z   bob   <span class="arrow">&rarr;</span> group:design-team <span class="tag">[message]</span>
+2026-05-07T19:16:40Z   alice <span class="arrow">&rarr;</span> dan               <span class="tag">[message &times; 2]</span>
+2026-05-07T19:17:08Z   dan   <span class="arrow">&rarr;</span> alice             <span class="tag">[message]</span>
+2026-05-07T19:17:33Z   carol <span class="arrow">&rarr;</span> group:design-team <span class="tag">[message]</span>
+2026-05-07T19:18:01Z   alice <span class="arrow">&rarr;</span> bob               <span class="tag">[message]</span>
+2026-05-07T19:18:44Z   bob   <span class="arrow">&rarr;</span> carol             <span class="tag">[message]</span>
+2026-05-07T19:19:06Z   alice <span class="arrow">&rarr;</span> group:design-team <span class="tag">[message]</span>
+</div>
+  </div>
+</section>
+
+<!-- Scene 3: Operator -->
+<section class="scene scene-3" data-screen-label="03 Operator">
+  <p class="eyebrow">the operator&rsquo;s view</p>
+  <h2 class="display">The server can end<br/>your account.</h2>
+
+  <div class="panel-wrap">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="title">your account</div>
+        <div class="meta mono">on the messenger</div>
+      </div>
+      <div class="panel-body">
+        <div class="chats">
+          <div class="heading">your conversations</div>
+          <div class="chats-stack">
+            <div class="chat"><div class="avatar">M</div><div><div class="name">m. ortiz</div><div class="preview">can we move the review to thursday?</div></div><div class="when">14:31</div></div>
+            <div class="chat"><div class="avatar">K</div><div><div class="name">k. tanaka</div><div class="preview">one more round on copy then we ship.</div></div><div class="when">12:08</div></div>
+            <div class="chat"><div class="avatar">J</div><div><div class="name">j. okafor</div><div class="preview">flight lands at nine.</div></div><div class="when">10:47</div></div>
+            <div class="chat"><div class="avatar">A</div><div><div class="name">a. lin</div><div class="preview">thanks &mdash; talk soon.</div></div><div class="when">yest.</div></div>
+            <div class="chat"><div class="avatar">L</div><div><div class="name">l. moreau</div><div class="preview">i&rsquo;ll bring the spec.</div></div><div class="when">yest.</div></div>
+            <div class="chat"><div class="avatar">S</div><div><div class="name">s. weber</div><div class="preview">happy birthday &mdash; see you sat.</div></div><div class="when">2d</div></div>
+          </div>
+          <div class="chat-banner">this account is no longer active<span class="sub">history is no longer accessible</span></div>
+        </div>
+
+        <div class="vrule"></div>
+
+        <div class="console">
+          <div class="heading">operator console</div>
+          <div class="acct"><span class="id">acct_8194</span><span class="status"><span class="main">active</span></span></div>
+          <div class="acct"><span class="id">acct_8195</span><span class="status"><span class="main">active</span></span></div>
+          <div class="acct"><span class="id">acct_8196</span><span class="status"><span class="main">active</span></span></div>
+          <div class="acct you-row"><span class="id">acct_8197 &mdash; you</span><span class="status"><span class="main">active</span><span class="alt">suspended</span></span></div>
+          <div class="acct"><span class="id">acct_8198</span><span class="status"><span class="main">active</span></span></div>
+          <div class="acct"><span class="id">acct_8199</span><span class="status"><span class="main">active</span></span></div>
+
+          <div class="cursor" aria-hidden="true">
+            <svg viewBox="0 0 14 14"><path d="M1 1 L12 7 L7 8 L9 13 L7 14 L5 9 L1 11 Z" fill="currentColor"/></svg>
+          </div>
+          <div class="menu" aria-hidden="true" style="top:188px; left:60px;">
+            <div class="item">View account</div>
+            <div class="item">Reset password</div>
+            <div class="item active">Suspend account</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="caption">The company that runs the server can disable your account at will. Your conversations &mdash; every one &mdash; stop being yours. There is no appeal you can file from inside the app.</p>
+</section>
+
+<!-- Scene 4: Phone vs. Rack -->
+<section class="scene scene-4" data-screen-label="04 Server">
+  <p class="eyebrow">what runs on the server</p>
+  <h2 class="display">You trust the binaries the<br/>server runs. You can&rsquo;t see them.</h2>
+
+  <div class="split">
+    <div class="phone" aria-hidden="true">
+      <div class="pscreen">
+        <div class="chat-head">
+          <div class="av">M</div>
+          <div>
+            <div class="who">m. ortiz</div>
+            <div class="pres">online</div>
+          </div>
+        </div>
+        <div class="thread">
+          <div class="stamp">today</div>
+          <div class="bubble them">can we move the review to thursday?</div>
+          <div class="bubble me">works for me. i&rsquo;ll bring the spec.</div>
+          <div class="bubble them">perfect. 10am?</div>
+          <div class="bubble me">10 it is.</div>
+          <div class="bubble them">thanks.</div>
+        </div>
+        <div class="composer">
+          <div class="field">message</div>
+          <div class="send">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5 H8 M5 2 L8 5 L5 8" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-col" aria-hidden="true">
+      <span class="label">trust us</span>
+      <svg width="120" height="14" viewBox="0 0 120 14" fill="none">
+        <line x1="0" y1="7" x2="108" y2="7" stroke="currentColor" stroke-width="1"/>
+        <polyline points="100,2 110,7 100,12" fill="none" stroke="currentColor" stroke-width="1"/>
+      </svg>
+    </div>
+
+    <div>
+      <div class="rack-wrap">
+        <div class="rack" aria-hidden="true">
+          <div class="unit"><span class="dot"></span><span class="bars"></span><span>01</span></div>
+          <div class="unit"><span class="dot b"></span><span class="bars"></span><span>02</span></div>
+          <div class="unit"><span class="dot"></span><span class="bars"></span><span>03</span></div>
+          <div class="unit"><span class="dot"></span><span class="bars"></span><span>04</span></div>
+          <div class="unit"><span class="dot b"></span><span class="bars"></span><span>05</span></div>
+          <div class="unit"><span class="dot"></span><span class="bars"></span><span>06</span></div>
+          <div class="unit"><span class="dot b"></span><span class="bars"></span><span>07</span></div>
+          <div class="unit"><span class="dot"></span><span class="bars"></span><span>08</span></div>
+          <div class="unit"><span class="dot"></span><span class="bars"></span><span>09</span></div>
+          <div class="unit"><span class="dot b"></span><span class="bars"></span><span>10</span></div>
+          <div class="unit"><span class="dot"></span><span class="bars"></span><span>11</span></div>
+          <div class="frost"></div>
+        </div>
+        <div class="ticker">
+          <div class="ticker-track">DEPLOY 2026-05-04 14:31&nbsp;&nbsp;&nbsp;DEPLOY 2026-05-06 09:17&nbsp;&nbsp;&nbsp;DEPLOY 2026-05-07 11:08&nbsp;&nbsp;&nbsp;DEPLOY 2026-05-04 14:31&nbsp;&nbsp;&nbsp;DEPLOY 2026-05-06 09:17&nbsp;&nbsp;&nbsp;DEPLOY 2026-05-07 11:08&nbsp;&nbsp;&nbsp;</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="caption">Whatever runs on the server, runs on you. The source isn&rsquo;t bound to the runtime; the audits aren&rsquo;t reproducible. Each deploy is a renewed act of faith.</p>
+</section>
+
+<!-- Scene 5: Ledger -->
+<section class="scene scene-5" data-screen-label="05 Ledger">
+  <p class="eyebrow">trust required, today</p>
+  <h2 class="display">You already trust this many<br/>parties. By default.</h2>
+
+  <div class="ledger" id="ledger">
+    <div class="row"><span class="box">▢</span><span>the messenger&rsquo;s company</span></div>
+    <div class="row"><span class="box">▢</span><span>the messenger&rsquo;s CEO and counsel</span></div>
+    <div class="row"><span class="box">▢</span><span>every engineer with deploy access</span></div>
+    <div class="row"><span class="box">▢</span><span>the messenger&rsquo;s hosting provider</span></div>
+    <div class="row"><span class="box">▢</span><span>every admin of every group you&rsquo;re in</span></div>
+    <div class="row"><span class="box">▢</span><span>the certificate authorities pinned in your phone</span></div>
+    <div class="row"><span class="box">▢</span><span>the operating-system vendor</span></div>
+    <div class="row"><span class="box">▢</span><span>whatever subpoena lands in any of the above</span></div>
+  </div>
+
+  <p class="closing">Encryption was supposed to remove some of these. It didn&rsquo;t.</p>
+</section>
+
+<!-- Outro: Onym's answer -->
+<section class="outro" aria-label="What Onym does instead">
+  <p class="eyebrow" style="margin-bottom:24px;">onym&rsquo;s answer</p>
+  <h2>Remove the server.<br/>Make the only shared state public.</h2>
+  <p class="lede" style="margin-top:28px;">No company in the loop. No operator console. No deploy you have to take on faith. Group state lives on a public smart contract; messages travel over relays you can swap; identity stays on your device.</p>
+  <div class="ctas">
+    <a class="cta primary" href="/architecture/">See the architecture</a>
+    <a class="cta secondary" href="/about/">Read the manifesto</a>
+    <a class="cta secondary" href="/qa/">Try the alpha</a>
+  </div>
+</section>
+
+</main>
+
+<footer class="hair border-t mt-12" style="border-top-style:solid;">
+  <div class="max-w-[1100px] mx-auto px-6 py-10 flex flex-wrap items-center justify-between gap-4 text-[12px] muted mono">
+    <span>&copy; 2026 &middot; Onym Foundation</span>
+    <span>Released under the MIT license</span>
+    <span>Never pay with your identity.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const root = document.documentElement;
+  const tD = document.getElementById('themeDark');
+  const tL = document.getElementById('themeLight');
+  function setTheme(t){
+    if (t === 'light'){
+      root.setAttribute('data-theme', 'light');
+      tD.setAttribute('aria-pressed', 'false');
+      tL.setAttribute('aria-pressed', 'true');
+    } else {
+      root.removeAttribute('data-theme');
+      tD.setAttribute('aria-pressed', 'true');
+      tL.setAttribute('aria-pressed', 'false');
+    }
+    try{ localStorage.setItem('onym.theme', t); }catch(e){}
+  }
+  tD.addEventListener('click', () => setTheme('dark'));
+  tL.addEventListener('click', () => setTheme('light'));
+  try{
+    const saved = localStorage.getItem('onym.theme');
+    if (saved) setTheme(saved);
+  }catch(e){}
+})();
+</script>
+<script>(function(){
+  document.querySelectorAll('.lang-switch a').forEach(function(a){
+    a.addEventListener('click', function(){
+      try{ localStorage.setItem('onym.lang', a.href.indexOf('/ru/') > -1 ? 'ru' : 'en'); }catch(e){}
+    });
+  });
+})();</script>
+<script>
+  // Ledger reveal on scroll
+  (function () {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const rows = document.querySelectorAll('#ledger .row');
+    if (reduce) { rows.forEach(r => r.classList.add('in')); return; }
+    if (!('IntersectionObserver' in window)) { rows.forEach(r => r.classList.add('in')); return; }
+    const io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          const el = e.target;
+          const idx = Array.prototype.indexOf.call(rows, el);
+          setTimeout(function () { el.classList.add('in'); }, idx * 90);
+          io.unobserve(el);
+        }
+      });
+    }, { threshold: 0.2 });
+    rows.forEach(r => io.observe(r));
+  })();
+</script>
+</body>
+</html>
