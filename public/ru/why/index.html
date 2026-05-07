@@ -1,21 +1,21 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>The trust problem · Onym</title>
-<meta name="description" content="End-to-end encryption protects what you say. It doesn't protect who you say it to, when, how often, or how long. The rest of the picture stays in plain sight on a server. This is why Onym exists." />
+<title>Проблема доверия · Onym</title>
+<meta name="description" content="Сквозное шифрование защищает то, что вы говорите. Но не то, кому, когда, как часто и как долго. Всё остальное остаётся в открытом виде на сервере. Вот почему существует Onym." />
 <meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
 <link rel="icon" type="image/png" href="/assets/icon-dark.png" />
 <link rel="apple-touch-icon" href="/assets/icon-dark.png" />
 <meta property="og:type" content="website" />
-<meta property="og:title" content="The trust problem · Onym" />
-<meta property="og:description" content="Your messages are encrypted. Everything else isn't. Why Onym exists." />
+<meta property="og:title" content="Проблема доверия · Onym" />
+<meta property="og:description" content="Ваши сообщения зашифрованы. Всё остальное — нет. Зачем нужен Onym." />
 <meta property="og:image" content="/assets/icon-dark.png" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="The trust problem · Onym" />
-<meta name="twitter:description" content="Your messages are encrypted. Everything else isn't. Why Onym exists." />
+<meta name="twitter:title" content="Проблема доверия · Onym" />
+<meta name="twitter:description" content="Ваши сообщения зашифрованы. Всё остальное — нет. Зачем нужен Onym." />
 <meta name="twitter:image" content="/assets/icon-dark.png" />
 <link rel="alternate" hreflang="en" href="https://onym.app/why/" />
 <link rel="alternate" hreflang="ru" href="https://onym.app/ru/why/" />
@@ -53,7 +53,7 @@
   .hair{ border-color:var(--hair); }
   .muted{ color:var(--muted); }
 
-  /* ---------- Nav (site standard) ---------- */
+  /* ---------- Nav ---------- */
   .nav{
     position:sticky; top:0; z-index:50;
     background:var(--nav-bg);
@@ -318,7 +318,7 @@
   .acct .id{ color:var(--fg); letter-spacing:.04em; }
   .acct .status{
     font-size:.62rem; letter-spacing:.14em; text-transform:uppercase;
-    position:relative; min-width:70px; text-align:right;
+    position:relative; min-width:90px; text-align:right;
   }
   .acct .status .alt{ position:absolute; right:0; top:0; opacity:0; color:var(--fg); }
   .acct.you-row{
@@ -603,52 +603,52 @@
 </head>
 <body>
 
-<div class="toggle" role="group" aria-label="Theme">
-  <button id="themeDark" aria-pressed="true">Dark</button>
-  <button id="themeLight" aria-pressed="false">Light</button>
+<div class="toggle" role="group" aria-label="Тема">
+  <button id="themeDark" aria-pressed="true">Тёмная</button>
+  <button id="themeLight" aria-pressed="false">Светлая</button>
 </div>
 
 <header class="nav">
   <div class="max-w-[1100px] mx-auto px-6 h-[52px] flex items-center justify-between">
-    <a href="/" class="flex items-center gap-3 hover:opacity-80" aria-label="Onym home">
+    <a href="/ru/" class="flex items-center gap-3 hover:opacity-80" aria-label="Onym — главная">
       <span class="mark" role="img" aria-label="Onym"></span>
-      <span class="text-[14px] font-medium tracking-tight">Onym <span class="muted">· Why</span></span>
+      <span class="text-[14px] font-medium tracking-tight">Onym <span class="muted">· Зачем</span></span>
     </a>
     <div class="flex items-center">
-      <div class="lang-switch" role="group" aria-label="Language"><a href="/why/" aria-current="true">EN</a><a href="/ru/why/" aria-current="false">RU</a></div>
-      <a href="/" class="ml-3 text-[12.5px] muted hover:text-[var(--fg)]">&larr; Back</a>
+      <div class="lang-switch" role="group" aria-label="Language"><a href="/why/" aria-current="false">EN</a><a href="/ru/why/" aria-current="true">RU</a></div>
+      <a href="/ru/" class="ml-3 text-[12.5px] muted hover:text-[var(--fg)]">&larr; Назад</a>
     </div>
   </div>
 </header>
 
 <main>
 
-<!-- Scene 1: Hero -->
+<!-- Сцена 1: Заголовок -->
 <section class="scene scene-1" data-screen-label="01 Hero">
-  <p class="eyebrow">the trust problem</p>
-  <h1 class="display-xl">Your messages are encrypted.<br/>Everything else isn&rsquo;t.</h1>
-  <p class="lede">End-to-end encryption protects what you say. It doesn&rsquo;t protect who you say it to, when, how often, or how long the conversation lasted. The rest of the picture stays in plain sight on a server.</p>
+  <p class="eyebrow">проблема доверия</p>
+  <h1 class="display-xl">Ваши сообщения зашифрованы.<br/>Всё остальное — нет.</h1>
+  <p class="lede">Сквозное шифрование защищает то, что вы говорите. Но не то, кому, когда, как часто и как долго вы это говорите. Всё остальное остаётся в открытом виде на сервере.</p>
 
   <div class="divide" aria-hidden="true">
     <div class="col">
-      <div class="label">encrypted</div>
-      <div class="word">the words themselves</div>
+      <div class="label">зашифровано</div>
+      <div class="word">сами слова</div>
     </div>
     <div class="rule"></div>
     <div class="col">
-      <div class="label right">in plain sight</div>
-      <div class="word right">everything else</div>
+      <div class="label right">в открытом виде</div>
+      <div class="word right">всё остальное</div>
     </div>
   </div>
 </section>
 
-<!-- Scene 2: Graph -->
+<!-- Сцена 2: Граф -->
 <section class="scene scene-2" data-screen-label="02 Graph">
-  <p class="eyebrow">even with end-to-end encryption</p>
-  <h2 class="display">They can&rsquo;t read the messages.<br/>They don&rsquo;t need to.</h2>
+  <p class="eyebrow">даже при сквозном шифровании</p>
+  <h2 class="display">Им не нужно читать сообщения.<br/>Им хватает остального.</h2>
 
   <div class="graph-wrap">
-    <svg class="graph-svg" viewBox="0 0 520 360" role="img" aria-label="A network graph of past conversations between abstract nodes. Edges represent contact frequency. Message bodies appear as redacted blocks.">
+    <svg class="graph-svg" viewBox="0 0 520 360" role="img" aria-label="Граф переписок: узлы — собеседники, толщина рёбер — частота контактов. Тела сообщений показаны зашумлёнными блоками.">
       <g>
         <line class="edge t3" x1="120" y1="90"  x2="260" y2="180" />
         <line class="edge t3" x1="260" y1="180" x2="400" y2="120" />
@@ -696,116 +696,116 @@
     </svg>
 
     <div>
-      <p class="caption" style="margin-top:0">Encryption hides bodies. The routing log records who, when, how often, and how long. That log is enough to reconstruct most of a life.</p>
+      <p class="caption" style="margin-top:0">Шифрование скрывает содержимое сообщений. Журнал маршрутизации фиксирует кому, когда, как часто и как долго. Этого журнала достаточно, чтобы реконструировать большую часть жизни.</p>
     </div>
   </div>
 
   <div class="log" aria-hidden="true">
-    <div class="log-track mono">2026-05-07T19:14:02Z   alice <span class="arrow">&rarr;</span> bob               <span class="tag">[message]</span>
-2026-05-07T19:14:08Z   alice <span class="arrow">&rarr;</span> carol             <span class="tag">[message]</span>
-2026-05-07T19:14:31Z   bob   <span class="arrow">&rarr;</span> alice             <span class="tag">[message]</span>
-2026-05-07T19:15:02Z   alice <span class="arrow">&rarr;</span> group:design-team <span class="tag">[message &times; 3]</span>
-2026-05-07T19:15:47Z   carol <span class="arrow">&rarr;</span> alice             <span class="tag">[message]</span>
-2026-05-07T19:16:12Z   bob   <span class="arrow">&rarr;</span> group:design-team <span class="tag">[message]</span>
-2026-05-07T19:16:40Z   alice <span class="arrow">&rarr;</span> dan               <span class="tag">[message &times; 2]</span>
-2026-05-07T19:17:08Z   dan   <span class="arrow">&rarr;</span> alice             <span class="tag">[message]</span>
-2026-05-07T19:17:33Z   carol <span class="arrow">&rarr;</span> group:design-team <span class="tag">[message]</span>
-2026-05-07T19:18:01Z   alice <span class="arrow">&rarr;</span> bob               <span class="tag">[message]</span>
-2026-05-07T19:18:44Z   bob   <span class="arrow">&rarr;</span> carol             <span class="tag">[message]</span>
-2026-05-07T19:19:06Z   alice <span class="arrow">&rarr;</span> group:design-team <span class="tag">[message]</span>
-2026-05-07T19:14:02Z   alice <span class="arrow">&rarr;</span> bob               <span class="tag">[message]</span>
-2026-05-07T19:14:08Z   alice <span class="arrow">&rarr;</span> carol             <span class="tag">[message]</span>
-2026-05-07T19:14:31Z   bob   <span class="arrow">&rarr;</span> alice             <span class="tag">[message]</span>
-2026-05-07T19:15:02Z   alice <span class="arrow">&rarr;</span> group:design-team <span class="tag">[message &times; 3]</span>
-2026-05-07T19:15:47Z   carol <span class="arrow">&rarr;</span> alice             <span class="tag">[message]</span>
-2026-05-07T19:16:12Z   bob   <span class="arrow">&rarr;</span> group:design-team <span class="tag">[message]</span>
-2026-05-07T19:16:40Z   alice <span class="arrow">&rarr;</span> dan               <span class="tag">[message &times; 2]</span>
-2026-05-07T19:17:08Z   dan   <span class="arrow">&rarr;</span> alice             <span class="tag">[message]</span>
-2026-05-07T19:17:33Z   carol <span class="arrow">&rarr;</span> group:design-team <span class="tag">[message]</span>
-2026-05-07T19:18:01Z   alice <span class="arrow">&rarr;</span> bob               <span class="tag">[message]</span>
-2026-05-07T19:18:44Z   bob   <span class="arrow">&rarr;</span> carol             <span class="tag">[message]</span>
-2026-05-07T19:19:06Z   alice <span class="arrow">&rarr;</span> group:design-team <span class="tag">[message]</span>
+    <div class="log-track mono">2026-05-08T19:14:02Z   alice <span class="arrow">&rarr;</span> bob               <span class="tag">[сообщение]</span>
+2026-05-08T19:14:08Z   alice <span class="arrow">&rarr;</span> carol             <span class="tag">[сообщение]</span>
+2026-05-08T19:14:31Z   bob   <span class="arrow">&rarr;</span> alice             <span class="tag">[сообщение]</span>
+2026-05-08T19:15:02Z   alice <span class="arrow">&rarr;</span> group:design-team <span class="tag">[сообщение &times; 3]</span>
+2026-05-08T19:15:47Z   carol <span class="arrow">&rarr;</span> alice             <span class="tag">[сообщение]</span>
+2026-05-08T19:16:12Z   bob   <span class="arrow">&rarr;</span> group:design-team <span class="tag">[сообщение]</span>
+2026-05-08T19:16:40Z   alice <span class="arrow">&rarr;</span> dan               <span class="tag">[сообщение &times; 2]</span>
+2026-05-08T19:17:08Z   dan   <span class="arrow">&rarr;</span> alice             <span class="tag">[сообщение]</span>
+2026-05-08T19:17:33Z   carol <span class="arrow">&rarr;</span> group:design-team <span class="tag">[сообщение]</span>
+2026-05-08T19:18:01Z   alice <span class="arrow">&rarr;</span> bob               <span class="tag">[сообщение]</span>
+2026-05-08T19:18:44Z   bob   <span class="arrow">&rarr;</span> carol             <span class="tag">[сообщение]</span>
+2026-05-08T19:19:06Z   alice <span class="arrow">&rarr;</span> group:design-team <span class="tag">[сообщение]</span>
+2026-05-08T19:14:02Z   alice <span class="arrow">&rarr;</span> bob               <span class="tag">[сообщение]</span>
+2026-05-08T19:14:08Z   alice <span class="arrow">&rarr;</span> carol             <span class="tag">[сообщение]</span>
+2026-05-08T19:14:31Z   bob   <span class="arrow">&rarr;</span> alice             <span class="tag">[сообщение]</span>
+2026-05-08T19:15:02Z   alice <span class="arrow">&rarr;</span> group:design-team <span class="tag">[сообщение &times; 3]</span>
+2026-05-08T19:15:47Z   carol <span class="arrow">&rarr;</span> alice             <span class="tag">[сообщение]</span>
+2026-05-08T19:16:12Z   bob   <span class="arrow">&rarr;</span> group:design-team <span class="tag">[сообщение]</span>
+2026-05-08T19:16:40Z   alice <span class="arrow">&rarr;</span> dan               <span class="tag">[сообщение &times; 2]</span>
+2026-05-08T19:17:08Z   dan   <span class="arrow">&rarr;</span> alice             <span class="tag">[сообщение]</span>
+2026-05-08T19:17:33Z   carol <span class="arrow">&rarr;</span> group:design-team <span class="tag">[сообщение]</span>
+2026-05-08T19:18:01Z   alice <span class="arrow">&rarr;</span> bob               <span class="tag">[сообщение]</span>
+2026-05-08T19:18:44Z   bob   <span class="arrow">&rarr;</span> carol             <span class="tag">[сообщение]</span>
+2026-05-08T19:19:06Z   alice <span class="arrow">&rarr;</span> group:design-team <span class="tag">[сообщение]</span>
 </div>
   </div>
 </section>
 
-<!-- Scene 3: Operator -->
+<!-- Сцена 3: Оператор -->
 <section class="scene scene-3" data-screen-label="03 Operator">
-  <p class="eyebrow">the operator&rsquo;s view</p>
-  <h2 class="display">The server can end<br/>your account.</h2>
+  <p class="eyebrow">взгляд оператора</p>
+  <h2 class="display">Сервер может закрыть<br/>ваш аккаунт.</h2>
 
   <div class="panel-wrap">
     <div class="panel">
       <div class="panel-head">
-        <div class="title">your account</div>
-        <div class="meta mono">on the messenger</div>
+        <div class="title">ваш аккаунт</div>
+        <div class="meta mono">в мессенджере</div>
       </div>
       <div class="panel-body">
         <div class="chats">
-          <div class="heading">your conversations</div>
+          <div class="heading">ваши переписки</div>
           <div class="chats-stack">
-            <div class="chat"><div class="avatar">M</div><div><div class="name">m. ortiz</div><div class="preview">can we move the review to thursday?</div></div><div class="when">14:31</div></div>
-            <div class="chat"><div class="avatar">K</div><div><div class="name">k. tanaka</div><div class="preview">one more round on copy then we ship.</div></div><div class="when">12:08</div></div>
-            <div class="chat"><div class="avatar">J</div><div><div class="name">j. okafor</div><div class="preview">flight lands at nine.</div></div><div class="when">10:47</div></div>
-            <div class="chat"><div class="avatar">A</div><div><div class="name">a. lin</div><div class="preview">thanks &mdash; talk soon.</div></div><div class="when">yest.</div></div>
-            <div class="chat"><div class="avatar">L</div><div><div class="name">l. moreau</div><div class="preview">i&rsquo;ll bring the spec.</div></div><div class="when">yest.</div></div>
-            <div class="chat"><div class="avatar">S</div><div><div class="name">s. weber</div><div class="preview">happy birthday &mdash; see you sat.</div></div><div class="when">2d</div></div>
+            <div class="chat"><div class="avatar">М</div><div><div class="name">м. ортис</div><div class="preview">перенесём ревью на четверг?</div></div><div class="when">14:31</div></div>
+            <div class="chat"><div class="avatar">К</div><div><div class="name">к. танака</div><div class="preview">ещё один проход по тексту и отгружаем.</div></div><div class="when">12:08</div></div>
+            <div class="chat"><div class="avatar">Дж</div><div><div class="name">дж. окафор</div><div class="preview">самолёт прилетает в девять.</div></div><div class="when">10:47</div></div>
+            <div class="chat"><div class="avatar">А</div><div><div class="name">а. лин</div><div class="preview">спасибо &mdash; на связи.</div></div><div class="when">вчера</div></div>
+            <div class="chat"><div class="avatar">Л</div><div><div class="name">л. моро</div><div class="preview">приду со спекой.</div></div><div class="when">вчера</div></div>
+            <div class="chat"><div class="avatar">С</div><div><div class="name">с. вебер</div><div class="preview">с днём рождения &mdash; до субботы.</div></div><div class="when">2д</div></div>
           </div>
-          <div class="chat-banner">this account is no longer active<span class="sub">history is no longer accessible</span></div>
+          <div class="chat-banner">этот аккаунт больше не активен<span class="sub">история переписок недоступна</span></div>
         </div>
 
         <div class="vrule"></div>
 
         <div class="console">
-          <div class="heading">operator console</div>
-          <div class="acct"><span class="id">acct_8194</span><span class="status"><span class="main">active</span></span></div>
-          <div class="acct"><span class="id">acct_8195</span><span class="status"><span class="main">active</span></span></div>
-          <div class="acct"><span class="id">acct_8196</span><span class="status"><span class="main">active</span></span></div>
-          <div class="acct you-row"><span class="id">acct_8197 &mdash; you</span><span class="status"><span class="main">active</span><span class="alt">suspended</span></span></div>
-          <div class="acct"><span class="id">acct_8198</span><span class="status"><span class="main">active</span></span></div>
-          <div class="acct"><span class="id">acct_8199</span><span class="status"><span class="main">active</span></span></div>
+          <div class="heading">консоль оператора</div>
+          <div class="acct"><span class="id">acct_8194</span><span class="status"><span class="main">активен</span></span></div>
+          <div class="acct"><span class="id">acct_8195</span><span class="status"><span class="main">активен</span></span></div>
+          <div class="acct"><span class="id">acct_8196</span><span class="status"><span class="main">активен</span></span></div>
+          <div class="acct you-row"><span class="id">acct_8197 &mdash; вы</span><span class="status"><span class="main">активен</span><span class="alt">заблокирован</span></span></div>
+          <div class="acct"><span class="id">acct_8198</span><span class="status"><span class="main">активен</span></span></div>
+          <div class="acct"><span class="id">acct_8199</span><span class="status"><span class="main">активен</span></span></div>
 
           <div class="cursor" aria-hidden="true">
             <svg viewBox="0 0 14 14"><path d="M1 1 L12 7 L7 8 L9 13 L7 14 L5 9 L1 11 Z" fill="currentColor"/></svg>
           </div>
           <div class="menu" aria-hidden="true" style="top:188px; left:60px;">
-            <div class="item">View account</div>
-            <div class="item">Reset password</div>
-            <div class="item active">Suspend account</div>
+            <div class="item">Открыть аккаунт</div>
+            <div class="item">Сбросить пароль</div>
+            <div class="item active">Заблокировать аккаунт</div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <p class="caption">The company that runs the server can disable your account at will. Your conversations &mdash; every one &mdash; stop being yours. There is no appeal you can file from inside the app.</p>
+  <p class="caption">Компания, которая держит сервер, может отключить ваш аккаунт по своему усмотрению. Все ваши переписки &mdash; все до одной &mdash; перестают быть вашими. И никакой апелляции из приложения не подашь.</p>
 </section>
 
-<!-- Scene 4: Phone vs. Rack -->
+<!-- Сцена 4: Телефон ↔ Стойка -->
 <section class="scene scene-4" data-screen-label="04 Server">
-  <p class="eyebrow">what runs on the server</p>
-  <h2 class="display">You trust the binaries the<br/>server runs. You can&rsquo;t see them.</h2>
+  <p class="eyebrow">что крутится на сервере</p>
+  <h2 class="display">Вы доверяете бинарникам, которые<br/>крутятся на сервере. Видеть их вы не можете.</h2>
 
   <div class="split">
     <div class="phone" aria-hidden="true">
       <div class="pscreen">
         <div class="chat-head">
-          <div class="av">M</div>
+          <div class="av">М</div>
           <div>
-            <div class="who">m. ortiz</div>
-            <div class="pres">online</div>
+            <div class="who">м. ортис</div>
+            <div class="pres">в сети</div>
           </div>
         </div>
         <div class="thread">
-          <div class="stamp">today</div>
-          <div class="bubble them">can we move the review to thursday?</div>
-          <div class="bubble me">works for me. i&rsquo;ll bring the spec.</div>
-          <div class="bubble them">perfect. 10am?</div>
-          <div class="bubble me">10 it is.</div>
-          <div class="bubble them">thanks.</div>
+          <div class="stamp">сегодня</div>
+          <div class="bubble them">перенесём ревью на четверг?</div>
+          <div class="bubble me">удобно. приду со спекой.</div>
+          <div class="bubble them">отлично. в 10?</div>
+          <div class="bubble me">договорились, в 10.</div>
+          <div class="bubble them">спасибо.</div>
         </div>
         <div class="composer">
-          <div class="field">message</div>
+          <div class="field">сообщение</div>
           <div class="send">
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5 H8 M5 2 L8 5 L5 8" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
@@ -814,7 +814,7 @@
     </div>
 
     <div class="arrow-col" aria-hidden="true">
-      <span class="label">trust us</span>
+      <span class="label">доверьтесь нам</span>
       <svg width="120" height="14" viewBox="0 0 120 14" fill="none">
         <line x1="0" y1="7" x2="108" y2="7" stroke="currentColor" stroke-width="1"/>
         <polyline points="100,2 110,7 100,12" fill="none" stroke="currentColor" stroke-width="1"/>
@@ -838,43 +838,43 @@
           <div class="frost"></div>
         </div>
         <div class="ticker">
-          <div class="ticker-track">DEPLOY 2026-05-04 14:31&nbsp;&nbsp;&nbsp;DEPLOY 2026-05-06 09:17&nbsp;&nbsp;&nbsp;DEPLOY 2026-05-07 11:08&nbsp;&nbsp;&nbsp;DEPLOY 2026-05-04 14:31&nbsp;&nbsp;&nbsp;DEPLOY 2026-05-06 09:17&nbsp;&nbsp;&nbsp;DEPLOY 2026-05-07 11:08&nbsp;&nbsp;&nbsp;</div>
+          <div class="ticker-track">DEPLOY 2026-05-04 14:31&nbsp;&nbsp;&nbsp;DEPLOY 2026-05-06 09:17&nbsp;&nbsp;&nbsp;DEPLOY 2026-05-08 11:08&nbsp;&nbsp;&nbsp;DEPLOY 2026-05-04 14:31&nbsp;&nbsp;&nbsp;DEPLOY 2026-05-06 09:17&nbsp;&nbsp;&nbsp;DEPLOY 2026-05-08 11:08&nbsp;&nbsp;&nbsp;</div>
         </div>
       </div>
     </div>
   </div>
 
-  <p class="caption">Whatever runs on the server, runs on you. The source isn&rsquo;t bound to the runtime; the audits aren&rsquo;t reproducible. Each deploy is a renewed act of faith.</p>
+  <p class="caption">Что работает на сервере &mdash; то работает над вами. Исходники не привязаны к тому, что крутится в проде; аудиты невоспроизводимы. Каждый деплой &mdash; это новый акт веры.</p>
 </section>
 
-<!-- Scene 5: Ledger -->
+<!-- Сцена 5: Реестр доверия -->
 <section class="scene scene-5" data-screen-label="05 Ledger">
-  <p class="eyebrow">trust required, today</p>
-  <h2 class="display">You already trust this many<br/>parties. By default.</h2>
+  <p class="eyebrow">кому нужно доверять сегодня</p>
+  <h2 class="display">Вот скольким сторонам<br/>вы уже доверяете. По умолчанию.</h2>
 
   <div class="ledger" id="ledger">
-    <div class="row"><span class="box">▢</span><span>the messenger&rsquo;s company</span></div>
-    <div class="row"><span class="box">▢</span><span>the messenger&rsquo;s CEO and counsel</span></div>
-    <div class="row"><span class="box">▢</span><span>every engineer with deploy access</span></div>
-    <div class="row"><span class="box">▢</span><span>the messenger&rsquo;s hosting provider</span></div>
-    <div class="row"><span class="box">▢</span><span>every admin of every group you&rsquo;re in</span></div>
-    <div class="row"><span class="box">▢</span><span>the certificate authorities pinned in your phone</span></div>
-    <div class="row"><span class="box">▢</span><span>the operating-system vendor</span></div>
-    <div class="row"><span class="box">▢</span><span>whatever subpoena lands in any of the above</span></div>
+    <div class="row"><span class="box">▢</span><span>компании-разработчику мессенджера</span></div>
+    <div class="row"><span class="box">▢</span><span>его CEO и юристам</span></div>
+    <div class="row"><span class="box">▢</span><span>каждому инженеру с правом деплоя</span></div>
+    <div class="row"><span class="box">▢</span><span>хостинг-провайдеру мессенджера</span></div>
+    <div class="row"><span class="box">▢</span><span>каждому админу каждой группы, в которой вы состоите</span></div>
+    <div class="row"><span class="box">▢</span><span>удостоверяющим центрам, прошитым в вашем телефоне</span></div>
+    <div class="row"><span class="box">▢</span><span>вендору операционной системы</span></div>
+    <div class="row"><span class="box">▢</span><span>любому судебному запросу к любому из них</span></div>
   </div>
 
-  <p class="closing">Encryption was supposed to remove some of these. It didn&rsquo;t.</p>
+  <p class="closing">Шифрование должно было убрать часть из них. Не убрало.</p>
 </section>
 
-<!-- Outro: Onym's answer -->
-<section class="outro" aria-label="What Onym does instead">
-  <p class="eyebrow" style="margin-bottom:24px;">onym&rsquo;s answer</p>
-  <h2>Remove the server.<br/>Make the only shared state public.</h2>
-  <p class="lede" style="margin-top:28px;">No company in the loop. No operator console. No deploy you have to take on faith. Group state lives on a public smart contract; messages travel over relays you can swap; identity stays on your device.</p>
+<!-- Outro: ответ Onym -->
+<section class="outro" aria-label="Что Onym делает вместо этого">
+  <p class="eyebrow" style="margin-bottom:24px;">ответ onym</p>
+  <h2>Убрать сервер.<br/>Единственное общее состояние сделать публичным.</h2>
+  <p class="lede" style="margin-top:28px;">Никакой компании в цепочке. Никакой консоли оператора. Никакого деплоя, который нужно принимать на веру. Состояние группы &mdash; в публичном смарт-контракте; сообщения идут через релэи, которые вы можете заменить; идентичность остаётся на вашем устройстве.</p>
   <div class="ctas">
-    <a class="cta primary" href="/architecture/">See the architecture</a>
-    <a class="cta secondary" href="/about/">Read the manifesto</a>
-    <a class="cta secondary" href="/qa/">Try the alpha</a>
+    <a class="cta primary" href="/ru/architecture/">Архитектура</a>
+    <a class="cta secondary" href="/ru/about/">О проекте</a>
+    <a class="cta secondary" href="/qa/">Альфа-версия</a>
   </div>
 </section>
 
@@ -883,8 +883,8 @@
 <footer class="hair border-t mt-12" style="border-top-style:solid;">
   <div class="max-w-[1100px] mx-auto px-6 py-10 flex flex-wrap items-center justify-between gap-4 text-[12px] muted mono">
     <span>&copy; 2026 &middot; Onym Foundation</span>
-    <span>Released under the MIT license</span>
-    <span>Never pay with your identity.</span>
+    <span>Распространяется по лицензии MIT</span>
+    <span>Никогда не платите личностью.</span>
   </div>
 </footer>
 
@@ -921,7 +921,7 @@
   });
 })();</script>
 <script>
-  // Ledger reveal on scroll
+  // Реестр: появление при прокрутке
   (function () {
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const rows = document.querySelectorAll('#ledger .row');
