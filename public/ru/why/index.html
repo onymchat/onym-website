@@ -385,9 +385,11 @@
     align-items:center;
   }
   @media (max-width:900px){
-    .split{ grid-template-columns:1fr; justify-items:center; }
-    .split .phone{ justify-self:center; }
-    .split .rack-wrap{ justify-self:center; }
+    .split{
+      display:flex; flex-direction:column;
+      align-items:center;
+      gap: clamp(20px, 3vw, 40px);
+    }
     .split .arrow-col{ transform:rotate(90deg); }
   }
   .phone{
