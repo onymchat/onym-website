@@ -170,16 +170,16 @@
     <h2 class="display display-md mb-6">Boilerplate</h2>
 
     <p class="eyebrow mb-3" style="font-size:.7rem">One-liner</p>
-    <p class="quote mb-8 mono text-[14px]">Onym is an open-source, end-to-end encrypted messenger anchored on Stellar -- no accounts, no phone numbers, no metadata trail.</p>
+    <p class="quote mb-8 mono text-[14px]">Onym is an open-source, end-to-end encrypted group messenger anchored on Stellar -- no accounts, no phone numbers, and no company in the loop with the authority to disable yours.</p>
 
     <p class="eyebrow mb-3" style="font-size:.7rem">50 words</p>
     <p class="quote mb-8 text-[clamp(.95rem,1.05vw,1.05rem)]">
-      Onym is an open-source messenger that replaces the trusted server with a public Stellar smart contract. Identity, keys, and message history live on the user's device. Group rules are anchored on chain, anyone can audit them, no one can override them. There are no accounts, no phone numbers, and no metadata trail to subpoena.
+      Onym is an open-source group messenger built so that no single operator can disable a user, deplatform a group, or hand over a recoverable social graph. Identity, keys, and message history live on the user's device. Group rules are anchored on a public Stellar smart contract; anyone can audit them, no one can override them.
     </p>
 
     <p class="eyebrow mb-3" style="font-size:.7rem">200 words</p>
     <p class="quote text-[clamp(.95rem,1.05vw,1.05rem)]">
-      Onym is a privacy-first messenger built on a single principle: no one, including its makers, should be able to read your conversations or reconstruct your social graph. Where most messengers run on a trusted company's servers, Onym replaces the server with a public Stellar smart contract that defines a group's rules -- who can admit, who can remove, who can speak -- and a swarm of replaceable Nostr relays that carry encrypted blobs. Identity is twelve BIP-39 words generated and stored on the user's device; there are no accounts, phone numbers, or email addresses to compromise. Group membership is verified with zero-knowledge proofs (PLONK over BLS12-381) so admins can prove a user belongs without revealing the rest of the roster. Every cryptographic primitive in use -- BIP-39, secp256k1 / Schnorr, Ed25519, X25519, BLS12-381, PLONK, Poseidon -- has been studied, deployed, and attacked by cryptographers for decades. The iOS app, the Android app, the Stellar contracts, and the relayer are all MIT-licensed and on GitHub. Onym is built by a small team of independent cryptographers and engineers operating as the Onym Foundation.
+      Onym is a privacy-first group messenger built on a single principle: no single operator should be able to read your conversations or reconstruct your social graph. Where most messengers run on a trusted company's servers, Onym replaces the operator with a public Stellar smart contract that defines a group's rules -- who can admit, who can remove, who can speak -- and a swappable transport of Nostr relays that carry encrypted blobs. Identity is twelve BIP-39 words generated and stored on the user's device; there are no accounts, phone numbers, or email addresses to compromise. Group membership is verified with zero-knowledge proofs (PLONK over BLS12-381): a member proves &ldquo;I belong to this group&rdquo; on chain without revealing which member they are, and the Soroban contract verifies the proof. Every cryptographic primitive in use -- BIP-39, secp256k1 / Schnorr, Ed25519, X25519, BLS12-381, PLONK, Poseidon -- has been studied, deployed, and attacked by cryptographers for decades. A relayer pays Stellar fees so users never need a funded account; it sees ciphertext and connection metadata, never plaintext or membership. The iOS app, the Android app, the contracts, and the relayer are all MIT-licensed on GitHub. Onym publishes its <a class="link" href="/threat-model/">threat model</a> with every release.
     </p>
   </section>
 
@@ -265,7 +265,7 @@
 
 <footer class="hair border-t mt-12" style="border-top-style:solid;">
   <div class="max-w-[1100px] mx-auto px-6 py-10 flex flex-wrap items-center justify-between gap-4 text-[12px] muted mono">
-    <span>&copy; 2026 &middot; Onym Foundation</span>
+    <span>&copy; 2026 &middot; Onym &middot; MIT licensed</span>
     <span>Released under the MIT license</span>
     <span>Never pay with your identity.</span>
   </div>

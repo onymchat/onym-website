@@ -4,18 +4,18 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Onym — Open · Anonymous · Onchain</title>
-<meta name="description" content="End-to-end encrypted messaging. No server to trust. Metadata never leaves your device. Open source, anchored on Stellar." />
+<meta name="description" content="End-to-end encrypted group chat. No company in the loop — no operator can disable your account. Identity, keys, and message history stay on your device. Open source, anchored on Stellar." />
 <meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
 <link rel="icon" type="image/png" href="/assets/icon-dark.png" />
 <link rel="apple-touch-icon" href="/assets/icon-dark.png" />
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Onym — Open · Anonymous · Onchain" />
-<meta property="og:description" content="End-to-end encrypted messaging. No server to trust. Metadata never leaves your device." />
+<meta property="og:description" content="End-to-end encrypted group chat. No company in the loop. Identity, keys, and history stay on your device." />
 <meta property="og:image" content="https://onym.app/assets/og-card.jpg" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Onym — Open · Anonymous · Onchain" />
-<meta name="twitter:description" content="End-to-end encrypted messaging. No server to trust. Metadata never leaves your device." />
+<meta name="twitter:description" content="End-to-end encrypted group chat. No company in the loop. Identity, keys, and history stay on your device." />
 <meta name="twitter:image" content="https://onym.app/assets/og-card.jpg" />
 <link rel="alternate" hreflang="en" href="https://onym.app/" />
 <link rel="alternate" hreflang="ru" href="https://onym.app/ru/" />
@@ -155,6 +155,8 @@
     padding: 9px;
     box-shadow: 0 40px 80px -30px rgba(10,10,10,.45), 0 2px 0 rgba(255,255,255,.04) inset;
     position: relative;
+    flex: 0 0 auto;
+    align-self: start;
   }
   .phone-screen{
     --ios-bg: #000;
@@ -353,17 +355,38 @@
     object-fit: cover; object-position: center;
   }
 
-  /* Governance horizontal */
-  .h-track{ display:flex; gap: 28px; padding: 0 6vw; height: 100%; align-items: center;}
+  /* Governance grid */
+  :root{ --amber-solid:#f0b229; }
+  html[data-theme="light"]{ --amber-solid:#b8821b; }
+  .gov-grid{
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+  @media (max-width: 1023px){ .gov-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 599px){ .gov-grid{ grid-template-columns: 1fr; gap: 14px; } }
   .gov-card{
-    flex: 0 0 min(420px, 80vw); aspect-ratio: 3/4;
-    border-radius: 24px; padding: 32px;
+    border-radius: 20px; padding: 28px;
     background: var(--card); border:1px solid var(--hair);
     box-shadow: var(--shadow);
-    display:flex; flex-direction:column; justify-content:space-between;
+    display:flex; flex-direction:column; gap: 16px;
     position:relative; overflow:hidden;
+    min-height: 360px;
   }
   html[data-theme="light"] .gov-card{ background: linear-gradient(180deg, #fbfbfd 0%, #efeff2 100%);}
+  .gov-card.planned{ box-shadow: none; background: transparent; opacity: .82; }
+  html[data-theme="light"] .gov-card.planned{ background: transparent; }
+  .gov-card-head{ display:flex; align-items:center; justify-content:space-between; gap: 10px; }
+  .gov-status{
+    display:inline-flex; align-items:center; gap:6px;
+    border:1px solid var(--hair); padding: 3px 9px; border-radius:999px;
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.66rem; letter-spacing:.14em; text-transform:uppercase;
+    color: var(--muted); white-space:nowrap;
+  }
+  .gov-status .dot{ width:6px; height:6px; border-radius:50%; background: var(--muted); opacity:.55; }
+  .gov-status.planned{ color: var(--amber-solid); border-color: color-mix(in oklab, var(--amber-solid) 40%, var(--hair)); }
+  .gov-status.planned .dot{ background: var(--amber-solid); opacity:1; box-shadow: 0 0 6px color-mix(in oklab, var(--amber-solid) 50%, transparent); }
   .gov-diagram{
     width: 100%; aspect-ratio: 5 / 3;
     color: var(--fg);
@@ -494,8 +517,11 @@
   .spec{
     border:1px solid var(--hair); border-radius:14px; padding: 22px;
     background: var(--card); box-shadow: var(--shadow);
-    transform: translateY(14px); opacity:0; transition: opacity .6s ease, transform .6s cubic-bezier(.2,.7,.2,1);
+    transform: translateY(14px); opacity:0; transition: opacity .6s ease, transform .6s cubic-bezier(.2,.7,.2,1), border-color .15s ease, transform .2s ease;
+    display:block; color:inherit; text-decoration:none;
   }
+  a.spec:hover{ border-color: color-mix(in oklab, var(--fg) 25%, transparent); }
+  a.spec:focus-visible{ outline:2px solid var(--fg); outline-offset:3px; }
   .spec.in{ opacity:1; transform:none; }
 
   /* Terminal */
@@ -567,14 +593,8 @@
     .smoke-bg{ transform:none !important;}
   }
   @media (max-width: 767px){
-    .h-track{ flex-direction:column; height:auto; padding: 40px 6vw; gap:18px;}
-    .gov-card{ flex: 0 0 auto; aspect-ratio:auto; min-height: 360px; width:100%;}
-    .h-pin{ height:auto !important;}
-    .h-stage{ position:relative !important; height:auto !important;}
-    /* Release the absolute card-track wrapper so it doesn't overlay the heading */
-    #governance .h-stage > .absolute{ position: static !important; top: auto !important; }
     /* Shrink the phone shell so it fits within the sticky offset on mobile */
-    .phone-shell{ width: min(240px, 64vw); }
+    .phone-shell{ width: min(220px, 56vw); }
     /* Hero pin: shorter on mobile so the word swap doesn't drag */
     .hero-pin{ height: 150vh; }
     /* Theme toggle: respect iOS home-indicator safe area */
@@ -601,8 +621,8 @@
       <span class="text-[14px] font-medium tracking-tight">Onym</span>
     </a>
     <nav class="hidden md:flex items-center gap-7 text-[13px] muted">
-      <a href="#identity" class="hover:text-[var(--fg)] focus-ring">Product</a>
-      <a href="#smoke" class="hover:text-[var(--fg)] focus-ring">Privacy</a>
+      <a href="#phone" class="hover:text-[var(--fg)] focus-ring">Product</a>
+      <a href="#architecture" class="hover:text-[var(--fg)] focus-ring">Architecture</a>
       <a href="#governance" class="hover:text-[var(--fg)] focus-ring">Governance</a>
       <a href="#specs" class="hover:text-[var(--fg)] focus-ring">Developers</a>
       <a href="#opensource" class="hover:text-[var(--fg)] focus-ring">Open Source</a>
@@ -623,9 +643,9 @@
         <span class="hero-word" data-i="1" style="opacity:0">By design.</span>
         <span class="hero-word" data-i="2" style="opacity:0">Onym.</span>
       </h1>
-      <p class="mt-7 text-[clamp(1rem,1.4vw,1.25rem)] muted max-w-[52ch] mx-auto">No server to trust.
-Metadata never leaves your device.
-End-to-end encrypted.
+      <p class="mt-7 text-[clamp(1rem,1.4vw,1.25rem)] muted max-w-[52ch] mx-auto">No company in the loop.
+Identity, keys, and history stay on your device.
+End-to-end encrypted, with an <a href="/threat-model/" class="hover:text-[var(--fg)] focus-ring" style="text-decoration:underline; text-decoration-color:var(--hair); text-underline-offset:3px;">honest threat model</a>.
 </p>
       <div class="mt-9 flex items-center justify-center gap-3">
         <a href="/qa/" class="pill text-[13.5px] px-5 py-3 focus-ring" style="background:var(--fg);color:var(--bg);">Try the alpha</a>
@@ -636,6 +656,106 @@ End-to-end encrypted.
       </div>
       <div class="mt-20 flex items-center justify-center">
         <span class="hero-mark" role="img" aria-label="Onym" id="heroMark"><img src="/assets/icon-dark.png" alt="" class="dark-icon"/><img src="/assets/icon-light.png" alt="" class="light-icon"/></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Phone three-state -->
+<section id="phone" class="section-div" style="padding: min(14vh, 9rem) 0;">
+  <div class="max-w-[1200px] mx-auto px-6 grid md:grid-cols-[1fr_minmax(280px,440px)] gap-16 md:gap-24 items-start">
+    <div class="order-2 md:order-1">
+      <p class="eyebrow mb-5">The product</p>
+      <h2 class="display display-lg">Trust no one,<br/>just math and physics.</h2>
+
+      <ol class="mt-12 space-y-12 list-none" id="phoneSteps">
+        <li class="reveal" data-step="0">
+          <div class="flex items-baseline gap-4">
+            <span class="mono text-[12px] muted">01</span>
+            <h3 class="display display-md">Every other messenger has a server.</h3>
+          </div>
+          <p class="mt-3 muted text-[clamp(.95rem,1.1vw,1.05rem)] max-w-[52ch] pl-9">
+            A binary on hardware you don't own, run by a company you have to trust — its owners, its admins, and whoever can serve them a warrant. Their privacy ends where their org chart begins.
+          </p>
+        </li>
+        <li class="reveal" data-step="1">
+          <div class="flex items-baseline gap-4">
+            <span class="mono text-[12px] muted">02</span>
+            <h3 class="display display-md">Onym replaces the server with a public smart contract.</h3>
+          </div>
+          <p class="mt-3 muted text-[clamp(.95rem,1.1vw,1.05rem)] max-w-[52ch] pl-9">
+            Group membership and governance live on Stellar. Anyone can audit the rules. No one can override them. The contract is the only shared state — and it's public by design.
+          </p>
+        </li>
+        <li class="reveal" data-step="2">
+          <div class="flex items-baseline gap-4">
+            <span class="mono text-[12px] muted">03</span>
+            <h3 class="display display-md">Everything else lives on your device.</h3>
+          </div>
+          <p class="mt-3 muted text-[clamp(.95rem,1.1vw,1.05rem)] max-w-[52ch] pl-9">
+            Identity, keys, contacts, and message history are generated locally and stay on device. Nothing is ever synced to a cloud Onym controls. What does cross the network — encrypted message blobs, signed Stellar transactions — is named in the <a href="/threat-model/" class="hover:text-[var(--fg)] focus-ring" style="text-decoration:underline; text-decoration-color:var(--hair); text-underline-offset:3px;">threat model</a>.
+          </p>
+        </li>
+      </ol>
+    </div>
+
+    <!-- Phone -->
+    <div class="order-1 md:order-2 sticky top-[12vh] flex justify-center">
+      <div class="phone-shell">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <!-- State 0: chat -->
+          <div class="phone-state is-active" data-state="0">
+            <div class="flex items-center justify-between ph-fg text-[11px] mono px-1 mb-3" style="opacity:.7">
+              <span>9:41</span><span>onym · e2ee</span>
+            </div>
+            <div class="text-center ph-sub text-[11px] mono mb-4">— end-to-end encrypted —</div>
+            <div class="flex flex-col gap-2 px-1">
+              <div class="chat-bubble b-them">flight lands at nine</div>
+              <div class="chat-bubble b-them">if traffic is bad, ten</div>
+              <div class="chat-bubble b-me">i&rsquo;ll be there. usual spot</div>
+              <div class="chat-bubble b-them">moved the meeting to thursday btw</div>
+              <div class="chat-bubble b-me">noted</div>
+            </div>
+          </div>
+          <!-- State 1: recovery -->
+          <div class="phone-state" data-state="1">
+            <div class="flex items-center justify-between ph-fg text-[11px] mono px-1 mb-3" style="opacity:.7">
+              <span>9:41</span><span>recovery phrase</span>
+            </div>
+            <p class="ph-fg text-[15px] font-medium px-1 mb-1">Twelve words.</p>
+            <p class="ph-sub text-[11px] px-1 mb-4">Write these down. Never share them.</p>
+            <div class="grid grid-cols-2 gap-2 px-1">
+              <div class="word-mini"><span>1</span>private</div>
+              <div class="word-mini"><span>2</span>shield</div>
+              <div class="word-mini"><span>3</span>silent</div>
+              <div class="word-mini"><span>4</span>shadow</div>
+              <div class="word-mini"><span>5</span>guard</div>
+              <div class="word-mini"><span>6</span>secret</div>
+              <div class="word-mini"><span>7</span>bright</div>
+              <div class="word-mini"><span>8</span>peace</div>
+              <div class="word-mini"><span>9</span>light</div>
+              <div class="word-mini"><span>10</span>trust</div>
+              <div class="word-mini"><span>11</span>love</div>
+              <div class="word-mini"><span>12</span>free</div>
+            </div>
+          </div>
+          <!-- State 2: governance -->
+          <div class="phone-state" data-state="2">
+            <div class="flex items-center justify-between ph-fg text-[11px] mono px-1 mb-3" style="opacity:.7">
+              <span>9:41</span><span>new group</span>
+            </div>
+            <p class="ph-fg text-[15px] font-medium px-1 mb-1">Choose governance.</p>
+            <p class="ph-sub text-[11px] px-1 mb-4">Set the rules for who can admit, remove, post.</p>
+            <div class="flex flex-col gap-2 px-1">
+              <div class="gov-row"><span>One-on-one</span><span class="check"></span></div>
+              <div class="gov-row"><span>Anarchy</span><span class="check"></span></div>
+              <div class="gov-row"><span>Founder</span><span class="check"></span></div>
+              <div class="gov-row is-sel"><span>Democracy</span><span class="check"></span></div>
+              <div class="gov-row"><span>Oligarchy</span><span class="check"></span></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -741,108 +861,352 @@ End-to-end encrypted.
   </div>
 </section>
 
-<!-- Phone three-state -->
-<section id="phone" class="section-div" style="padding: min(14vh, 9rem) 0;">
-  <div class="max-w-[1200px] mx-auto px-6 grid md:grid-cols-[1fr_minmax(280px,440px)] gap-16 md:gap-24 items-start">
-    <div class="order-2 md:order-1">
-      <p class="eyebrow mb-5">The product</p>
-      <h2 class="display display-lg">Trust no one,<br/>just math and physics.</h2>
+<!-- Relayer, plainly -->
+<style>
+  /* Relayer cross-section figure — matches /threat-model/ visual language */
+  #relayer{
+    --green-solid:#34d399;
+    --amber-solid:#f0b229;
+    --red-solid:#ef4444;
+    --amber:#f0b22933;
+    --red:#ef444433;
+  }
+  html[data-theme="light"] #relayer{
+    --green-solid:#0fa471;
+    --amber-solid:#b8821b;
+    --red-solid:#c8362c;
+    --amber:#f0b22922;
+    --red:#ef444422;
+  }
+  .rx-figure{
+    border:1px solid var(--hair); border-radius:18px;
+    background: var(--card); box-shadow: var(--shadow);
+    overflow:hidden;
+  }
+  .rx-head{
+    display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+    padding: 18px clamp(20px, 3vw, 28px) 6px;
+  }
+  .rx-name{ font-size:.88rem; font-weight:600; letter-spacing:-0.01em; }
+  .rx-tag{
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.66rem; letter-spacing:.18em; text-transform:uppercase; color: var(--muted);
+  }
 
-      <ol class="mt-12 space-y-12 list-none" id="phoneSteps">
-        <li class="reveal" data-step="0">
-          <div class="flex items-baseline gap-4">
-            <span class="mono text-[12px] muted">01</span>
-            <h3 class="display display-md">Every other messenger has a server.</h3>
-          </div>
-          <p class="mt-3 muted text-[clamp(.95rem,1.1vw,1.05rem)] max-w-[52ch] pl-9">
-            A binary on hardware you don't own, run by a company you have to trust — its owners, its admins, and whoever can serve them a warrant. Their privacy ends where their org chart begins.
-          </p>
-        </li>
-        <li class="reveal" data-step="1">
-          <div class="flex items-baseline gap-4">
-            <span class="mono text-[12px] muted">02</span>
-            <h3 class="display display-md">Onym replaces the server with a public smart contract.</h3>
-          </div>
-          <p class="mt-3 muted text-[clamp(.95rem,1.1vw,1.05rem)] max-w-[52ch] pl-9">
-            Group membership and governance live on Stellar. Anyone can audit the rules. No one can override them. The contract is the only shared state — and it's public by design.
-          </p>
-        </li>
-        <li class="reveal" data-step="2">
-          <div class="flex items-baseline gap-4">
-            <span class="mono text-[12px] muted">03</span>
-            <h3 class="display display-md">Everything else lives on your device.</h3>
-          </div>
-          <p class="mt-3 muted text-[clamp(.95rem,1.1vw,1.05rem)] max-w-[52ch] pl-9">
-            Identity, keys, contacts, message history — generated locally, stored on device, never synced anywhere. No metadata leaks. Full sovereignty. Freedom of association, by default.
-          </p>
-        </li>
-      </ol>
-    </div>
+  .rx-stage{ padding: 6px clamp(16px, 2.5vw, 28px) 10px; }
+  .rx-svg{ width:100%; height:auto; display:block; color: var(--fg); }
+  .rx-svg text{
+    fill: currentColor;
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
 
-    <!-- Phone -->
-    <div class="order-1 md:order-2 sticky top-[12vh] flex justify-center">
-      <div class="phone-shell">
-        <div class="phone-notch"></div>
-        <div class="phone-screen">
-          <!-- State 0: chat -->
-          <div class="phone-state is-active" data-state="0">
-            <div class="flex items-center justify-between ph-fg text-[11px] mono px-1 mb-3" style="opacity:.7">
-              <span>9:41</span><span>onym · e2ee</span>
-            </div>
-            <div class="text-center ph-sub text-[11px] mono mb-4">— end-to-end encrypted —</div>
-            <div class="flex flex-col gap-2 px-1">
-              <div class="chat-bubble b-them">keys are local. relayer never sees plaintext.</div>
-              <div class="chat-bubble b-them">group state is on stellar. provable.</div>
-              <div class="chat-bubble b-me">and only members can read it?</div>
-              <div class="chat-bubble b-them">only members. zk proof of membership.</div>
-              <div class="chat-bubble b-me">good.</div>
-            </div>
-          </div>
-          <!-- State 1: recovery -->
-          <div class="phone-state" data-state="1">
-            <div class="flex items-center justify-between ph-fg text-[11px] mono px-1 mb-3" style="opacity:.7">
-              <span>9:41</span><span>recovery phrase</span>
-            </div>
-            <p class="ph-fg text-[15px] font-medium px-1 mb-1">Twelve words.</p>
-            <p class="ph-sub text-[11px] px-1 mb-4">Write these down. Never share them.</p>
-            <div class="grid grid-cols-2 gap-2 px-1">
-              <div class="word-mini"><span>1</span>private</div>
-              <div class="word-mini"><span>2</span>shield</div>
-              <div class="word-mini"><span>3</span>silent</div>
-              <div class="word-mini"><span>4</span>shadow</div>
-              <div class="word-mini"><span>5</span>guard</div>
-              <div class="word-mini"><span>6</span>secret</div>
-              <div class="word-mini"><span>7</span>bright</div>
-              <div class="word-mini"><span>8</span>peace</div>
-              <div class="word-mini"><span>9</span>light</div>
-              <div class="word-mini"><span>10</span>trust</div>
-              <div class="word-mini"><span>11</span>love</div>
-              <div class="word-mini"><span>12</span>free</div>
-            </div>
-          </div>
-          <!-- State 2: governance -->
-          <div class="phone-state" data-state="2">
-            <div class="flex items-center justify-between ph-fg text-[11px] mono px-1 mb-3" style="opacity:.7">
-              <span>9:41</span><span>new group</span>
-            </div>
-            <p class="ph-fg text-[15px] font-medium px-1 mb-1">Choose governance.</p>
-            <p class="ph-sub text-[11px] px-1 mb-4">Set the rules for who can admit, remove, post.</p>
-            <div class="flex flex-col gap-2 px-1">
-              <div class="gov-row"><span>One-on-one</span><span class="check"></span></div>
-              <div class="gov-row"><span>Anarchy</span><span class="check"></span></div>
-              <div class="gov-row"><span>Tyranny</span><span class="check"></span></div>
-              <div class="gov-row is-sel"><span>Democracy</span><span class="check"></span></div>
-              <div class="gov-row"><span>Oligarchy</span><span class="check"></span></div>
-            </div>
-          </div>
-        </div>
+  /* Frame, nodes, edges — matches .ts-svg vocabulary */
+  .rx-svg .frame{ stroke: var(--hair); fill: none; }
+  .rx-svg .node{ fill: var(--bg); stroke: currentColor; stroke-width:1; }
+  .rx-svg .node.partial{ stroke: var(--amber-solid); stroke-width:1.2; }
+  .rx-svg .node.ok{ stroke: var(--green-solid); stroke-width:1.2; }
+
+  /* The relayer body — translucent / glass: dashed hair frame, faint amber wash */
+  .rx-svg .relayer-body{
+    fill: var(--amber);
+    stroke: var(--amber-solid);
+    stroke-width: 1.1;
+    stroke-dasharray: 4 3;
+    opacity: .9;
+  }
+  html[data-theme="light"] .rx-svg .relayer-body{ opacity: 1; }
+
+  .rx-svg .relayer-shade{ fill: var(--amber); opacity:.18; }
+  .rx-svg .inspect{
+    fill: var(--card); stroke: var(--amber-solid); stroke-width: 1; opacity:.95;
+  }
+
+  .rx-svg .lbl{ font-size: 9.5px; font-weight:700; letter-spacing:.06em; text-anchor:middle; }
+  .rx-svg .sub{ font-size: 7.6px; opacity:.55; text-anchor:middle; letter-spacing:.04em; }
+  .rx-svg .row-lbl{ font-size: 7.4px; letter-spacing:.14em; text-transform:uppercase; opacity:.65; }
+  .rx-svg .log{ font-size: 7.6px; letter-spacing:.04em; }
+  .rx-svg .log-key{ font-size: 6.8px; letter-spacing:.16em; opacity:.55; text-transform:uppercase; }
+  .rx-svg .reads{ fill: var(--amber-solid); }
+
+  .rx-svg .edge{ stroke: currentColor; stroke-width: 1; opacity: .35; fill:none; }
+  .rx-svg .edge.dashed{ stroke-dasharray: 2 3; }
+
+  /* Animated envelope tokens — sealed, opaque to the relayer */
+  .rx-svg .envelope{ fill: var(--bg); stroke: currentColor; stroke-width: 1; }
+  .rx-svg .envelope-flap{ stroke: currentColor; stroke-width: .9; fill: none; opacity:.85; }
+  .rx-svg .envelope-seal{ fill: currentColor; opacity:.85; }
+  .rx-svg .envelope-marks{ stroke: currentColor; stroke-width:.7; opacity:.5; }
+  .rx-svg .fee-stamp{
+    fill: var(--card); stroke: var(--green-solid); stroke-width: 1;
+  }
+  .rx-svg .fee-text{ fill: var(--green-solid); font-size: 6.4px; letter-spacing:.08em; }
+
+  /* Three flow lines: token glides left → through relayer → right */
+  .rx-svg .token{
+    animation: rxFlow 5.4s ease-in-out infinite;
+  }
+  /* single-row flow → no per-row delays needed */
+
+  @keyframes rxFlow{
+    0%   { transform: translateX(118px); opacity: 0; }
+    8%   { opacity: 1; }
+    92%  { opacity: 1; }
+    100% { transform: translateX(606px); opacity: 0; }
+  }
+
+  /* Inspection-log "stamp" — flashes when an envelope passes the inspection window */
+  .rx-svg .stamp{
+    fill: var(--amber-solid); opacity: 0;
+    animation: rxStamp 5.4s ease-in-out infinite;
+  }
+  /* one stamp, one envelope */
+  @keyframes rxStamp{
+    0%, 50%   { opacity: 0; }
+    55%       { opacity: 1; }
+    72%, 100% { opacity: 0; }
+  }
+
+  /* Perimeter "cannot reach" ghost boxes */
+  .rx-svg .ghost{ fill: none; stroke: var(--red-solid); stroke-width: 1; opacity: .55; }
+  .rx-svg .ghost.dashed{ stroke-dasharray: 2 3; }
+  .rx-svg .ghost-x{ stroke: var(--red-solid); stroke-width: 1; opacity:.55; }
+  .rx-svg .ghost-text{ fill: var(--red-solid); opacity:.85; }
+
+  /* Footer chips strip — same chip style as /threat-model/ */
+  .rx-foot{
+    border-top: 1px solid var(--hair);
+    padding: 14px clamp(20px, 3vw, 28px) 18px;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .rx-row{
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    align-items: start;
+    gap: 8px 12px;
+    font-size:.8rem;
+  }
+  .rx-row .chips{
+    display: flex; flex-wrap: wrap; gap: 6px 8px;
+  }
+  .rx-key{
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.68rem; letter-spacing:.16em; text-transform:uppercase;
+    color: var(--muted); min-width: 0;
+    padding-top: 4px;
+  }
+  .rx-chip{
+    display:inline-flex; align-items:center; gap:7px;
+    border:1px solid var(--hair);
+    padding: 3px 10px; border-radius:999px;
+    font-size:.74rem; letter-spacing:.01em;
+    color: var(--fg);
+  }
+  .rx-chip .sw{ width:6px; height:6px; border-radius:50%; }
+  .rx-chip.partial .sw{ background: var(--amber-solid); box-shadow: 0 0 6px var(--amber); }
+  .rx-chip.ok .sw{ background: var(--green-solid); box-shadow: 0 0 0 var(--green); }
+  .rx-chip.blind{ color: var(--muted); }
+  .rx-chip.blind .sw{ background: var(--muted); opacity:.45; }
+  .rx-chip.cannot{ color: var(--red-solid); }
+  .rx-chip.cannot .sw{ background: var(--red-solid); box-shadow: 0 0 6px var(--red); }
+  .rx-chip.cannot .strike{ text-decoration: line-through; text-decoration-thickness: 1px; opacity:.85; }
+
+  @media (max-width: 760px){
+    .rx-row{ grid-template-columns: 1fr; gap: 4px; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .rx-svg .token,
+    .rx-svg .stamp{
+      animation: none !important;
+    }
+    /* Static fallback: pin the envelope mid-flow inside the relayer body. */
+    .rx-svg .token{
+      transform: translateX(290px);
+      opacity: 1;
+    }
+    .rx-svg .stamp{ opacity: .9; }
+  }
+</style>
+
+<section id="relayer" class="section-div" style="padding: min(14vh, 9rem) 0;">
+  <div class="max-w-[1200px] mx-auto px-6">
+    <div class="grid md:grid-cols-[1.05fr_minmax(0,1.35fr)] gap-10 md:gap-16 items-start">
+      <div class="reveal">
+        <p class="eyebrow mb-5">The relayer, plainly</p>
+        <h2 class="display display-lg">Yes, there is a server.<br/>Here&rsquo;s what it does &mdash;<br/>and what it can&rsquo;t.</h2>
+        <p class="mt-7 muted text-[clamp(1rem,1.2vw,1.15rem)] max-w-[52ch]">
+          Onym uses a relayer: a small service that submits your signed Stellar transactions and pays the on-chain fees so you never need a funded account. It is a server. It is not a server with kill-switch authority over your account, your conversations, or your group&rsquo;s rules. The difference matters.
+        </p>
+        <p class="mt-5 muted text-[clamp(.95rem,1.1vw,1.05rem)] max-w-[52ch]">
+          A full accounting of what every party sees lives in the
+          <a href="/threat-model/" class="hover:text-[var(--fg)] focus-ring" style="color:var(--fg); text-decoration:underline; text-decoration-color:var(--hair); text-underline-offset:3px;">threat model</a>. Short version, drawn:
+        </p>
       </div>
+
+      <figure class="rx-figure reveal" aria-label="Cross-section of the Onym relayer: a ZK proof and contract opcall pass through sealed; only size, IP, timing, and contract target are visible to the relayer.">
+        <figcaption class="rx-head">
+          <span class="rx-name">Relayer, cross-section</span>
+          <span class="rx-tag">honest &middot; blind &middot; replaceable</span>
+        </figcaption>
+
+        <div class="rx-stage">
+          <svg class="rx-svg" viewBox="0 0 720 460" role="img" aria-label="A sealed envelope carrying a ZK proof flows from a device through a translucent relayer box, which attaches a fee and submits the call to the Soroban contract. Inside the relayer, an inspection log shows only message size, IP, timing, and contract target. Three perimeter boxes — account database, key vault, message archive — are struck through to show the relayer cannot reach them.">
+            <!-- frame -->
+            <rect class="frame" x="0.5" y="0.5" width="719" height="459" rx="10"/>
+
+            <!-- DEVICE -->
+            <g>
+              <rect class="node ok" x="22" y="100" width="74" height="180" rx="10"/>
+              <line class="frame" x1="22" y1="118" x2="96" y2="118" stroke="var(--green-solid)" stroke-opacity=".6"/>
+              <text class="lbl" x="59" y="113" style="font-size:7.4px; letter-spacing:.18em;">DEVICE</text>
+              <text class="sub" x="59" y="160">keys</text>
+              <text class="sub" x="59" y="172">plaintext</text>
+              <text class="sub" x="59" y="184">signing</text>
+              <text class="sub" x="59" y="196">history</text>
+              <!-- home indicator dot -->
+              <rect class="frame" x="42" y="252" width="34" height="3" rx="1.5" stroke="var(--green-solid)" stroke-opacity=".4"/>
+            </g>
+
+            <!-- TARGET (right side) — Soroban contract -->
+            <g>
+              <rect class="node partial" x="607" y="100" width="95" height="180" rx="10"/>
+              <line class="frame" x1="607" y1="118" x2="702" y2="118" stroke="var(--amber-solid)" stroke-opacity=".6"/>
+              <text class="lbl" x="655" y="113" style="font-size:7.4px; letter-spacing:.18em;">SOROBAN</text>
+              <text class="sub" x="655" y="166">verifies proof</text>
+              <text class="sub" x="655" y="178">stores commitment</text>
+              <text class="sub" x="655" y="194" style="opacity:.4;">public ledger</text>
+            </g>
+
+            <!-- single horizontal flow line (device → relayer → contract), centered in the relayer body -->
+            <line class="edge" x1="96" y1="220" x2="607" y2="220"/>
+
+            <!-- Flow label (left side, near device) -->
+            <text class="row-lbl" x="120" y="214">ZK PROOF · OPCALL</text>
+
+            <!-- Flow label (right side, near target) -->
+            <text class="row-lbl" x="600" y="214" text-anchor="end" style="opacity:.55">→ CONTRACT</text>
+
+            <!-- RELAYER body — translucent, dashed amber border -->
+            <g>
+              <rect class="relayer-body" x="200" y="100" width="320" height="240" rx="10"/>
+              <text class="lbl" x="360" y="113" text-anchor="middle" style="fill:var(--amber-solid); font-size:8.4px; letter-spacing:.2em;">RELAYER</text>
+              <text class="sub" x="360" y="126" text-anchor="middle" style="opacity:.6">translucent &middot; replaceable &middot; blind</text>
+
+              <!-- inner faint shade so the box reads as a "volume" -->
+              <rect class="relayer-shade" x="208" y="146" width="170" height="186" rx="6"/>
+
+              <!-- INSPECTION LOG panel (right side of relayer body) -->
+              <g>
+                <rect class="inspect" x="386" y="146" width="126" height="186" rx="6"/>
+                <text class="log-key" x="396" y="161">INSPECTION LOG</text>
+                <line class="frame" x1="396" y1="167" x2="502" y2="167" stroke="var(--amber-solid)" stroke-opacity=".4"/>
+
+                <!-- live-ish log rows -->
+                <text class="log reads" x="396" y="180">14:02:11.4</text>
+                <text class="log" x="396" y="193" style="opacity:.85;">size  1.42 KB</text>
+                <text class="log" x="396" y="206" style="opacity:.85;">ip    92.13.4.&middot;</text>
+                <text class="log" x="396" y="219" style="opacity:.85;">to    Q9F4&middot;&middot;&middot;d2</text>
+                <text class="log" x="396" y="232" style="opacity:.85;">freq  +1</text>
+
+                <!-- stamp pulse (lights up as the envelope crosses the inspection window) -->
+                <rect class="stamp" x="396" y="212" width="106" height="9" rx="2"/>
+
+                <line class="frame" x1="396" y1="248" x2="502" y2="248" stroke="var(--hair)"/>
+                <text class="log-key" x="449" y="263" text-anchor="middle" style="fill:var(--amber-solid); opacity:.7;">READS</text>
+                <text class="sub" x="449" y="277" text-anchor="middle" style="opacity:.7">&middot; size</text>
+                <text class="sub" x="449" y="288" text-anchor="middle" style="opacity:.7">&middot; ip</text>
+                <text class="sub" x="449" y="299" text-anchor="middle" style="opacity:.7">&middot; timing</text>
+                <text class="sub" x="449" y="310" text-anchor="middle" style="opacity:.7">&middot; contract target</text>
+                <text class="sub" x="449" y="321" text-anchor="middle" style="fill:var(--amber-solid); opacity:.85">&mdash; nothing else.</text>
+              </g>
+
+              <!-- "+ FEE" payment that the relayer attaches to the call as it submits to the contract -->
+              <g transform="translate(498, 220)">
+                <rect class="fee-stamp" x="-16" y="-7" width="32" height="14" rx="7"/>
+                <text class="fee-text" x="0" y="3" text-anchor="middle">+ FEE</text>
+              </g>
+            </g>
+
+            <!-- Animated envelope token: ZK proof + opcall args (sealed, opaque to the relayer) -->
+            <g class="token" transform="translate(118, 0)">
+              <g transform="translate(0, 220)">
+                <rect class="envelope" x="-22" y="-9" width="44" height="18" rx="2"/>
+                <path class="envelope-flap" d="M-22,-9 L0,3 L22,-9"/>
+                <circle class="envelope-seal" cx="0" cy="3" r="1.6"/>
+                <line class="envelope-marks" x1="-14" y1="-4" x2="-6" y2="-4"/>
+                <line class="envelope-marks" x1="6" y1="-4" x2="14" y2="-4"/>
+                <text class="sub" y="2" x="0" style="font-size:5.2px; opacity:.7; letter-spacing:.1em;">π</text>
+              </g>
+            </g>
+
+            <!-- PERIMETER · cannot-reach ghost boxes -->
+            <text class="row-lbl ghost-text" x="36" y="372" style="opacity:.55;">OUTSIDE THE BOX &middot; THE RELAYER CANNOT REACH</text>
+
+            <g transform="translate(36, 384)">
+              <rect class="ghost dashed" x="0" y="0" width="190" height="50" rx="6"/>
+              <line class="ghost-x" x1="6" y1="6" x2="184" y2="44"/>
+              <line class="ghost-x" x1="184" y1="6" x2="6" y2="44"/>
+              <text class="lbl ghost-text" x="95" y="22" style="font-size:8.6px;">ACCOUNT DB</text>
+              <text class="sub ghost-text" x="95" y="35" style="opacity:.7">does not exist</text>
+            </g>
+
+            <g transform="translate(265, 384)">
+              <rect class="ghost dashed" x="0" y="0" width="190" height="50" rx="6"/>
+              <line class="ghost-x" x1="6" y1="6" x2="184" y2="44"/>
+              <line class="ghost-x" x1="184" y1="6" x2="6" y2="44"/>
+              <text class="lbl ghost-text" x="95" y="22" style="font-size:8.6px;">KEY VAULT</text>
+              <text class="sub ghost-text" x="95" y="35" style="opacity:.7">keys never leave the device</text>
+            </g>
+
+            <g transform="translate(494, 384)">
+              <rect class="ghost dashed" x="0" y="0" width="190" height="50" rx="6"/>
+              <line class="ghost-x" x1="6" y1="6" x2="184" y2="44"/>
+              <line class="ghost-x" x1="184" y1="6" x2="6" y2="44"/>
+              <text class="lbl ghost-text" x="95" y="22" style="font-size:8.6px;">MESSAGE ARCHIVE</text>
+              <text class="sub ghost-text" x="95" y="35" style="opacity:.7">history is only on devices</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Footer: chip strip carries the message at any size -->
+        <div class="rx-foot">
+          <div class="rx-row">
+            <span class="rx-key">It sees</span>
+            <span class="chips">
+              <span class="rx-chip partial"><span class="sw"></span>size &amp; timing</span>
+              <span class="rx-chip partial"><span class="sw"></span>your IP*</span>
+              <span class="rx-chip partial"><span class="sw"></span>contract target</span>
+              <span class="rx-chip partial"><span class="sw"></span>governance flavor</span>
+            </span>
+          </div>
+          <div class="rx-row">
+            <span class="rx-key">Blind to</span>
+            <span class="chips">
+              <span class="rx-chip blind"><span class="sw"></span>plaintext</span>
+              <span class="rx-chip blind"><span class="sw"></span>which member sent it</span>
+              <span class="rx-chip blind"><span class="sw"></span>recovery phrase</span>
+              <span class="rx-chip blind"><span class="sw"></span>cleartext roster</span>
+            </span>
+          </div>
+          <div class="rx-row">
+            <span class="rx-key">Cannot</span>
+            <span class="chips">
+              <span class="rx-chip cannot"><span class="sw"></span><span class="strike">disable account</span></span>
+              <span class="rx-chip cannot"><span class="sw"></span><span class="strike">forge a transaction</span></span>
+              <span class="rx-chip cannot"><span class="sw"></span><span class="strike">rewrite group rules</span></span>
+              <span class="rx-chip cannot"><span class="sw"></span><span class="strike">silence you for good</span></span>
+            </span>
+          </div>
+          <p class="muted mono" style="font-size:.66rem; letter-spacing:.04em; margin-top:6px; opacity:.7;">
+            * IP unless you bring your own privacy network. Run your own relayer or use several &mdash; the protocol is the same. Contract address tells the relayer the group&rsquo;s governance flavor; cleartext membership lives inside the contract as commitments. The diagram shows the common case (in-group state changes via <span class="mono">update_commitment</span>); <span class="mono">create_group</span> additionally carries a Soroban auth entry signed by the founder, the only call where a user-bound signature touches the chain.
+          </p>
+        </div>
+      </figure>
     </div>
   </div>
 </section>
 
 <!-- Smoke section -->
-<section id="smoke" class="smoke-section relative overflow-hidden" style="height: 110vh; min-height:680px;">
+<section id="architecture" class="smoke-section relative overflow-hidden" style="height: 110vh; min-height:680px;">
   <div class="smoke-bg" id="smokeBg" aria-hidden="true">
     <video id="smokeVideo" autoplay muted loop playsinline preload="auto"></video>
   </div>
@@ -852,7 +1216,7 @@ End-to-end encrypted.
       <p class="mono text-[11px] tracking-[.2em] uppercase" style="color:rgba(255,255,255,.55)">No one — not even Onym</p>
       <h2 class="display display-lg mt-6" style="color:#fff;">
         <span id="smokeText" style="background-image: linear-gradient(90deg,#fff 0%,#fff var(--p,0%), rgba(255,255,255,.18) var(--p,0%), rgba(255,255,255,.18) 100%);" class="clip-text">
-          can see your social graph.
+          can reconstruct your social graph.
         </span>
       </h2>
       <p class="mt-7 mono text-[12.5px]" style="color:rgba(255,255,255,.55)">
@@ -862,129 +1226,130 @@ End-to-end encrypted.
   </div>
 </section>
 
-<!-- Governance horizontal scroll-jack -->
-<section id="governance" class="h-pin" style="height: 480vh;">
-  <div class="h-stage" style="position:sticky; top:0; height:100vh; overflow:hidden;">
-    <div class="max-w-[1200px] mx-auto px-6 pt-16">
-      <p class="eyebrow mb-4">Five governance models</p>
+<!-- Governance — five models, responsive grid -->
+<section id="governance" class="section-div" style="padding: min(14vh, 9rem) 0;">
+  <div class="max-w-[1200px] mx-auto px-6">
+    <div class="reveal mb-10 md:mb-14">
+      <p class="eyebrow mb-4">Governance models</p>
       <h2 class="display display-md max-w-[24ch]">Pick the rules. Then prove them, on chain.</h2>
+      <p class="mt-5 muted text-[clamp(.95rem,1.1vw,1.05rem)] max-w-[58ch]">Three live today; two on the roadmap. Each is a separate Soroban contract suite — the family shares one client-side call shape.</p>
     </div>
-    <div class="absolute inset-0 flex items-center" style="top:170px;">
-      <div class="h-track" id="hTrack">
-        <article class="gov-card gov-card--oneone">
-          <div class="gov-diagram" aria-hidden="true">
-            <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet">
-              <line class="edge" x1="60" y1="60" x2="140" y2="60"/>
-              <circle class="node" cx="60" cy="60" r="7"/>
-              <circle class="node" cx="140" cy="60" r="7"/>
-            </svg>
-          </div>
-          <div>
-            <p class="mono text-[11px] muted">01 / 05</p>
-            <h3 class="display display-md mt-6">One-on-one.</h3>
-          </div>
-          <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">A two-party encrypted thread. No admins, no votes — just two devices and their keys.</p>
-        </article>
-        <article class="gov-card gov-card--anarchy">
-          <div class="gov-diagram" aria-hidden="true">
-            <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet">
-              <g class="edge">
-                <line x1="40" y1="30" x2="100" y2="60"/>
-                <line x1="160" y1="30" x2="100" y2="60"/>
-                <line x1="40" y1="30" x2="160" y2="30"/>
-                <line x1="40" y1="30" x2="60" y2="95"/>
-                <line x1="60" y1="95" x2="100" y2="60"/>
-                <line x1="60" y1="95" x2="140" y2="95"/>
-                <line x1="140" y1="95" x2="160" y2="30"/>
-                <line x1="140" y1="95" x2="100" y2="60"/>
-                <line x1="40" y1="30" x2="100" y2="60"/>
-                <line x1="160" y1="30" x2="60" y2="95"/>
-              </g>
-              <circle class="node" cx="40" cy="30" r="6"/>
-              <circle class="node" cx="160" cy="30" r="6"/>
-              <circle class="node" cx="100" cy="60" r="6"/>
-              <circle class="node" cx="60" cy="95" r="6"/>
-              <circle class="node" cx="140" cy="95" r="6"/>
-            </svg>
-          </div>
-          <div>
-            <p class="mono text-[11px] muted">02 / 05</p>
-            <h3 class="display display-md mt-6">Anarchy.</h3>
-          </div>
-          <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">Anyone in can invite anyone. Anyone can leave. The group is what its members make it.</p>
-        </article>
-        <article class="gov-card gov-card--tyranny">
-          <div class="gov-diagram" aria-hidden="true">
-            <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet">
-              <g class="edge">
-                <line pathLength="100" x1="100" y1="35" x2="40" y2="95"/>
-                <line pathLength="100" x1="100" y1="35" x2="75" y2="95"/>
-                <line pathLength="100" x1="100" y1="35" x2="100" y2="95"/>
-                <line pathLength="100" x1="100" y1="35" x2="125" y2="95"/>
-                <line pathLength="100" x1="100" y1="35" x2="160" y2="95"/>
-              </g>
-              <circle class="node" cx="100" cy="35" r="9"/>
-              <circle class="node dim" cx="40" cy="95" r="5"/>
-              <circle class="node dim" cx="75" cy="95" r="5"/>
-              <circle class="node dim" cx="100" cy="95" r="5"/>
-              <circle class="node dim" cx="125" cy="95" r="5"/>
-              <circle class="node dim" cx="160" cy="95" r="5"/>
-            </svg>
-          </div>
-          <div>
-            <p class="mono text-[11px] muted">03 / 05</p>
-            <h3 class="display display-md mt-6">Tyranny.</h3>
-          </div>
-          <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">A single founder admits and removes. Honest about who holds the keys.</p>
-        </article>
-        <article class="gov-card gov-card--democracy">
-          <div class="gov-diagram" aria-hidden="true">
-            <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet">
-              <circle class="ring" cx="100" cy="60" r="42"/>
-              <g>
-                <circle class="node" cx="100" cy="18" r="5"/>
-                <circle class="node" cx="137" cy="39" r="5"/>
-                <circle class="node" cx="137" cy="81" r="5"/>
-                <circle class="node" cx="100" cy="102" r="5"/>
-                <circle class="node dim" cx="63" cy="81" r="5"/>
-                <circle class="node dim" cx="63" cy="39" r="5"/>
-              </g>
-            </svg>
-          </div>
-          <div>
-            <p class="mono text-[11px] muted">04 / 05</p>
-            <h3 class="display display-md mt-6">Democracy.</h3>
-          </div>
-          <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">A majority of members admits and removes. Every change is a signed, on-chain vote.</p>
-        </article>
-        <article class="gov-card gov-card--oligarchy">
-          <div class="gov-diagram" aria-hidden="true">
-            <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet">
-              <g class="edge">
-                <line x1="70" y1="40" x2="130" y2="40"/>
-                <line x1="70" y1="40" x2="100" y2="75"/>
-                <line x1="130" y1="40" x2="100" y2="75"/>
-                <line x1="100" y1="75" x2="40" y2="100"/>
-                <line x1="100" y1="75" x2="160" y2="100"/>
-                <line x1="100" y1="75" x2="100" y2="103"/>
-                <line x1="70" y1="40" x2="40" y2="100"/>
-                <line x1="130" y1="40" x2="160" y2="100"/>
-              </g>
-              <circle class="node" cx="70" cy="40" r="7"/>
-              <circle class="node" cx="130" cy="40" r="7"/>
-              <circle class="node" cx="100" cy="75" r="7"/>
-              <circle class="node dim" cx="40" cy="100" r="4.5"/>
-              <circle class="node dim" cx="100" cy="103" r="4.5"/>
-              <circle class="node dim" cx="160" cy="100" r="4.5"/>
-            </svg>
-          </div>
-          <div>
-            <p class="mono text-[11px] muted">05 / 05</p>
-            <h3 class="display display-md mt-6">Oligarchy.</h3>
-          </div>
-          <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">A small council of admins. Threshold signatures decide who's in and who's out.</p>
-        </article>
-      </div>
+    <div class="gov-grid reveal">
+      <article class="gov-card gov-card--oneone">
+        <div class="gov-card-head"><p class="mono text-[11px] muted">01 / 06</p><span class="gov-status"><span class="dot"></span>Live</span></div>
+        <div class="gov-diagram" aria-hidden="true">
+          <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet">
+            <line class="edge" x1="60" y1="60" x2="140" y2="60"/>
+            <circle class="node" cx="60" cy="60" r="7"/>
+            <circle class="node" cx="140" cy="60" r="7"/>
+          </svg>
+        </div>
+        <h3 class="display display-md">One-on-one.</h3>
+        <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">A two-party encrypted thread. No admins, no votes — just two devices and their keys.</p>
+      </article>
+      <article class="gov-card gov-card--tyranny">
+        <div class="gov-card-head"><p class="mono text-[11px] muted">02 / 06</p><span class="gov-status"><span class="dot"></span>Live</span></div>
+        <div class="gov-diagram" aria-hidden="true">
+          <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet">
+            <g class="edge">
+              <line pathLength="100" x1="100" y1="35" x2="40" y2="95"/>
+              <line pathLength="100" x1="100" y1="35" x2="75" y2="95"/>
+              <line pathLength="100" x1="100" y1="35" x2="100" y2="95"/>
+              <line pathLength="100" x1="100" y1="35" x2="125" y2="95"/>
+              <line pathLength="100" x1="100" y1="35" x2="160" y2="95"/>
+            </g>
+            <circle class="node" cx="100" cy="35" r="9"/>
+            <circle class="node dim" cx="40" cy="95" r="5"/>
+            <circle class="node dim" cx="75" cy="95" r="5"/>
+            <circle class="node dim" cx="100" cy="95" r="5"/>
+            <circle class="node dim" cx="125" cy="95" r="5"/>
+            <circle class="node dim" cx="160" cy="95" r="5"/>
+          </svg>
+        </div>
+        <h3 class="display display-md">Founder.</h3>
+        <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">A single founder admits and removes. Honest about who holds the keys.</p>
+      </article>
+      <article class="gov-card gov-card--anarchy">
+        <div class="gov-card-head"><p class="mono text-[11px] muted">03 / 06</p><span class="gov-status"><span class="dot"></span>Live</span></div>
+        <div class="gov-diagram" aria-hidden="true">
+          <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet">
+            <g class="edge">
+              <line x1="40" y1="30" x2="100" y2="60"/>
+              <line x1="160" y1="30" x2="100" y2="60"/>
+              <line x1="40" y1="30" x2="160" y2="30"/>
+              <line x1="40" y1="30" x2="60" y2="95"/>
+              <line x1="60" y1="95" x2="100" y2="60"/>
+              <line x1="60" y1="95" x2="140" y2="95"/>
+              <line x1="140" y1="95" x2="160" y2="30"/>
+              <line x1="140" y1="95" x2="100" y2="60"/>
+              <line x1="40" y1="30" x2="100" y2="60"/>
+              <line x1="160" y1="30" x2="60" y2="95"/>
+            </g>
+            <circle class="node" cx="40" cy="30" r="6"/>
+            <circle class="node" cx="160" cy="30" r="6"/>
+            <circle class="node" cx="100" cy="60" r="6"/>
+            <circle class="node" cx="60" cy="95" r="6"/>
+            <circle class="node" cx="140" cy="95" r="6"/>
+          </svg>
+        </div>
+        <h3 class="display display-md">Anarchy.</h3>
+        <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">Anyone in can invite anyone. Anyone can leave. The group is what its members make it.</p>
+      </article>
+      <article class="gov-card gov-card--democracy planned">
+        <div class="gov-card-head"><p class="mono text-[11px] muted">04 / 06</p><span class="gov-status planned"><span class="dot"></span>Planned</span></div>
+        <div class="gov-diagram" aria-hidden="true">
+          <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet">
+            <circle class="ring" cx="100" cy="60" r="42"/>
+            <g>
+              <circle class="node" cx="100" cy="18" r="5"/>
+              <circle class="node" cx="137" cy="39" r="5"/>
+              <circle class="node" cx="137" cy="81" r="5"/>
+              <circle class="node" cx="100" cy="102" r="5"/>
+              <circle class="node dim" cx="63" cy="81" r="5"/>
+              <circle class="node dim" cx="63" cy="39" r="5"/>
+            </g>
+          </svg>
+        </div>
+        <h3 class="display display-md">Democracy.</h3>
+        <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">A majority of members admits and removes. Every change is a signed, on-chain vote.</p>
+      </article>
+      <article class="gov-card gov-card--oligarchy planned">
+        <div class="gov-card-head"><p class="mono text-[11px] muted">05 / 06</p><span class="gov-status planned"><span class="dot"></span>Planned</span></div>
+        <div class="gov-diagram" aria-hidden="true">
+          <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet">
+            <g class="edge">
+              <line x1="70" y1="40" x2="130" y2="40"/>
+              <line x1="70" y1="40" x2="100" y2="75"/>
+              <line x1="130" y1="40" x2="100" y2="75"/>
+              <line x1="100" y1="75" x2="40" y2="100"/>
+              <line x1="100" y1="75" x2="160" y2="100"/>
+              <line x1="100" y1="75" x2="100" y2="103"/>
+              <line x1="70" y1="40" x2="40" y2="100"/>
+              <line x1="130" y1="40" x2="160" y2="100"/>
+            </g>
+            <circle class="node" cx="70" cy="40" r="7"/>
+            <circle class="node" cx="130" cy="40" r="7"/>
+            <circle class="node" cx="100" cy="75" r="7"/>
+            <circle class="node dim" cx="40" cy="100" r="4.5"/>
+            <circle class="node dim" cx="100" cy="103" r="4.5"/>
+            <circle class="node dim" cx="160" cy="100" r="4.5"/>
+          </svg>
+        </div>
+        <h3 class="display display-md">Oligarchy.</h3>
+        <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">A small council of admins. Threshold signatures decide who's in and who's out.</p>
+      </article>
+      <article class="gov-card gov-card--imagine planned">
+        <div class="gov-card-head"><p class="mono text-[11px] muted">06 / 06</p><span class="gov-status planned"><span class="dot"></span>Bring your own</span></div>
+        <div class="gov-diagram" aria-hidden="true">
+          <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet">
+            <circle cx="100" cy="60" r="38" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 3" opacity=".55"/>
+            <line x1="100" y1="42" x2="100" y2="78" stroke="currentColor" stroke-width="1.4" opacity=".7"/>
+            <line x1="82" y1="60" x2="118" y2="60" stroke="currentColor" stroke-width="1.4" opacity=".7"/>
+          </svg>
+        </div>
+        <h3 class="display display-md">Imagine your governance.</h3>
+        <p class="muted text-[clamp(.95rem,1.05vw,1.05rem)]">Need a rule set we don&rsquo;t ship? The protocol is governance-agnostic &mdash; propose a new flavor, or fork the contracts and define your own.</p>
+      </article>
     </div>
   </div>
 </section>
@@ -1000,14 +1365,14 @@ End-to-end encrypted.
       </p>
     </div>
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mt-14" id="specGrid">
-      <div class="spec"><p class="mono text-[11px] muted">Identity</p><p class="mono text-[15px] mt-2">BIP-39</p><p class="muted text-[13px] mt-3 leading-[1.55]">12-word seed, 128-bit entropy.</p></div>
-      <div class="spec"><p class="mono text-[11px] muted">Group proofs</p><p class="mono text-[15px] mt-2">BLS12-381</p><p class="muted text-[13px] mt-3 leading-[1.55]">Pairing-friendly curve for aggregate signatures.</p></div>
-      <div class="spec"><p class="mono text-[11px] muted">Zero-knowledge</p><p class="mono text-[15px] mt-2">PLONK</p><p class="muted text-[13px] mt-3 leading-[1.55]">Universal SNARK for membership proofs.</p></div>
-      <div class="spec"><p class="mono text-[11px] muted">Hashing</p><p class="mono text-[15px] mt-2">Poseidon</p><p class="muted text-[13px] mt-3 leading-[1.55]">SNARK-friendly hash inside the circuit.</p></div>
-      <div class="spec"><p class="mono text-[11px] muted">Nostr keys</p><p class="mono text-[15px] mt-2">secp256k1</p><p class="muted text-[13px] mt-3 leading-[1.55]">Schnorr signatures over the standard curve.</p></div>
-      <div class="spec"><p class="mono text-[11px] muted">Stellar keys</p><p class="mono text-[15px] mt-2">Ed25519</p><p class="muted text-[13px] mt-3 leading-[1.55]">Fast, deterministic signatures for chain anchors.</p></div>
-      <div class="spec"><p class="mono text-[11px] muted">Inbox</p><p class="mono text-[15px] mt-2">X25519</p><p class="muted text-[13px] mt-3 leading-[1.55]">ECDH for sealed inbox messages.</p></div>
-      <div class="spec"><p class="mono text-[11px] muted">Anchors</p><p class="mono text-[15px] mt-2">Soroban</p><p class="muted text-[13px] mt-3 leading-[1.55]">Group state lives in a Stellar smart contract.</p></div>
+      <a class="spec" href="https://en.bitcoin.it/wiki/BIP_0039" rel="noopener" aria-label="BIP-39 specification"><p class="mono text-[11px] muted">Identity</p><p class="mono text-[15px] mt-2">BIP-39</p><p class="muted text-[13px] mt-3 leading-[1.55]">12-word seed, 128-bit entropy.</p></a>
+      <a class="spec" href="https://datatracker.ietf.org/doc/draft-irtf-cfrg-pairing-friendly-curves/" rel="noopener" aria-label="BLS12-381 IETF draft"><p class="mono text-[11px] muted">Group proofs</p><p class="mono text-[15px] mt-2">BLS12-381</p><p class="muted text-[13px] mt-3 leading-[1.55]">Pairing-friendly curve for aggregate signatures.</p></a>
+      <a class="spec" href="https://eprint.iacr.org/2019/953" rel="noopener" aria-label="PLONK paper"><p class="mono text-[11px] muted">Zero-knowledge</p><p class="mono text-[15px] mt-2">PLONK</p><p class="muted text-[13px] mt-3 leading-[1.55]">Universal SNARK for membership proofs.</p></a>
+      <a class="spec" href="https://www.poseidon-hash.info/" rel="noopener" aria-label="Poseidon hash"><p class="mono text-[11px] muted">Hashing</p><p class="mono text-[15px] mt-2">Poseidon</p><p class="muted text-[13px] mt-3 leading-[1.55]">SNARK-friendly hash inside the circuit.</p></a>
+      <a class="spec" href="https://github.com/nostr-protocol/nips/blob/master/01.md" rel="noopener" aria-label="Nostr NIP-01 (secp256k1 / Schnorr)"><p class="mono text-[11px] muted">Nostr keys</p><p class="mono text-[15px] mt-2">secp256k1</p><p class="muted text-[13px] mt-3 leading-[1.55]">Schnorr signatures over the standard curve.</p></a>
+      <a class="spec" href="https://datatracker.ietf.org/doc/html/rfc8032" rel="noopener" aria-label="RFC 8032 — EdDSA / Ed25519"><p class="mono text-[11px] muted">Stellar keys</p><p class="mono text-[15px] mt-2">Ed25519</p><p class="muted text-[13px] mt-3 leading-[1.55]">Fast, deterministic signatures for chain anchors.</p></a>
+      <a class="spec" href="https://datatracker.ietf.org/doc/html/rfc7748" rel="noopener" aria-label="RFC 7748 — X25519"><p class="mono text-[11px] muted">Inbox</p><p class="mono text-[15px] mt-2">X25519</p><p class="muted text-[13px] mt-3 leading-[1.55]">ECDH for sealed inbox messages.</p></a>
+      <a class="spec" href="https://github.com/onymchat/onym-contracts" rel="noopener" aria-label="Onym Soroban contracts"><p class="mono text-[11px] muted">Anchors</p><p class="mono text-[15px] mt-2">Soroban</p><p class="muted text-[13px] mt-3 leading-[1.55]">Group state lives in a Stellar smart contract.</p></a>
     </div>
   </div>
 </section>
@@ -1023,24 +1388,18 @@ End-to-end encrypted.
         Clone the source, audit the math, build reproducible binaries yourself.
         Onym never has to be in the path.
       </p>
-      <div class="mt-8 flex flex-wrap gap-3">
-        <a href="https://github.com/onymchat/onym-ios" class="pill text-[13px] px-4 py-2.5 hair border focus-ring mono" style="border-style:solid;">github.com/onymchat/onym-ios</a>
-        <a href="https://github.com/onymchat/onym-android" class="pill text-[13px] px-4 py-2.5 hair border focus-ring mono" style="border-style:solid;">github.com/onymchat/onym-android</a>
-        <a href="https://github.com/onymchat/onym-contracts" class="pill text-[13px] px-4 py-2.5 hair border focus-ring mono" style="border-style:solid;">github.com/onymchat/onym-contracts</a>
-        <a href="https://github.com/onymchat/onym-relayer" class="pill text-[13px] px-4 py-2.5 hair border focus-ring mono" style="border-style:solid;">github.com/onymchat/onym-relayer</a>
-      </div>
     </div>
     <div class="terminal reveal" role="img" aria-label="Terminal session showing Soroban contract build and deploy">
       <div><span class="term-prompt">$</span> <span class="term-cmd">git clone https://github.com/onymchat/onym-contracts</span></div>
       <div class="term-out">Cloning into 'onym-contracts'... done.</div>
       <div><span class="term-prompt">$</span> <span class="term-cmd">stellar contract build --optimize \</span></div>
-      <div><span class="term-cmd">    --package sep-democracy-contract \</span></div>
+      <div><span class="term-cmd">    --package sep-anarchy-contract \</span></div>
       <div><span class="term-cmd">    --meta source_repo=github:onymchat/onym-contracts \</span></div>
       <div><span class="term-cmd">    --meta home_domain=onym.app</span></div>
-      <div class="term-out">  Compiling sep-democracy-contract v0.1.0</div>
+      <div class="term-out">  Compiling sep-anarchy-contract v0.1.0</div>
       <div class="term-out">  Finished release [optimized] · 47s</div>
       <div><span class="term-prompt">$</span> <span class="term-cmd">stellar contract deploy --network testnet \</span></div>
-      <div><span class="term-cmd">    --wasm sep-democracy-contract_v0.1.0.wasm</span></div>
+      <div><span class="term-cmd">    --wasm sep-anarchy-contract_v0.1.0.wasm</span></div>
       <div class="term-out">✓ deployed · CDQA…HZRW</div>
       <div class="term-out">↳ stellar.expert/explorer/testnet/contract/CDQA…HZRW</div>
       <div class="term-out">↳ home_domain · onym.app (provenance verified)</div>
@@ -1080,22 +1439,24 @@ End-to-end encrypted.
       <div>
         <p class="eyebrow mb-3" style="font-size:.7rem">Reading</p>
         <ul class="space-y-2 muted">
+          <li><a href="/why/" class="hover:text-[var(--fg)] focus-ring">Why Onym exists</a></li>
+          <li><a href="/how/" class="hover:text-[var(--fg)] focus-ring">How it works</a></li>
+          <li><a href="/threat-model/" class="hover:text-[var(--fg)] focus-ring">Threat model <span class="ml-1 text-[10px] uppercase tracking-wider opacity-60">v0.0.1</span></a></li>
           <li>Whitepaper <span class="ml-1 text-[10px] uppercase tracking-wider opacity-50">soon</span></li>
-          <li>Threat model <span class="ml-1 text-[10px] uppercase tracking-wider opacity-50">soon</span></li>
-          <li>Cryptography <span class="ml-1 text-[10px] uppercase tracking-wider opacity-50">soon</span></li>
         </ul>
       </div>
       <div>
-        <p class="eyebrow mb-3" style="font-size:.7rem">Foundation</p>
+        <p class="eyebrow mb-3" style="font-size:.7rem">Project</p>
         <ul class="space-y-2 muted">
           <li><a href="/about/" class="hover:text-[var(--fg)] focus-ring">About</a></li>
+          <li><a href="/faq/" class="hover:text-[var(--fg)] focus-ring">FAQ</a></li>
           <li><a href="/press/" class="hover:text-[var(--fg)] focus-ring">Press</a></li>
           <li><a href="mailto:lead@onym.app" class="hover:text-[var(--fg)] focus-ring">Contact</a></li>
         </ul>
       </div>
     </div>
     <div class="mt-14 pt-8 hair border-t flex flex-wrap items-center justify-between gap-3 text-[12px] muted mono" style="border-top-style:solid;">
-      <span>© 2026 · Onym Foundation</span>
+      <span>© 2026 · Onym · MIT licensed</span>
       <span>Released under the MIT license</span>
       <span>Never pay with your identity.</span>
     </div>
@@ -1180,7 +1541,7 @@ End-to-end encrypted.
     }
 
     // Smoke parallax + clip
-    const smoke = document.getElementById('smoke');
+    const smoke = document.getElementById('architecture');
     if(smoke){
       const r = smoke.getBoundingClientRect();
       const vh = window.innerHeight;
@@ -1216,21 +1577,6 @@ End-to-end encrypted.
       });
     }
 
-    // Governance horizontal
-    const gov = document.getElementById('governance');
-    if(gov){
-      const r = gov.getBoundingClientRect();
-      const total = gov.offsetHeight - window.innerHeight;
-      const passed = Math.min(Math.max(-r.top, 0), Math.max(total,1));
-      const p = total>0 ? passed/total : 0;
-      const track = document.getElementById('hTrack');
-      if(track && window.innerWidth >= 768){
-        const max = track.scrollWidth - window.innerWidth;
-        track.style.transform = `translateX(${-p * max}px)`;
-      } else if(track){
-        track.style.transform = '';
-      }
-    }
   }
 
   let raf = 0;

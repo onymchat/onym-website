@@ -4,14 +4,14 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>About · Onym</title>
-<meta name="description" content="Onym builds messaging that requires no trust -- not in us, not in any company, not in any server. End-to-end encrypted, anchored on Stellar, open source." />
+<meta name="description" content="Onym builds group messaging where no single operator can disable your account, read your conversations, or hand over a social graph. End-to-end encrypted, anchored on Stellar, open source. Solo-maintained, in public on GitHub." />
 <meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
 <link rel="icon" type="image/png" href="/assets/icon-dark.png" />
 <link rel="apple-touch-icon" href="/assets/icon-dark.png" />
 <meta property="og:type" content="website" />
 <meta property="og:title" content="About · Onym" />
-<meta property="og:description" content="Privacy is a right, not a feature. Onym builds messaging that requires no trust." />
+<meta property="og:description" content="Privacy is a right, not a feature. Onym builds group messaging where no single operator has kill-switch authority over your account." />
 <meta property="og:image" content="https://onym.app/assets/og-card.jpg" />
 <link rel="alternate" hreflang="en" href="https://onym.app/about/" />
 <link rel="alternate" hreflang="ru" href="https://onym.app/ru/about/" />
@@ -107,30 +107,30 @@
 </header>
 
 <main class="max-w-[820px] mx-auto px-6 py-16 md:py-24">
-  <p class="eyebrow mb-5">Foundation</p>
+  <p class="eyebrow mb-5">About</p>
   <h1 class="display display-xl mb-8">Privacy is a right,<br/>not a feature.</h1>
   <p class="text-[clamp(1.1rem,1.4vw,1.3rem)] muted leading-[1.55] max-w-[55ch]">
-    Onym builds messaging that requires no trust -- not in us, not in any company, not in any server.
+    Onym builds group messaging where no single operator has the authority to disable your account, read your conversations, or hand over a recoverable social graph.
   </p>
 
   <hr class="hair border-t my-16" style="border-top-style:solid;" />
 
   <section class="space-y-12">
     <div>
-      <h2 class="display display-md mb-4">Why we exist</h2>
+      <h2 class="display display-md mb-4">Why this exists</h2>
       <div class="muted leading-[1.7] space-y-4 text-[clamp(1rem,1.15vw,1.1rem)]">
-        <p>Every messenger today asks you to trust their server. Signal trusts AWS. Telegram trusts its own data centers. Apple trusts its own data centers. WhatsApp trusts Meta's. The encryption between users is end-to-end -- but the plumbing always runs on hardware someone else owns and someone else can be compelled to change.</p>
-        <p>"Trust" sounds harmless until you read the fine print: when governments, courts, lawyers, or new owners come knocking, the messenger's job is to comply. Even when they can't read your messages, they can almost always reveal who you talk to, when, and how often. That's the social graph -- and that's what gets people targeted, profiled, or arrested.</p>
-        <p>The only way to be sure no one can read your conversations or reconstruct your relationships is to <strong class="text-[var(--fg)] font-medium">remove the server entirely</strong>, and to make the only piece of shared state public, auditable, and beyond any one party's control.</p>
+        <p>Every messenger today asks you to trust an operator. Signal runs on AWS. Telegram runs its own data centers. iMessage runs Apple's. WhatsApp runs Meta's. The encryption between users is end-to-end, but the plumbing runs on hardware one company owns and one company can be compelled to change.</p>
+        <p>"Trust" sounds harmless until you read the fine print: when governments, courts, lawyers, or new owners come knocking, the operator's job is to comply. Even when they cannot read your messages, they can almost always reveal who talked to whom, when, and how often. That is the social graph &mdash; and that is what gets people targeted, profiled, or arrested.</p>
+        <p>Onym narrows the trust surface. The way it does it is to <strong class="text-[var(--fg)] font-medium">remove the operator from the loop</strong>, and to make the only piece of shared state public, auditable, and beyond any one party's control. That is not the same thing as having no servers; we still use the Stellar network and a relayer that pays its fees. We are honest about what each of those sees and does, on <a href="/threat-model/" class="link">the threat model page</a>.</p>
       </div>
     </div>
 
     <div>
       <h2 class="display display-md mb-4">How Onym is built</h2>
       <div class="muted leading-[1.7] space-y-4 text-[clamp(1rem,1.15vw,1.1rem)]">
-        <p><strong class="text-[var(--fg)] font-medium">Identity on device.</strong> Your keys, contacts, and message history are generated and stored on your phone. Twelve BIP-39 words restore the lot on another device -- and they leave only when you type them. No account creation, no phone number, no email.</p>
-        <p><strong class="text-[var(--fg)] font-medium">Group state on a public smart contract.</strong> The rules of every group -- who can admit, who can remove, who can speak -- live on Stellar via Soroban. Anyone can verify them; no one can override them. The contract is the only thing all members share, and it is public by design.</p>
-        <p><strong class="text-[var(--fg)] font-medium">Relays as dumb pipes.</strong> Encrypted message blobs travel over Nostr relays. Run your own. Run someone else's. Switch any time. The transport layer is replaceable, and nothing on it is in the clear.</p>
+        <p><strong class="text-[var(--fg)] font-medium">Identity on device.</strong> Your keys, contacts, and message history are generated and stored on your phone. Twelve BIP-39 words restore the lot on another device &mdash; and they leave only when you type them. No account creation, no phone number, no email.</p>
+        <p><strong class="text-[var(--fg)] font-medium">Group state on a public smart contract.</strong> The rules of every group &mdash; who can admit, who can remove, who can speak &mdash; live on Stellar via Soroban. Anyone can verify them; no one can override them. The contract is the only piece of shared state, and it is public by design.</p>
+        <p><strong class="text-[var(--fg)] font-medium">Relayer pays the fees, sees the wrapper.</strong> A relayer submits your signed Stellar transactions and pays the on-chain fees so users never need a funded account. It sees ciphertext and connection metadata &mdash; never plaintext, never which group member sent a given message. Run your own; switch any time.</p>
       </div>
     </div>
 
@@ -138,19 +138,29 @@
       <h2 class="display display-md mb-4">Open from top to bottom</h2>
       <div class="muted leading-[1.7] space-y-4 text-[clamp(1rem,1.15vw,1.1rem)]">
         <p>Every layer is MIT-licensed and on GitHub: <a href="https://github.com/onymchat/onym-ios" class="link mono">onym-ios</a>, <a href="https://github.com/onymchat/onym-android" class="link mono">onym-android</a>, <a href="https://github.com/onymchat/onym-contracts" class="link mono">onym-contracts</a>, the <a href="https://github.com/onymchat/onym-relayer" class="link mono">onym-relayer</a>, and the SDKs.</p>
-        <p>The cryptographic primitives are not novel. BIP-39 (mnemonics), secp256k1 with Schnorr (Nostr identity), Ed25519 (chain anchors), X25519 (sealed inboxes), BLS12-381 (group signatures), PLONK (membership proofs), Poseidon (SNARK-friendly hashes) -- every one studied, deployed, and attacked by cryptographers for decades. We don't roll our own crypto.</p>
-        <p>If you'd like to read the source, audit the math, or build reproducible binaries, you can. That is the deal.</p>
+        <p>The cryptographic primitives are not novel. BIP-39 (mnemonics), secp256k1 with Schnorr (Nostr identity), Ed25519 (chain anchors), X25519 (sealed inboxes), BLS12-381 (group signatures), PLONK (membership proofs), Poseidon (SNARK-friendly hashes) &mdash; each one studied, deployed, and attacked by cryptographers for decades. We do not roll our own crypto.</p>
+        <p>If you would like to read the source, audit the math, or build the binaries from source, you can. That is the deal.</p>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="display display-md mb-4">Who maintains this</h2>
+      <div class="muted leading-[1.7] space-y-4 text-[clamp(1rem,1.15vw,1.1rem)]">
+        <p>Onym is, today, the work of a single maintainer. There is no Foundation yet. There is no Series A, no advisory board, no PR firm. There is one person, working in public, on MIT-licensed code that anyone can fork the day this page becomes inaccurate.</p>
+        <p>The maintainer&rsquo;s name and GitHub account are public &mdash; visible on every commit across every Onym repo. The website just doesn&rsquo;t put the name on a banner; the project shouldn&rsquo;t be about the person. For correspondence, including from journalists, security researchers, and prospective contributors, write to <a href="mailto:lead@onym.app" class="link">lead@onym.app</a>.</p>
+        <p>The "Onym Foundation" language used elsewhere on the internet is from earlier drafts and is being walked back. If a Foundation is formed, it will be announced here with jurisdiction, registration, and a real charter. Until then: solo, MIT, in public.</p>
       </div>
     </div>
 
     <div>
       <h2 class="display display-md mb-4">Get involved</h2>
       <ul class="space-y-3 text-[clamp(1rem,1.1vw,1.05rem)]">
-        <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Run a relayer for yourself, your team, or your org -- the repo is <a href="https://github.com/onymchat/onym-relayer" class="link mono">onym-relayer</a>.</span></li>
-        <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Test alpha builds on iOS and Android -- the <a href="/qa/" class="link">QA Dashboard</a>.</span></li>
-        <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Read the release history -- the <a href="/changelog/" class="link">changelog</a>.</span></li>
-        <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Press inquiries -- the <a href="/press/" class="link">press kit</a>.</span></li>
-        <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Anything else -- <a href="mailto:lead@onym.app" class="link">lead@onym.app</a>.</span></li>
+        <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Read the <a href="/threat-model/" class="link">threat model</a> and tell us what we got wrong.</span></li>
+        <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Run a relayer for yourself, your team, or your org &mdash; the repo is <a href="https://github.com/onymchat/onym-relayer" class="link mono">onym-relayer</a>.</span></li>
+        <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Test alpha builds on iOS and Android &mdash; the <a href="/qa/" class="link">QA Dashboard</a>.</span></li>
+        <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Read the release history &mdash; the <a href="/changelog/" class="link">changelog</a>.</span></li>
+        <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Press inquiries &mdash; the <a href="/press/" class="link">press kit</a>.</span></li>
+        <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Anything else &mdash; <a href="mailto:lead@onym.app" class="link">lead@onym.app</a>.</span></li>
       </ul>
     </div>
   </section>
@@ -158,7 +168,7 @@
 
 <footer class="hair border-t mt-12" style="border-top-style:solid;">
   <div class="max-w-[1100px] mx-auto px-6 py-10 flex flex-wrap items-center justify-between gap-4 text-[12px] muted mono">
-    <span>&copy; 2026 &middot; Onym Foundation</span>
+    <span>&copy; 2026 &middot; Onym &middot; MIT licensed</span>
     <span>Released under the MIT license</span>
     <span>Never pay with your identity.</span>
   </div>

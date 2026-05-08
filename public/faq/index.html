@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FAQ · Onym</title>
+<meta name="description" content="Hard questions about Onym, answered honestly. Servers, metadata, governance, post-quantum, and what happens when something goes wrong." />
+<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+<link rel="icon" type="image/png" href="/assets/icon-dark.png" />
+<link rel="apple-touch-icon" href="/assets/icon-dark.png" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="FAQ · Onym" />
+<meta property="og:description" content="Hard questions about Onym, answered honestly." />
+<meta property="og:image" content="https://onym.app/assets/og-card.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="FAQ · Onym" />
+<meta name="twitter:description" content="Hard questions about Onym, answered honestly." />
+<meta name="twitter:image" content="https://onym.app/assets/og-card.jpg" />
+<link rel="alternate" hreflang="en" href="https://onym.app/faq/" />
+<link rel="alternate" hreflang="x-default" href="https://onym.app/faq/" />
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
+    --hair:rgba(245,245,247,.10);
+    --card:#101013;
+    --shadow: 0 1px 0 rgba(0,0,0,.4), 0 30px 60px -30px rgba(0,0,0,.6);
+    --nav-bg: rgba(8,8,10,.72);
+  }
+  html[data-theme="light"]{
+    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
+    --hair:rgba(10,10,10,.08);
+    --card:#fbfbfd;
+    --shadow: 0 1px 2px rgba(10,10,10,.04), 0 12px 40px -24px rgba(10,10,10,.18);
+    --nav-bg: rgba(245,245,247,.72);
+  }
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ background:var(--bg); color:var(--fg); margin:0; padding:0; }
+  body{
+    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+    font-feature-settings: "ss01","ss02";
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    line-height:1.55;
+    transition: background-color .35s ease, color .35s ease;
+  }
+  .mono{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; }
+  .hair{ border-color:var(--hair); }
+  .muted{ color:var(--muted); }
+
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:var(--nav-bg);
+    backdrop-filter:saturate(160%) blur(14px);
+    -webkit-backdrop-filter:saturate(160%) blur(14px);
+    border-bottom:1px solid var(--hair);
+  }
+  .mark{
+    display:inline-block; width:22px; height:22px; border-radius:22%;
+    background:url('/assets/icon-dark.png') center/cover no-repeat;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.06), 0 4px 16px -2px rgba(255,255,255,.14), 0 .5px 0 rgba(255,255,255,.10) inset;
+  }
+  html[data-theme="light"] .mark{
+    background:url('/assets/icon-light.png') center/cover no-repeat;
+    box-shadow: 0 4px 12px -3px rgba(10,10,10,.18), 0 .5px 0 rgba(255,255,255,.6) inset;
+  }
+  .toggle{
+    position:fixed; bottom:18px; right:18px; z-index:60;
+    background:var(--nav-bg);
+    border:1px solid var(--hair); border-radius:999px;
+    padding:4px; display:flex; gap:2px;
+    backdrop-filter:saturate(180%) blur(14px);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    box-shadow:0 8px 24px -10px rgba(10,10,10,.18);
+  }
+  .toggle button{
+    font-size:12px; letter-spacing:.04em; padding:7px 12px; border-radius:999px;
+    color:var(--muted);
+  }
+  .toggle button[aria-pressed="true"]{ background:var(--fg); color:var(--bg); }
+
+  .wrap{ max-width:840px; margin:0 auto; padding: clamp(40px, 7vw, 96px) clamp(24px, 6vw, 80px); }
+  .eyebrow{ font-size:.78rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+  h1.display{ font-weight:700; letter-spacing:-0.04em; line-height:0.98; font-size: clamp(2.4rem, 6vw, 4.5rem); margin: 18px 0 28px; text-wrap:balance; }
+  p.lede{ font-size: clamp(1.05rem, 1.35vw, 1.25rem); color:var(--muted); max-width: 60ch; }
+  a.link{ color:var(--fg); text-decoration:underline; text-decoration-color:var(--hair); text-underline-offset:3px; }
+  a.link:hover{ text-decoration-color: var(--fg); }
+
+  details.q{
+    border-top:1px solid var(--hair);
+    padding: 18px 0;
+  }
+  details.q:last-child{ border-bottom:1px solid var(--hair); }
+  details.q > summary{
+    list-style:none; cursor:pointer;
+    display:flex; align-items:flex-start; gap:14px;
+    font-size: clamp(1.02rem, 1.3vw, 1.18rem);
+    font-weight: 500; letter-spacing:-0.005em; line-height:1.4;
+  }
+  details.q > summary::-webkit-details-marker{ display:none; }
+  details.q > summary::before{
+    content:"+"; flex-shrink:0; width:20px; text-align:center;
+    color: var(--muted); font-weight:400; font-size: 1.2em; line-height:1;
+    margin-top:.15em; transition: transform .15s ease;
+  }
+  details.q[open] > summary::before{ content:"−"; }
+  details.q > summary:hover{ color: var(--muted); }
+  details.q .a{
+    margin: 14px 0 0 34px; color: var(--muted);
+    font-size: clamp(.95rem, 1.1vw, 1.05rem); line-height:1.6;
+  }
+  details.q .a p{ margin: 0 0 12px; max-width: 65ch; }
+  details.q .a p:last-child{ margin-bottom:0; }
+
+  .grouphead{
+    margin: 56px 0 12px;
+    font-size:.78rem; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--muted); font-weight:600;
+  }
+  .grouphead:first-of-type{ margin-top: 40px; }
+
+  footer.site{ border-top:1px solid var(--hair); margin-top: 48px; }
+  footer.site .row{
+    max-width:1100px; margin: 0 auto; padding: 28px 24px;
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    gap:16px; font-size:12px; color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="toggle" role="group" aria-label="Theme">
+  <button id="themeDark" aria-pressed="true">Dark</button>
+  <button id="themeLight" aria-pressed="false">Light</button>
+</div>
+
+<header class="nav">
+  <div class="max-w-[1100px] mx-auto px-6 h-[52px] flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3 hover:opacity-80" aria-label="Onym home">
+      <span class="mark" role="img" aria-label="Onym"></span>
+      <span class="text-[14px] font-medium tracking-tight">Onym <span class="muted">· FAQ</span></span>
+    </a>
+    <a href="/" class="text-[12.5px] muted hover:text-[var(--fg)]">&larr; Back</a>
+  </div>
+</header>
+
+<main>
+
+<section class="wrap">
+  <p class="eyebrow">FAQ</p>
+  <h1 class="display">Hard questions,<br/>answered as honestly as we can.</h1>
+  <p class="lede">If you came here to find what we are dodging, this is the page where we don&rsquo;t. The <a class="link" href="/threat-model/">threat model</a> is the canonical source for any disagreement.</p>
+
+  <p class="grouphead">The flagship questions</p>
+
+  <details class="q">
+    <summary>Wait &mdash; you say "no server to trust," but a relayer is a server. Which is it?</summary>
+    <div class="a">
+      <p>The relayer is a server. We used to say &ldquo;no server to trust&rdquo;; we have walked that back. The honest claim is narrower: <strong>no single operator with kill-switch authority</strong> over your account, your conversations, or your group&rsquo;s rules.</p>
+      <p>Identity is on your device, so there is no &ldquo;Onym account&rdquo; to disable. Group rules are a public Soroban contract on Stellar, not a database the operator can edit. For every in-group action &mdash; admit, remove, vote, role swap &mdash; the relayer is the sole on-chain signer: it wraps your ZK proof into a Stellar transaction, signs it, and pays the fee. You sign nothing, which is what keeps in-group actions from binding to a stable on-chain identity. The one exception is <span class="mono">create_group</span> at group creation, where the founder signs a Soroban auth entry; that is the deliberate, single moment a user-bound signature touches the chain. If a relayer denies you service, you switch to another or run your own. Read the per-party breakdown on the <a class="link" href="/threat-model/">threat model page</a>.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>If "metadata never leaves my device," how does anything get on chain?</summary>
+    <div class="a">
+      <p>It doesn&rsquo;t never leave. Some metadata is necessarily public.</p>
+      <p>What stays local: identity (BIP-39 phrase), private keys, your contacts, your message history. What goes on chain: group operations &mdash; admit, remove, governance votes &mdash; submitted with a zero-knowledge proof that does not reveal which group member acted, but does reveal that the action happened, when, and which group it happened in. What the relayer sees: ciphertext, message size, timing, your IP.</p>
+      <p>If your threat model includes a global passive surveiller running timing correlation across the whole internet, Onym alone is not sufficient. The threat model says so plainly.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>So what does the relayer actually see?</summary>
+    <div class="a">
+      <p>Encrypted blobs, the timing and frequency of your relay requests, your IP (unless you bring your own privacy network), and which Soroban contract a transaction targets. It does not see message plaintext, which group member sent a given message, or your recovery phrase.</p>
+      <p>If you always use the same relayer from the same IP, that relayer can build a usage profile of you over time. If you rotate relayers or run your own, it cannot.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>Doesn&rsquo;t the public Stellar ledger leak everything anyway?</summary>
+    <div class="a">
+      <p>It leaks more than people expect, less than naive intuition suggests.</p>
+      <p>An on-chain observer can see that group X exists, roughly how many members it has, how often it is active, and when governance events occur. They cannot read message content (none is on chain), cannot tell which group member triggered an action when ZK proofs are used, and cannot tie an on-chain identity to a real-world person from the chain alone.</p>
+      <p>Combine the chain with relayer logs, and a patient adversary can run intersection attacks. We are honest about that on the threat model.</p>
+    </div>
+  </details>
+
+  <p class="grouphead">Identity, recovery, and groups</p>
+
+  <details class="q">
+    <summary>What happens if I lose my phone?</summary>
+    <div class="a">
+      <p>Your twelve BIP-39 words restore your identity, contacts, and key material on a fresh device. If you have not written them down, no one &mdash; not the maintainer, not a recovery service, not Apple, not Google &mdash; can give them back. That is by design.</p>
+      <p>Group history that lived only on your old device may be unrecoverable. Group state that lives on chain (rules, current membership) is restored along with your identity.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>How is sender anonymity inside a group not just security theatre for groups of three?</summary>
+    <div class="a">
+      <p>Honestly, in a group of three, sender anonymity is bounded by group size. ZK proofs prove &ldquo;a member sent this&rdquo; without saying which; in a tiny group, the search space is tiny.</p>
+      <p>The protection becomes meaningful as groups grow. For a small group of close friends, you should assume members can guess who said what from style and timing alone. For a larger working group or a public-facing group, the cryptographic anonymity matters.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>Can a malicious group member do damage?</summary>
+    <div class="a">
+      <p>They can read everything sent in the group while they are a member. They can screenshot. They can leak. They can probe sender anonymity within the group. None of that is solvable by any cryptosystem.</p>
+      <p>What they cannot do: impersonate another member, exceed the role granted by the group governance contract, or rewrite group history beyond what governance permits.</p>
+    </div>
+  </details>
+
+  <p class="grouphead">Trust, governance, and the maintainer</p>
+
+  <details class="q">
+    <summary>Who runs Onym?</summary>
+    <div class="a">
+      <p>Today, a single maintainer, working in public on MIT-licensed code. There is no Foundation, no Series A, no advisory board. The maintainer&rsquo;s name and account are visible on GitHub on every commit; the website just doesn&rsquo;t put them up in lights. The <a class="link" href="/about/">about page</a> is honest about this.</p>
+      <p>If a Foundation is formed later, it will be announced with jurisdiction, registration, and a real charter. Until then: solo, MIT, in public.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>Why isn&rsquo;t the maintainer&rsquo;s name on this website?</summary>
+    <div class="a">
+      <p>It is, just not in lights. Every commit on every Onym repo is signed by the maintainer&rsquo;s GitHub account; you can find the name in 30 seconds. The website doesn&rsquo;t put it on a banner because the project shouldn&rsquo;t be about the person &mdash; the trust you extend should rest on the code, not the name.</p>
+      <p>Every layer is on GitHub. Every primitive is standard. The threat model is published. If any of those become inaccurate, fork the code and continue without us.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>What if you get a court order?</summary>
+    <div class="a">
+      <p>The maintainer cannot hand over what they do not have. There is no Onym-controlled account database, no message store, no recoverable social graph held centrally. A relayer operator can be compelled to log new connection metadata going forward, which is one reason transport is replaceable and you should run your own when it matters.</p>
+      <p>Group rules are immutable on Stellar. No legal process compels a Soroban contract to behave differently than its source code says.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>What if the maintainer disappears, or sells out, or is coerced?</summary>
+    <div class="a">
+      <p>This is a real risk for any project, including Onym. The mitigations: every layer is MIT-licensed, every layer is on GitHub, the cryptographic primitives are not novel, and the protocol is documented. Anyone capable of reading the code can fork it the day this page becomes inaccurate.</p>
+      <p>The on-chain Soroban contracts are immutable; existing groups continue to function regardless of who controls onym.app.</p>
+    </div>
+  </details>
+
+  <p class="grouphead">Cryptography and engineering</p>
+
+  <details class="q">
+    <summary>Why Stellar? Why not Bitcoin, Ethereum, Solana, or a private ledger?</summary>
+    <div class="a">
+      <p>Stellar/Soroban gives us cheap, fast, deterministic smart contracts with a relayer-pays model that lets users transact without funded accounts. Ethereum is more expensive and a less natural fit for the relayer model. Bitcoin lacks the contract surface. Solana is fast but the deployment model is different. A private ledger would put one operator back in the trust path.</p>
+      <p>The choice is reversible. If the trade-offs change, we will say so.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>Are you post-quantum?</summary>
+    <div class="a">
+      <p>No. The primitives in production today &mdash; BLS12-381, secp256k1, Ed25519, X25519 &mdash; are pre-quantum. A future cryptographically relevant quantum computer would defeat them. Migration to post-quantum primitives is on the roadmap; it is not in production.</p>
+      <p>If your threat model includes a record-now-decrypt-later adversary at nation-state scale, weigh that.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>Do I have to trust your build of the app?</summary>
+    <div class="a">
+      <p>You have to trust some build, somewhere. The mitigation we offer is reproducible builds: every layer is open source, the source corresponds to the binary, and you can build the apps and the relayer from source yourself if you do not trust the published binaries.</p>
+      <p>Reproducible Apple App Store builds are an open problem we share with every iOS app. We will publish reproducibility status with each release as the tooling matures.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>Is there an audit?</summary>
+    <div class="a">
+      <p>Not yet. The cryptographic primitives have decades of public scrutiny. The contract logic and the integration code do not, and will be audited when the project can fund it. Audit status will be published in the changelog when it changes.</p>
+    </div>
+  </details>
+
+  <p class="grouphead">Practical</p>
+
+  <details class="q">
+    <summary>How do I try it?</summary>
+    <div class="a">
+      <p>Alpha builds for iOS and Android are available via the <a class="link" href="/qa/">QA Dashboard</a>. The architecture, contracts, and SDKs are on <a class="link" href="https://github.com/onymchat">GitHub</a>.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>How do I get hold of a human?</summary>
+    <div class="a">
+      <p>For correspondence, including from journalists and security researchers, write to <a class="link" href="mailto:lead@onym.app">lead@onym.app</a>. Replies usually within a working day.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>I found a bug or a security issue. What do I do?</summary>
+    <div class="a">
+      <p>Email <a class="link" href="mailto:lead@onym.app">lead@onym.app</a> with &ldquo;security&rdquo; in the subject. Disclosures that improve the threat model are the most useful disclosures there are.</p>
+    </div>
+  </details>
+
+  <p class="muted" style="margin-top:48px; font-size:.88rem;">If your question is not here, it should be. Mail it to <a class="link" href="mailto:lead@onym.app">lead@onym.app</a> and we will add it.</p>
+</section>
+
+</main>
+
+<footer class="site">
+  <div class="row mono">
+    <span>&copy; 2026 &middot; Onym &middot; MIT licensed</span>
+    <span>Released under the MIT license</span>
+    <span>Never pay with your identity.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const root = document.documentElement;
+  const tD = document.getElementById('themeDark');
+  const tL = document.getElementById('themeLight');
+  function setTheme(t){
+    if (t === 'light'){
+      root.setAttribute('data-theme','light');
+      tD.setAttribute('aria-pressed','false');
+      tL.setAttribute('aria-pressed','true');
+    } else {
+      root.removeAttribute('data-theme');
+      tD.setAttribute('aria-pressed','true');
+      tL.setAttribute('aria-pressed','false');
+    }
+    try{ localStorage.setItem('onym.theme', t); }catch(e){}
+  }
+  tD.addEventListener('click', () => setTheme('dark'));
+  tL.addEventListener('click', () => setTheme('light'));
+  try{
+    const saved = localStorage.getItem('onym.theme');
+    if (saved) setTheme(saved);
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

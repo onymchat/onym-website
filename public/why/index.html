@@ -573,6 +573,32 @@
     border-color: color-mix(in oklab, var(--fg) 25%, transparent);
   }
 
+  /* ---------- Scene 6: Bridge — how the math replaces trust ---------- */
+  .scene-6 .bridge{
+    display:grid; grid-template-columns:1fr; gap: clamp(18px, 2.4vw, 26px);
+    margin-top: clamp(36px, 5vw, 56px);
+  }
+  @media (min-width: 880px){
+    .scene-6 .bridge{ grid-template-columns: 1fr 1fr 1fr; }
+  }
+  .scene-6 .pillar{
+    border:1px solid var(--hair); border-radius:14px;
+    padding: 22px 24px;
+    background: var(--card);
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .scene-6 .pillar .lbl{
+    font-size:.66rem; letter-spacing:.16em; text-transform:uppercase;
+    color: var(--muted); font-weight:600;
+  }
+  .scene-6 .pillar h3{
+    margin:0; font-size: clamp(1.15rem, 1.6vw, 1.35rem);
+    font-weight:600; letter-spacing:-0.01em; line-height:1.2;
+  }
+  .scene-6 .pillar p{ margin:0; color:var(--muted); font-size: .95rem; line-height:1.55; }
+  .scene-6 .pillar .does{ color: var(--fg); font-weight:500; font-size:.92rem; }
+  .scene-6 .pillar .nope{ color: var(--muted); font-size:.86rem; font-style: italic; }
+
   /* ---------- Reduced motion ---------- */
   @media (prefers-reduced-motion: reduce){
     .graph-svg .pulse,
@@ -855,15 +881,43 @@
   <p class="closing">Encryption was supposed to remove some of these. It didn&rsquo;t.</p>
 </section>
 
+<!-- Scene 6: Bridge — how the math replaces the trust -->
+<section class="scene scene-6" data-screen-label="06 Bridge">
+  <p class="eyebrow">the bridge</p>
+  <h2 class="display">How the math<br/>actually replaces the trust.</h2>
+  <p class="lede">Three engineering choices do the work. None of them are exotic. All of them are running in production cryptography somewhere already.</p>
+
+  <div class="bridge">
+    <div class="pillar">
+      <span class="lbl">01 · Zero-knowledge group membership</span>
+      <h3>A public registry without public identities.</h3>
+      <p class="does">A sender proves &ldquo;I am a member of this group&rdquo; on chain without revealing which member. The Soroban contract verifies the proof; everyone else &mdash; relayer, validators, passive observers &mdash; only sees that some member acted.</p>
+      <p class="nope">It does not hide that an action happened, or which group it happened in.</p>
+    </div>
+    <div class="pillar">
+      <span class="lbl">02 · Relayer-pays transactions</span>
+      <h3>You transact without a funded account.</h3>
+      <p class="does">A relayer submits your signed Stellar transaction and pays the fee. There is no bank, no on-ramp, no funded account tying you to a real-world identity.</p>
+      <p class="nope">The relayer sees ciphertext and connection metadata. It cannot read messages, impersonate you, or rewrite group state &mdash; and you can switch it.</p>
+    </div>
+    <div class="pillar">
+      <span class="lbl">03 · On-device identity</span>
+      <h3>No account anyone can disable.</h3>
+      <p class="does">Twelve BIP-39 words generated on your phone. Keys, contacts, and history live there. There is no &ldquo;Onym account&rdquo; for anyone to suspend, hand over, or delete.</p>
+      <p class="nope">If your phone is compromised, none of this helps. Endpoints are still endpoints.</p>
+    </div>
+  </div>
+</section>
+
 <!-- Outro: Onym's answer -->
 <section class="outro" aria-label="What Onym does instead">
   <p class="eyebrow" style="margin-bottom:24px;">onym&rsquo;s answer</p>
-  <h2>Remove the server.<br/>Make the only shared state public.</h2>
-  <p class="lede" style="margin-top:28px;">No company in the loop. No operator console. No deploy you have to take on faith. Group state lives on a public smart contract; messages travel over relays you can swap; identity stays on your device.</p>
+  <h2>Remove the operator.<br/>Make the shared state public.</h2>
+  <p class="lede" style="margin-top:28px;">No company in the loop. No operator console with kill-switch authority. Every layer open source and reproducible from source &mdash; no opaque server-side logic in the trust path. Group state lives on a public smart contract; messages travel over relays you can swap; identity stays on your device.</p>
+  <p class="lede" style="margin-top:18px; font-size:.95rem; color:var(--muted);">Onym defends against an operator who would disable your account, a passive on-chain observer, and a malicious group member exceeding their role. It does not defend against a global passive surveiller, a compromised device, or a screenshot. The full list is the <a class="text-[var(--fg)]" style="text-decoration:underline; text-decoration-color:var(--hair); text-underline-offset:3px;" href="/threat-model/">threat model</a>.</p>
   <div class="ctas">
     <a class="cta primary" href="/how/">See how it works</a>
-    <a class="cta secondary" href="/about/">Read the manifesto</a>
-    <a class="cta secondary" href="/qa/">Try the alpha</a>
+    <a class="cta secondary" href="/threat-model/">Read the threat model</a>
   </div>
 </section>
 
@@ -871,7 +925,7 @@
 
 <footer class="hair border-t mt-12" style="border-top-style:solid;">
   <div class="max-w-[1100px] mx-auto px-6 py-10 flex flex-wrap items-center justify-between gap-4 text-[12px] muted mono">
-    <span>&copy; 2026 &middot; Onym Foundation</span>
+    <span>&copy; 2026 &middot; Onym &middot; MIT licensed</span>
     <span>Released under the MIT license</span>
     <span>Never pay with your identity.</span>
   </div>
