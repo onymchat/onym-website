@@ -529,7 +529,11 @@
     background:#0a0a0a; color:#e6e6e6; border-radius:18px; padding: 22px 24px;
     font-family:"SF Mono","JetBrains Mono", ui-monospace, monospace; font-size: 13.5px; line-height:1.7;
     box-shadow: 0 30px 60px -30px rgba(10,10,10,.4);
+    min-width: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
+  .terminal > div{ white-space: pre; }
   .term-prompt{ color:#9aa0a6;}
   .term-cmd{ color:#fff;}
   .term-out{ color:#9aa0a6;}
