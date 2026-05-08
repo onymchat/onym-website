@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Вопросы · Onym</title>
+<meta name="description" content="Сложные вопросы об Onym, отвечаем честно. Серверы, метаданные, управление, постквантовая криптография и что бывает, когда что-то идёт не так." />
+<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+<link rel="icon" type="image/png" href="/assets/icon-dark.png" />
+<link rel="apple-touch-icon" href="/assets/icon-dark.png" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Вопросы · Onym" />
+<meta property="og:description" content="Сложные вопросы об Onym, отвечаем честно." />
+<meta property="og:image" content="https://onym.app/assets/og-card.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Вопросы · Onym" />
+<meta name="twitter:description" content="Сложные вопросы об Onym, отвечаем честно." />
+<meta name="twitter:image" content="https://onym.app/assets/og-card.jpg" />
+<link rel="alternate" hreflang="en" href="https://onym.app/faq/" />
+<link rel="alternate" hreflang="ru" href="https://onym.app/ru/faq/" />
+<link rel="alternate" hreflang="x-default" href="https://onym.app/faq/" />
+<script>(function(){try{var p=(navigator.language||'').toLowerCase();if(!(p==='ru'||p.startsWith('ru-'))){var pa=location.pathname.replace(/^\/ru/,'')||'/';location.replace(pa);return;}}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
+    --hair:rgba(245,245,247,.10);
+    --card:#101013;
+    --shadow: 0 1px 0 rgba(0,0,0,.4), 0 30px 60px -30px rgba(0,0,0,.6);
+    --nav-bg: rgba(8,8,10,.72);
+  }
+  html[data-theme="light"]{
+    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
+    --hair:rgba(10,10,10,.08);
+    --card:#fbfbfd;
+    --shadow: 0 1px 2px rgba(10,10,10,.04), 0 12px 40px -24px rgba(10,10,10,.18);
+    --nav-bg: rgba(245,245,247,.72);
+  }
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ background:var(--bg); color:var(--fg); margin:0; padding:0; }
+  body{
+    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+    font-feature-settings: "ss01","ss02";
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    line-height:1.55;
+    transition: background-color .35s ease, color .35s ease;
+  }
+  .mono{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; }
+  .hair{ border-color:var(--hair); }
+  .muted{ color:var(--muted); }
+
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:var(--nav-bg);
+    backdrop-filter:saturate(160%) blur(14px);
+    -webkit-backdrop-filter:saturate(160%) blur(14px);
+    border-bottom:1px solid var(--hair);
+  }
+  .mark{
+    display:inline-block; width:22px; height:22px; border-radius:22%;
+    background:url('/assets/icon-dark.png') center/cover no-repeat;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.06), 0 4px 16px -2px rgba(255,255,255,.14), 0 .5px 0 rgba(255,255,255,.10) inset;
+  }
+  html[data-theme="light"] .mark{
+    background:url('/assets/icon-light.png') center/cover no-repeat;
+    box-shadow: 0 4px 12px -3px rgba(10,10,10,.18), 0 .5px 0 rgba(255,255,255,.6) inset;
+  }
+  .toggle{
+    position:fixed; bottom:18px; right:18px; z-index:60;
+    background:var(--nav-bg);
+    border:1px solid var(--hair); border-radius:999px;
+    padding:4px; display:flex; gap:2px;
+    backdrop-filter:saturate(180%) blur(14px);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    box-shadow:0 8px 24px -10px rgba(10,10,10,.18);
+  }
+  .toggle button{
+    font-size:12px; letter-spacing:.04em; padding:7px 12px; border-radius:999px;
+    color:var(--muted);
+  }
+  .toggle button[aria-pressed="true"]{ background:var(--fg); color:var(--bg); }
+
+  .wrap{ max-width:840px; margin:0 auto; padding: clamp(40px, 7vw, 96px) clamp(24px, 6vw, 80px); }
+  .eyebrow{ font-size:.78rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+  h1.display{ font-weight:700; letter-spacing:-0.04em; line-height:0.98; font-size: clamp(2.4rem, 6vw, 4.5rem); margin: 18px 0 28px; text-wrap:balance; }
+  p.lede{ font-size: clamp(1.05rem, 1.35vw, 1.25rem); color:var(--muted); max-width: 60ch; }
+  a.link{ color:var(--fg); text-decoration:underline; text-decoration-color:var(--hair); text-underline-offset:3px; }
+  a.link:hover{ text-decoration-color: var(--fg); }
+
+  details.q{
+    border-top:1px solid var(--hair);
+    padding: 18px 0;
+  }
+  details.q:last-child{ border-bottom:1px solid var(--hair); }
+  details.q > summary{
+    list-style:none; cursor:pointer;
+    display:flex; align-items:flex-start; gap:14px;
+    font-size: clamp(1.02rem, 1.3vw, 1.18rem);
+    font-weight: 500; letter-spacing:-0.005em; line-height:1.4;
+  }
+  details.q > summary::-webkit-details-marker{ display:none; }
+  details.q > summary::before{
+    content:"+"; flex-shrink:0; width:20px; text-align:center;
+    color: var(--muted); font-weight:400; font-size: 1.2em; line-height:1;
+    margin-top:.15em; transition: transform .15s ease;
+  }
+  details.q[open] > summary::before{ content:"−"; }
+  details.q > summary:hover{ color: var(--muted); }
+  details.q .a{
+    margin: 14px 0 0 34px; color: var(--muted);
+    font-size: clamp(.95rem, 1.1vw, 1.05rem); line-height:1.6;
+  }
+  details.q .a p{ margin: 0 0 12px; max-width: 65ch; }
+  details.q .a p:last-child{ margin-bottom:0; }
+
+  .grouphead{
+    margin: 56px 0 12px;
+    font-size:.78rem; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--muted); font-weight:600;
+  }
+  .grouphead:first-of-type{ margin-top: 40px; }
+
+  footer.site{ border-top:1px solid var(--hair); margin-top: 48px; }
+  footer.site .row{
+    max-width:1100px; margin: 0 auto; padding: 28px 24px;
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    gap:16px; font-size:12px; color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="toggle" role="group" aria-label="Тема">
+  <button id="themeDark" aria-pressed="true">Тёмная</button>
+  <button id="themeLight" aria-pressed="false">Светлая</button>
+</div>
+
+<header class="nav">
+  <div class="max-w-[1100px] mx-auto px-6 h-[52px] flex items-center justify-between">
+    <a href="/ru/" class="flex items-center gap-3 hover:opacity-80" aria-label="Onym — главная">
+      <span class="mark" role="img" aria-label="Onym"></span>
+      <span class="text-[14px] font-medium tracking-tight">Onym <span class="muted">· Вопросы</span></span>
+    </a>
+    <a href="/ru/" class="text-[12.5px] muted hover:text-[var(--fg)]">&larr; Назад</a>
+  </div>
+</header>
+
+<main>
+
+<section class="wrap">
+  <p class="eyebrow">Вопросы</p>
+  <h1 class="display">Сложные вопросы,<br/>ответы настолько честные, насколько у нас получается.</h1>
+  <p class="lede">Если вы пришли искать, от чего мы уворачиваемся &mdash; это страница, где мы не уворачиваемся. <a class="link" href="/ru/threat-model/">Модель угроз</a> &mdash; канонический источник на случай любого расхождения.</p>
+
+  <p class="grouphead">Главные вопросы</p>
+
+  <details class="q">
+    <summary>Постойте &mdash; вы говорите «никакой компании в цепочке», но релеер &mdash; это сервер. Так как же?</summary>
+    <div class="a">
+      <p>Релеер &mdash; это сервер. Раньше мы говорили «никакого сервера, которому надо доверять»; от этой формулировки мы отошли. Честное утверждение у́же: <strong>никакого оператора с правом вас отключить</strong> &mdash; вашему аккаунту, разговорам или правилам вашей группы.</p>
+      <p>Идентичность &mdash; на вашем устройстве, поэтому никакого «аккаунта Onym», который можно заблокировать, нет. Правила группы &mdash; публичный Soroban-контракт в Stellar, а не база, которую может править оператор. Для каждого внутригруппового действия &mdash; принять, исключить, проголосовать, поменять роль &mdash; релеер является единственной стороной, подписывающей on-chain транзакцию: он оборачивает ваше ZK-доказательство в Stellar-транзакцию, подписывает её и платит комиссию. Вы не подписываете ничего &mdash; именно это удерживает внутригрупповые действия от привязки к стабильной on-chain идентичности. Единственное исключение &mdash; <span class="mono">create_group</span> при создании группы, где основатель подписывает Soroban-auth запись; это намеренный, единичный момент, когда подпись, привязанная к пользователю, касается блокчейна. Если релеер отказывает вам &mdash; смените на другой или поднимите свой. Подробности по сторонам &mdash; на странице <a class="link" href="/ru/threat-model/">модели угроз</a>.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>Если «метаданные не покидают устройство», как тогда что-то попадает в блокчейн?</summary>
+    <div class="a">
+      <p>Они не «никогда не покидают». Часть метаданных по построению публична.</p>
+      <p>Что остаётся локальным: идентичность (BIP-39 фраза), приватные ключи, ваши контакты, ваша история сообщений. Что идёт в блокчейн: групповые операции &mdash; принять, исключить, голосования &mdash; отправляются с ZK-доказательством, которое не раскрывает, какой именно участник действовал, но раскрывает, что действие случилось, когда и в какой группе. Что видит релеер: шифротекст, размер сообщения, тайминг, ваш IP.</p>
+      <p>Если в вашей модели угроз есть глобальный пассивный наблюдатель, делающий корреляцию по таймингам по всему интернету &mdash; одного Onym недостаточно. Модель угроз говорит об этом прямо.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>Так что же на самом деле видит релеер?</summary>
+    <div class="a">
+      <p>Зашифрованные блобы, тайминг и частоту ваших запросов к релееру, ваш IP (если вы не приносите свою сеть для приватности), и адрес Soroban-контракта, на который идёт транзакция. Он не видит плейнтекст сообщения, какой именно участник группы отправил данное сообщение и вашу фразу восстановления.</p>
+      <p>Если вы всегда ходите через один и тот же релеер с одного и того же IP &mdash; этот релеер со временем построит ваш профиль использования. Если вы ротируете релееры или поднимаете свой &mdash; не построит.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>А разве публичный реестр Stellar и так не сливает всё?</summary>
+    <div class="a">
+      <p>Сливает больше, чем многие ожидают, и меньше, чем подсказывает наивная интуиция.</p>
+      <p>On-chain наблюдатель видит, что группа X существует, примерно сколько в ней участников, как часто она активна и когда происходят события управления. Он не может прочитать содержимое сообщений (его в блокчейне нет), не может сказать, какой участник группы инициировал действие, когда используются ZK-доказательства, и не может связать on-chain идентичность с реальным человеком только из блокчейна.</p>
+      <p>Сложите блокчейн с логами релеера &mdash; и терпеливый противник может запустить атаки пересечения. Мы честно об этом пишем в модели угроз.</p>
+    </div>
+  </details>
+
+  <p class="grouphead">Идентичность, восстановление и группы</p>
+
+  <details class="q">
+    <summary>Что будет, если я потеряю телефон?</summary>
+    <div class="a">
+      <p>Ваши двенадцать слов BIP-39 восстановят идентичность, контакты и ключевой материал на новом устройстве. Если вы их не записали &mdash; никто (ни мейнтейнер, ни сервис восстановления, ни Apple, ни Google) их вам не вернёт. Это так задумано.</p>
+      <p>История группы, которая жила только на старом устройстве, может быть невосстановима. Состояние группы, живущее в блокчейне (правила, текущий состав), восстанавливается вместе с идентичностью.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>Не превращается ли анонимность отправителя внутри группы в театр безопасности для группы из трёх?</summary>
+    <div class="a">
+      <p>Честно: в группе из трёх анонимность отправителя ограничена размером группы. ZK-доказательства подтверждают «отправил кто-то из участников», не уточняя кто; в крошечной группе пространство поиска крошечное.</p>
+      <p>Защита становится осмысленной по мере роста группы. В маленькой группе близких друзей вы должны исходить из того, что участники могут угадать, кто что сказал, по стилю и таймингу. В большой рабочей или публичной группе криптографическая анонимность имеет значение.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>Может ли недобросовестный участник группы навредить?</summary>
+    <div class="a">
+      <p>Он может читать всё, что отправлено в группу, пока он её участник. Он может сделать скриншот. Может слить. Может прощупывать анонимность отправителя внутри группы. Ничто из этого не решается никакой криптосистемой.</p>
+      <p>Чего он не может: выдать себя за другого участника, превысить роль, выданную контрактом управления, или переписать историю группы за рамки того, что разрешает управление.</p>
+    </div>
+  </details>
+
+  <p class="grouphead">Доверие, управление и мейнтейнер</p>
+
+  <details class="q">
+    <summary>Кто делает Onym?</summary>
+    <div class="a">
+      <p>Сегодня &mdash; один мейнтейнер, работающий в открытую над MIT-кодом. Никакого Фонда, никакого раунда A, никакого совета консультантов нет. Имя мейнтейнера и его аккаунт видны на GitHub на каждом коммите; сайт просто не выводит их на баннер. <a class="link" href="/ru/about/">Страница «О проекте»</a> об этом честно говорит.</p>
+      <p>Если Фонд будет образован позже, об этом объявят &mdash; с юрисдикцией, регистрацией и реальным уставом. До тех пор: соло, MIT, в открытую.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>Почему имя мейнтейнера не на сайте?</summary>
+    <div class="a">
+      <p>Оно есть &mdash; просто не вынесено на баннер. Каждый коммит в каждом репозитории Onym подписан аккаунтом мейнтейнера на GitHub; имя находится за 30 секунд. Сайт не выводит его на баннер потому, что проект не должен быть про человека &mdash; доверие, которое вы оказываете, должно держаться на коде, а не на имени. Это не псевдоанонимность из принципа.</p>
+      <p>Каждый слой &mdash; на GitHub. Каждый примитив &mdash; стандартный. Модель угроз опубликована. Если что-то из этого перестанет быть правдой &mdash; форкните код и продолжайте без нас.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>А если придёт судебный запрос?</summary>
+    <div class="a">
+      <p>Мейнтейнер не может выдать то, чего у него нет. Никакой централизованной БД аккаунтов, контролируемой Onym, нет; нет хранилища сообщений; нет восстанавливаемого социального графа, лежащего в одном месте. Оператора релеера могут принудить начать вести логи метаданных соединения с этого момента &mdash; одна из причин, почему транспорт сменный, и почему стоит держать свой релеер, когда это важно.</p>
+      <p>Правила группы в Stellar неизменяемы. Никакой судебный процесс не заставит Soroban-контракт вести себя иначе, чем сказано в его исходниках.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>А если мейнтейнер исчезнет, продастся или будет принуждён?</summary>
+    <div class="a">
+      <p>Это реальный риск любого проекта, включая Onym. Митигации: каждый слой под лицензией MIT, каждый слой на GitHub, криптографические примитивы не оригинальны, протокол задокументирован. Любой, кто умеет читать код, может форкнуть его в тот день, когда эта страница перестанет быть правдой.</p>
+      <p>On-chain Soroban-контракты неизменяемы; существующие группы продолжают работать вне зависимости от того, кто контролирует onym.app.</p>
+    </div>
+  </details>
+
+  <p class="grouphead">Криптография и инженерия</p>
+
+  <details class="q">
+    <summary>Почему Stellar? Почему не Bitcoin, Ethereum, Solana или приватный реестр?</summary>
+    <div class="a">
+      <p>Stellar/Soroban даёт нам дешёвые, быстрые, детерминированные смарт-контракты с моделью «релеер платит», в которой пользователи могут совершать транзакции без пополненного счёта. Ethereum дороже и хуже ложится на эту модель. У Bitcoin не та контрактная поверхность. Solana быстра, но модель развёртывания иная. Приватный реестр вернул бы одного оператора в путь доверия.</p>
+      <p>Выбор обратим. Если соотношение компромиссов поменяется &mdash; мы об этом скажем.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>Вы постквантовые?</summary>
+    <div class="a">
+      <p>Нет. Примитивы в проде сегодня &mdash; BLS12-381, secp256k1, Ed25519, X25519 &mdash; доквантовые. Будущий криптографически релевантный квантовый компьютер их сломает. Миграция на постквантовые примитивы &mdash; в плане; в проде её нет.</p>
+      <p>Если в вашей модели угроз есть противник уровня государства, действующий по схеме «записать сейчас, расшифровать потом» &mdash; учтите это.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>Должен ли я доверять вашей сборке приложения?</summary>
+    <div class="a">
+      <p>Какой-то сборке где-то доверять придётся. Митигация, которую мы предлагаем &mdash; воспроизводимые сборки: каждый слой open source, исходники соответствуют бинарнику, и вы можете собрать приложения и релеер сами, если не доверяете опубликованным бинарникам.</p>
+      <p>Воспроизводимые сборки в Apple App Store &mdash; открытая проблема, общая для каждого iOS-приложения. Мы будем публиковать статус воспроизводимости с каждым релизом по мере того, как инструментарий созреет.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>Есть аудит?</summary>
+    <div class="a">
+      <p>Пока нет. Криптографические примитивы имеют десятилетия публичной проверки. Логика контрактов и интеграционный код &mdash; нет, и будут проходить аудит, когда проект сможет его профинансировать. Статус аудита будет публиковаться в changelog при изменениях.</p>
+    </div>
+  </details>
+
+  <p class="grouphead">Практика</p>
+
+  <details class="q">
+    <summary>Как попробовать?</summary>
+    <div class="a">
+      <p>Альфа-сборки для iOS и Android доступны через <a class="link" href="/qa/">QA Dashboard</a>. Архитектура, контракты и SDK &mdash; на <a class="link" href="https://github.com/onymchat">GitHub</a>.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>Как связаться с человеком?</summary>
+    <div class="a">
+      <p>Для переписки, в том числе журналистов и исследователей безопасности, пишите на <a class="link" href="mailto:lead@onym.app">lead@onym.app</a>. Обычно отвечаем в течение рабочего дня.</p>
+    </div>
+  </details>
+
+  <details class="q">
+    <summary>Я нашёл баг или проблему безопасности. Что делать?</summary>
+    <div class="a">
+      <p>Напишите на <a class="link" href="mailto:lead@onym.app">lead@onym.app</a> со словом «security» в теме. Раскрытия, улучшающие модель угроз &mdash; самые полезные раскрытия, которые бывают.</p>
+    </div>
+  </details>
+
+  <p class="muted" style="margin-top:48px; font-size:.88rem;">Если вашего вопроса здесь нет &mdash; он должен быть. Пришлите его на <a class="link" href="mailto:lead@onym.app">lead@onym.app</a>, и мы добавим.</p>
+</section>
+
+</main>
+
+<footer class="site">
+  <div class="row mono">
+    <span>&copy; 2026 &middot; Onym &middot; под MIT</span>
+    <span>Распространяется по лицензии MIT</span>
+    <span>Никогда не платите своей идентичностью.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const root = document.documentElement;
+  const tD = document.getElementById('themeDark');
+  const tL = document.getElementById('themeLight');
+  function setTheme(t){
+    if (t === 'light'){
+      root.setAttribute('data-theme','light');
+      tD.setAttribute('aria-pressed','false');
+      tL.setAttribute('aria-pressed','true');
+    } else {
+      root.removeAttribute('data-theme');
+      tD.setAttribute('aria-pressed','true');
+      tL.setAttribute('aria-pressed','false');
+    }
+    try{ localStorage.setItem('onym.theme', t); }catch(e){}
+  }
+  tD.addEventListener('click', () => setTheme('dark'));
+  tL.addEventListener('click', () => setTheme('light'));
+  try{
+    const saved = localStorage.getItem('onym.theme');
+    if (saved) setTheme(saved);
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1080 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Модель угроз · Onym</title>
+<meta name="description" content="От кого Onym защищает, что гарантирует и где останавливается. v0.0.1, меняется, дата 2026-05-08." />
+<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+<link rel="icon" type="image/png" href="/assets/icon-dark.png" />
+<link rel="apple-touch-icon" href="/assets/icon-dark.png" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Модель угроз · Onym" />
+<meta property="og:description" content="От кого Onym защищает, что гарантирует и где останавливается." />
+<meta property="og:image" content="https://onym.app/assets/og-card.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Модель угроз · Onym" />
+<meta name="twitter:description" content="От кого Onym защищает, что гарантирует и где останавливается." />
+<meta name="twitter:image" content="https://onym.app/assets/og-card.jpg" />
+<link rel="alternate" hreflang="en" href="https://onym.app/threat-model/" />
+<link rel="alternate" hreflang="ru" href="https://onym.app/ru/threat-model/" />
+<link rel="alternate" hreflang="x-default" href="https://onym.app/threat-model/" />
+<script>(function(){try{var p=(navigator.language||'').toLowerCase();if(!(p==='ru'||p.startsWith('ru-'))){var pa=location.pathname.replace(/^\/ru/,'')||'/';location.replace(pa);return;}}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
+    --hair:rgba(245,245,247,.10);
+    --card:#101013;
+    --shadow: 0 1px 0 rgba(0,0,0,.4), 0 30px 60px -30px rgba(0,0,0,.6);
+    --nav-bg: rgba(8,8,10,.72);
+    --green:#34d39955;
+    --amber:#f0b22955;
+    --red:#ef444455;
+    --green-solid:#34d399;
+    --amber-solid:#f0b229;
+    --red-solid:#ef4444;
+  }
+  html[data-theme="light"]{
+    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
+    --hair:rgba(10,10,10,.08);
+    --card:#fbfbfd;
+    --shadow: 0 1px 2px rgba(10,10,10,.04), 0 12px 40px -24px rgba(10,10,10,.18);
+    --nav-bg: rgba(245,245,247,.72);
+    --green:#34d39933;
+    --amber:#f0b22933;
+    --red:#ef444433;
+    --green-solid:#0fa471;
+    --amber-solid:#b8821b;
+    --red-solid:#c8362c;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ background:var(--bg); color:var(--fg); margin:0; padding:0; }
+  body{
+    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+    font-feature-settings: "ss01","ss02";
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+    line-height:1.55;
+    transition: background-color .35s ease, color .35s ease;
+  }
+  .mono{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; }
+  .hair{ border-color:var(--hair); }
+  .muted{ color:var(--muted); }
+
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:var(--nav-bg);
+    backdrop-filter:saturate(160%) blur(14px);
+    -webkit-backdrop-filter:saturate(160%) blur(14px);
+    border-bottom:1px solid var(--hair);
+  }
+  .mark{
+    display:inline-block; width:22px; height:22px; border-radius:22%;
+    background:url('/assets/icon-dark.png') center/cover no-repeat;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.06), 0 4px 16px -2px rgba(255,255,255,.14), 0 .5px 0 rgba(255,255,255,.10) inset;
+  }
+  html[data-theme="light"] .mark{
+    background:url('/assets/icon-light.png') center/cover no-repeat;
+    box-shadow: 0 4px 12px -3px rgba(10,10,10,.18), 0 .5px 0 rgba(255,255,255,.6) inset;
+  }
+  .toggle{
+    position:fixed; bottom:18px; right:18px; z-index:60;
+    background:var(--nav-bg);
+    border:1px solid var(--hair); border-radius:999px;
+    padding:4px; display:flex; gap:2px;
+    backdrop-filter:saturate(180%) blur(14px);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    box-shadow:0 8px 24px -10px rgba(10,10,10,.18);
+  }
+  .toggle button{
+    font-size:12px; letter-spacing:.04em; padding:7px 12px; border-radius:999px;
+    color:var(--muted);
+  }
+  .toggle button[aria-pressed="true"]{ background:var(--fg); color:var(--bg); }
+
+  .wrap{ max-width:980px; margin:0 auto; padding: clamp(40px, 7vw, 96px) clamp(24px, 6vw, 80px); }
+  .eyebrow{ font-size:.78rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+  h1.display{ font-weight:700; letter-spacing:-0.04em; line-height:0.98; font-size: clamp(2.4rem, 6.5vw, 5rem); margin: 18px 0 28px; text-wrap:balance; }
+  h2{ font-weight:700; letter-spacing:-0.02em; font-size: clamp(1.5rem, 2.8vw, 2.1rem); margin: 72px 0 16px; line-height:1.15; }
+  h3{ font-weight:600; letter-spacing:-0.01em; font-size: clamp(1.05rem, 1.4vw, 1.2rem); margin: 28px 0 6px; }
+  p{ margin: 10px 0; max-width: 64ch; font-size:.92rem; line-height:1.55; color: var(--muted); }
+  p.lede{ font-size: clamp(.95rem, 1.1vw, 1.05rem); color:var(--muted); max-width: 60ch; margin: 8px 0 0; opacity:.92; }
+  p + h2, .lede + h2, figure + h2, .ts-figure + h2, .pair + h2, .perimeter + h2, .spectrum + h2, .spectrum-mobile + h2, .nope + h2, .adv-grid + h2{ margin-top: 72px; }
+  p + h3, figure + h3, .ts-figure + h3, .pair + h3, .perimeter + h3, .spectrum + h3, .spectrum-mobile + h3, .nope + h3, .adv-grid + h3{ margin-top: 44px; }
+  p + figure, p + .ts-figure, p + .pair, p + .perimeter, p + .spectrum, p + .spectrum-mobile, p + .nope, p + .adv-grid,
+  .lede + figure, .lede + .ts-figure, .lede + .pair, .lede + .perimeter, .lede + .spectrum, .lede + .spectrum-mobile, .lede + .nope, .lede + .adv-grid{ margin-top: 36px; }
+  figure + p, .ts-figure + p, .pair + p, .perimeter + p, .spectrum + p, .spectrum-mobile + p, .nope + p, .adv-grid + p{ margin-top: 36px; }
+  h2 + p, h3 + p{ margin-top: 10px; }
+  a.inline{ color: var(--fg); border-bottom:1px solid var(--hair); }
+  a.inline:hover{ border-bottom-color: var(--fg); }
+  ul{ margin: 8px 0 8px 0; padding-left: 22px; max-width:70ch; }
+  ul li{ margin: 4px 0; }
+
+  .stamp{
+    display:inline-flex; align-items:center; gap:10px;
+    border:1px solid var(--hair); border-radius:999px; padding: 6px 14px;
+    background: var(--card);
+    font-size: .78rem; letter-spacing:.06em;
+  }
+  .stamp .dot{ width:6px; height:6px; border-radius:50%; background:#f0b229; box-shadow:0 0 8px #f0b22988; }
+
+  /* ------- Trust surface diagram ------- */
+  .ts-figure{
+    margin: 28px 0 8px;
+    border:1px solid var(--hair);
+    border-radius:18px;
+    background: var(--card);
+    box-shadow: var(--shadow);
+    overflow:hidden;
+  }
+  .ts-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .ts-side{
+    padding: clamp(20px, 3vw, 28px);
+    position:relative;
+    min-width: 0;
+  }
+  .ts-side + .ts-side{
+    border-left: 1px solid var(--hair);
+  }
+  .ts-head{
+    display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+    margin-bottom: 18px;
+  }
+  .ts-tag{
+    font-size:.66rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted);
+  }
+  .ts-name{
+    font-size:.88rem; font-weight:600; letter-spacing:-0.01em;
+  }
+  .ts-svg{
+    width:100%; height:auto; display:block;
+    color: var(--fg);
+  }
+  .ts-svg .frame{ stroke: var(--hair); fill: none; }
+  .ts-svg .node-rect{ fill: var(--bg); stroke: currentColor; stroke-width:1; }
+  .ts-svg .node-rect.danger{ stroke: var(--red-solid); stroke-width:1.2; }
+  .ts-svg .node-rect.partial{ stroke: var(--amber-solid); stroke-width:1.2; }
+  .ts-svg .node-rect.ok{ stroke: var(--green-solid); stroke-width:1.2; }
+  .ts-svg text{ fill: currentColor; font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; }
+  .ts-svg .node-label{ font-size: 9px; font-weight:600; letter-spacing:.04em; text-anchor:middle; }
+  .ts-svg .node-sub{ font-size: 7.2px; opacity:.55; text-anchor:middle; letter-spacing:.04em; }
+  .ts-svg .edge{ stroke: currentColor; stroke-width:1; opacity:.35; fill:none; }
+  .ts-svg .edge.dashed{ stroke-dasharray: 3 3; }
+  .ts-svg .pulse{
+    stroke: currentColor; stroke-width:1.4; fill:none;
+    stroke-dasharray: 8 200; stroke-dashoffset: 0; opacity:0;
+  }
+  .ts-svg .pulse.danger{ stroke: var(--red-solid); }
+  .ts-svg .pulse.partial{ stroke: var(--amber-solid); }
+  .ts-svg .pulse.ok{ stroke: var(--green-solid); }
+
+  @keyframes tsPulse{
+    0%   { opacity:0; stroke-dashoffset: 60; }
+    18%  { opacity:.95; }
+    72%  { opacity:.6; }
+    100% { opacity:0; stroke-dashoffset: -60; }
+  }
+  .ts-svg .pulse.a{ animation: tsPulse 5.4s ease-in-out infinite; }
+  .ts-svg .pulse.b{ animation: tsPulse 5.4s ease-in-out infinite 1.4s; }
+  .ts-svg .pulse.c{ animation: tsPulse 5.4s ease-in-out infinite 2.7s; }
+  .ts-svg .kill{
+    fill: none; stroke: var(--red-solid); stroke-width:1.2;
+    transform-origin: 124px 130px; transform-box: fill-box;
+    animation: killBlink 4.2s ease-in-out infinite;
+  }
+  @keyframes killBlink{
+    0%,40%   { opacity:.35; }
+    50%,55%  { opacity:1; }
+    65%,100% { opacity:.35; }
+  }
+
+  .ts-foot{
+    border-top: 1px solid var(--hair);
+    padding: 14px clamp(20px, 3vw, 28px) 18px;
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .ts-row{
+    display:flex; align-items:center; gap:10px;
+    flex-wrap: wrap;
+    font-size:.78rem;
+  }
+  .ts-row .ts-key{
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.7rem; letter-spacing:.08em; text-transform:uppercase;
+    color: var(--muted);
+    min-width: 96px;
+  }
+  .ts-chip{
+    display:inline-flex; align-items:center; gap:6px;
+    border:1px solid var(--hair);
+    background: rgba(0,0,0,0);
+    padding: 3px 9px; border-radius:999px;
+    font-size:.72rem; letter-spacing:.02em;
+    color: var(--fg);
+  }
+  .ts-chip .sw{ width:6px; height:6px; border-radius:50%; }
+  .ts-chip.danger .sw{ background: var(--red-solid); box-shadow: 0 0 6px var(--red); }
+  .ts-chip.partial .sw{ background: var(--amber-solid); box-shadow: 0 0 6px var(--amber); }
+  .ts-chip.ok .sw{ background: var(--green-solid); box-shadow: 0 0 6px var(--green); }
+  .ts-chip.muted-chip{ color: var(--muted); }
+
+  @media (max-width: 720px){
+    .ts-grid{ grid-template-columns: 1fr; }
+    .ts-side + .ts-side{ border-left: none; border-top: 1px solid var(--hair); }
+  }
+
+  /* ------- Scope spectrum ------- */
+  .spectrum{
+    margin: 24px 0 8px;
+    border:1px solid var(--hair);
+    border-radius:18px;
+    background: var(--card);
+    box-shadow: var(--shadow);
+    padding: clamp(24px, 3vw, 32px) clamp(20px, 3vw, 36px) clamp(20px, 3vw, 28px);
+    position: relative;
+  }
+  .spectrum-axis{
+    display:flex; justify-content:space-between;
+    font-size:.66rem; letter-spacing:.18em; text-transform:uppercase; color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .spectrum-track{
+    position:relative;
+    height: 220px;
+    border-top: 1px solid var(--hair);
+    border-bottom: 1px solid var(--hair);
+  }
+  .spectrum-band{
+    position:absolute; top:0; bottom:0;
+    border-right: 1px dashed var(--hair);
+  }
+  .spectrum-band.b1{ left:0; width:38%; }
+  .spectrum-band.b2{ left:38%; width:30%; }
+  .spectrum-band.b3{ left:68%; width:32%; border-right: none; }
+  .spectrum-band-label{
+    position:absolute; bottom:6px; left:8px;
+    font-size:.62rem; letter-spacing:.16em; text-transform:uppercase;
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    color: var(--muted); opacity:.7;
+  }
+
+  .spectrum-pin{
+    position:absolute; top: 50%;
+    transform: translate(-50%, -50%);
+    cursor: default;
+  }
+  .spectrum-pin .dot{
+    width: 14px; height:14px; border-radius:50%;
+    border: 1px solid currentColor;
+    background: var(--card);
+    box-shadow: 0 0 0 4px var(--bg);
+  }
+  .spectrum-pin.in{ color: var(--green-solid); }
+  .spectrum-pin.partial{ color: var(--amber-solid); }
+  .spectrum-pin.out{ color: var(--red-solid); }
+  .spectrum-pin .dot::after{
+    content:""; position:absolute; inset: 3px;
+    background: currentColor; border-radius:50%;
+  }
+  .spectrum-pin .stem{
+    position:absolute; left:50%; top:50%;
+    width:1px; transform: translateX(-.5px);
+    background: var(--hair);
+  }
+  .spectrum-pin.up .stem{ height: var(--stem, 60px); transform: translate(-.5px, -100%); top: calc(50% - 7px); }
+  .spectrum-pin.down .stem{ height: var(--stem, 60px); top: calc(50% + 7px); transform: translateX(-.5px); }
+  .spectrum-pin .lbl{
+    position:absolute; left:50%;
+    width: 150px; transform: translateX(-50%);
+    font-size:.78rem; line-height:1.3; color: var(--fg);
+    font-weight:500; letter-spacing:-0.01em;
+    text-align: center;
+  }
+  .spectrum-pin.up .lbl{ bottom: calc(100% + 4px); }
+  .spectrum-pin.down .lbl{ top: calc(100% + 4px); }
+  .spectrum-pin .scope-tag{
+    display:block;
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.62rem; letter-spacing:.14em; text-transform:uppercase;
+    color: var(--muted); margin-top:2px;
+  }
+  .spectrum-tip{
+    position:absolute; left:50%; transform: translateX(-50%);
+    width: 240px;
+    background: var(--bg);
+    border: 1px solid var(--hair);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size:.8rem; line-height:1.4;
+    color: var(--fg);
+    box-shadow: var(--shadow);
+    opacity: 0; pointer-events: none;
+    transition: opacity .18s ease;
+    z-index: 4;
+  }
+  .spectrum-pin.up .spectrum-tip{ bottom: calc(100% + 8px); }
+  .spectrum-pin.down .spectrum-tip{ top: calc(100% + 8px); }
+  .spectrum-pin:hover .spectrum-tip,
+  .spectrum-pin:focus-within .spectrum-tip{ opacity: 1; }
+  .spectrum-pin:hover .lbl,
+  .spectrum-pin:focus-within .lbl{ color: var(--fg); }
+
+  .spectrum-mobile{ display:none; }
+  @media (max-width: 760px){
+    .spectrum-track{ display:none; }
+    .spectrum-axis{ display:none; }
+    .spectrum-mobile{
+      display:flex; flex-direction:column; gap: 0;
+      border-top: 1px solid var(--hair);
+    }
+    .sm-row{
+      display:grid; grid-template-columns: auto 1fr;
+      gap: 12px; align-items:start;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--hair);
+    }
+    .sm-row:last-child{ border-bottom: none; }
+    .sm-pip{
+      width: 10px; height: 10px; border-radius: 50%;
+      margin-top: 7px; border: 1px solid currentColor;
+      position: relative;
+    }
+    .sm-pip::after{
+      content:""; position:absolute; inset:2px; border-radius:50%; background: currentColor;
+    }
+    .sm-pip.in{ color: var(--green-solid); }
+    .sm-pip.partial{ color: var(--amber-solid); }
+    .sm-pip.out{ color: var(--red-solid); }
+    .sm-name{ font-weight:500; font-size:.95rem; letter-spacing:-0.01em; }
+    .sm-tag{
+      font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+      font-size:.62rem; letter-spacing:.14em; text-transform:uppercase;
+      color: var(--muted);
+    }
+    .sm-line{ font-size:.85rem; color: var(--muted); margin-top:4px; }
+  }
+
+  /* ------- Adversaries grid ------- */
+  .grid-adv{
+    display:grid; grid-template-columns: 1fr; gap:14px;
+    margin-top: 24px;
+  }
+  @media (min-width: 760px){
+    .grid-adv{ grid-template-columns: 1fr 1fr; }
+  }
+  .adv{
+    border:1px solid var(--hair); border-radius:14px;
+    padding: 18px 20px; background: var(--card);
+    box-shadow: var(--shadow);
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .adv .head{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+  }
+  .adv .who{ font-weight:600; font-size:.98rem; letter-spacing:-0.01em; }
+  .adv .scope{
+    font-size:.66rem; letter-spacing:.14em; text-transform:uppercase;
+    padding: 4px 10px; border-radius: 999px; flex-shrink:0;
+    border:1px solid var(--hair); white-space:nowrap;
+  }
+  .adv .scope.in{ background: var(--green); }
+  .adv .scope.partial{ background: var(--amber); }
+  .adv .scope.out{ background: var(--red); }
+  .adv p{ font-size: .92rem; color: var(--muted); margin:0; max-width:none; }
+
+  .pair{
+    display:grid; grid-template-columns:1fr; gap:18px;
+    margin-top: 16px;
+  }
+  @media (min-width: 760px){
+    .pair{ grid-template-columns: 1fr 1fr; gap:24px; }
+  }
+  .pair .col{
+    border:1px solid var(--hair); border-radius:14px;
+    padding: 20px 22px; background: var(--card);
+  }
+  .pair .col h4{
+    margin: 0 0 10px; font-size:.78rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted);
+    font-weight:600;
+  }
+  .pair .col ul{ margin:0; padding-left:18px; }
+  .pair .col ul li{ font-size:.92rem; color: var(--fg); margin:6px 0; }
+  .pair .col.no ul li{ color: var(--fg); }
+  .pair .col.yes::before, .pair .col.no::before{
+    content:""; display:block; height:3px; width:36px; border-radius:3px;
+    margin-bottom:14px;
+  }
+  .pair .col.yes::before{ background: #34d399; }
+  .pair .col.no::before{ background: #ef4444; }
+
+  /* ------- Out-of-scope diagram ------- */
+  .perimeter{
+    margin-top: 18px;
+    border:1px solid var(--hair); border-radius:18px;
+    background: var(--card);
+    box-shadow: var(--shadow);
+    overflow:hidden;
+  }
+  .perimeter-head{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--hair);
+    font-size:.7rem; letter-spacing:.18em; text-transform:uppercase; color: var(--muted);
+  }
+  .perimeter-head .legend{ display:flex; gap: 10px; align-items:center; }
+  .perimeter-head .legend .sw{
+    width: 10px; height: 4px; background: repeating-linear-gradient(
+      135deg, var(--muted) 0 1px, transparent 1px 4px
+    );
+  }
+  .perimeter-grid{
+    position: relative;
+    background:
+      repeating-linear-gradient(
+        135deg,
+        transparent 0 7px,
+        var(--hair) 7px 8px
+      );
+  }
+  .perimeter-cells{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--hair);
+    border-top: 1px solid var(--hair);
+  }
+  .pcell{
+    background: var(--card);
+    padding: 22px 20px 20px;
+    position: relative;
+    min-height: 188px;
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .pcell .pcell-stripes{
+    position:absolute; inset: 0;
+    background: repeating-linear-gradient(
+      135deg,
+      transparent 0 9px,
+      var(--hair) 9px 10px
+    );
+    opacity: .55;
+    pointer-events: none;
+  }
+  .pcell > *{ position:relative; z-index:1; }
+  .pcell svg{
+    width: 44px; height: 44px;
+    color: var(--muted); opacity: .82;
+  }
+  .pcell svg .stripe{ stroke: currentColor; opacity:.5; }
+  .pcell .ptag{
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.62rem; letter-spacing:.16em; text-transform:uppercase;
+    color: var(--muted);
+  }
+  .pcell h5{
+    margin: 2px 0 0;
+    font-size: 1rem; font-weight:600; letter-spacing:-0.01em;
+    color: var(--fg);
+  }
+  .pcell p{
+    margin: 0; font-size: .88rem; color: var(--muted);
+    max-width: none;
+  }
+  .pcell .x{
+    position:absolute; top: 14px; right: 14px;
+    width: 18px; height: 18px;
+    color: var(--red-solid); opacity:.6;
+  }
+  @media (max-width: 920px){
+    .perimeter-cells{ grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 520px){
+    .perimeter-cells{ grid-template-columns: 1fr; }
+    .pcell{ min-height: 0; }
+  }
+
+  .nope{
+    border:1px solid var(--hair); border-radius:14px;
+    padding: 22px 24px; background: var(--card);
+    margin-top: 16px;
+  }
+  .nope ul{ margin:8px 0 0 0; padding-left:18px; max-width:none; }
+  .nope ul li{ margin: 8px 0; }
+  .nope ul li b{ color: var(--fg); font-weight:600; }
+
+  .outro-thin{
+    max-width:1100px; margin: 24px auto 0; padding: 36px 24px 0;
+    display:flex; gap:24px; align-items:center; justify-content:space-between;
+    border-top:1px solid var(--hair);
+    font-size:.92rem;
+  }
+  .outro-thin a{ color: var(--muted); }
+  .outro-thin a:hover{ color: var(--fg); }
+
+  footer.site{
+    border-top:1px solid var(--hair);
+    margin-top: 48px;
+  }
+  footer.site .row{
+    max-width:1100px; margin: 0 auto; padding: 28px 24px;
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    gap:16px; font-size:12px; color: var(--muted);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .ts-svg .pulse,
+    .ts-svg .kill{
+      animation: none !important;
+      opacity: .55 !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="toggle" role="group" aria-label="Тема">
+  <button id="themeDark" aria-pressed="true">Тёмная</button>
+  <button id="themeLight" aria-pressed="false">Светлая</button>
+</div>
+
+<header class="nav">
+  <div class="max-w-[1100px] mx-auto px-6 h-[52px] flex items-center justify-between">
+    <a href="/ru/" class="flex items-center gap-3 hover:opacity-80" aria-label="Onym — главная">
+      <span class="mark" role="img" aria-label="Onym"></span>
+      <span class="text-[14px] font-medium tracking-tight">Onym <span class="muted">· Модель угроз</span></span>
+    </a>
+    <a href="/ru/" class="text-[12.5px] muted hover:text-[var(--fg)]">&larr; Назад</a>
+  </div>
+</header>
+
+<main>
+
+<section class="wrap">
+  <span class="stamp mono"><span class="dot"></span>v0.0.1 &middot; меняется &middot; 2026-05-08</span>
+  <h1 class="display">Модель угроз.<br/>Честно про то, что мы можем&nbsp;и не&nbsp;можем защитить.</h1>
+  <p class="lede">Приватный продукт честен ровно настолько, насколько честна его модель угроз. На этой странице перечислены противники, которым Onym сопротивляется по построению, противники, которым нет, и что Onym гарантирует против каждого, а что &mdash; нет.</p>
+  <p class="lede">Если в других местах сайта что-то расходится с этим документом &mdash; прав документ, а текст на странице &mdash; нет. Сообщайте на <a class="inline" href="mailto:lead@onym.app">lead@onym.app</a>.</p>
+
+  <h2>Где живёт доверие</h2>
+  <p>То, что традиционный мессенджер держит внутри одного сервера, Onym переносит на небольшой набор заменяемых, в основном слепых сторон. Те же шесть категорий данных существуют и так, и так; меняется лишь то, кто их видит.</p>
+
+  <figure class="ts-figure" aria-label="Сравнение поверхности доверия: традиционный мессенджер и Onym">
+    <div class="ts-grid">
+      <!-- Traditional -->
+      <div class="ts-side">
+        <div class="ts-head">
+          <div class="ts-name">Традиционный мессенджер</div>
+          <div class="ts-tag mono">один хранитель</div>
+        </div>
+        <svg class="ts-svg" viewBox="0 0 280 200" role="img" aria-label="Устройство пользователя соединяется с одним сервером, который держит плейнтекст, БД аккаунтов, хранилище сообщений и выключатель.">
+          <!-- frame -->
+          <rect class="frame" x="0.5" y="0.5" width="279" height="199" rx="8" />
+          <!-- device -->
+          <g>
+            <rect class="node-rect" x="14" y="80" width="46" height="44" rx="4" />
+            <text class="node-label" x="37" y="98">USER</text>
+            <text class="node-sub" x="37" y="111">device</text>
+            <text class="node-sub" x="37" y="120">keys · ui</text>
+          </g>
+          <!-- pipe -->
+          <line class="edge" x1="60" y1="102" x2="100" y2="102" />
+          <!-- server box (the custodian) -->
+          <rect class="node-rect danger" x="100" y="36" width="166" height="132" rx="6" />
+          <text class="node-label" x="183" y="52">CUSTODIAN</text>
+          <text class="node-sub" x="183" y="62">single operator</text>
+          <!-- inner shelves -->
+          <g>
+            <rect class="frame" x="112" y="74" width="68" height="22" rx="3" />
+            <text class="node-sub" x="146" y="88">cleartext</text>
+            <rect class="frame" x="186" y="74" width="68" height="22" rx="3" />
+            <text class="node-sub" x="220" y="88">accounts db</text>
+            <rect class="frame" x="112" y="102" width="68" height="22" rx="3" />
+            <text class="node-sub" x="146" y="116">message store</text>
+            <rect class="frame" x="186" y="102" width="68" height="22" rx="3" />
+            <text class="node-sub" x="220" y="116">social graph</text>
+          </g>
+          <!-- kill switch -->
+          <g class="kill">
+            <rect x="134" y="132" width="110" height="24" rx="4" />
+            <line x1="142" y1="144" x2="156" y2="144" />
+            <circle cx="160" cy="144" r="3" />
+            <text x="200" y="148" font-size="7.2" letter-spacing="0.12em" text-anchor="middle" fill="currentColor" font-family="SF Mono, ui-monospace, monospace">KILL SWITCH</text>
+          </g>
+          <!-- pulses -->
+          <line class="pulse danger a" x1="60" y1="102" x2="100" y2="102" />
+        </svg>
+        <div class="ts-foot">
+          <div class="ts-row"><span class="ts-key">Оператор видит</span>
+            <span class="ts-chip danger"><span class="sw"></span>плейнтекст</span>
+            <span class="ts-chip danger"><span class="sw"></span>граф аккаунтов</span>
+            <span class="ts-chip danger"><span class="sw"></span>историю</span>
+          </div>
+          <div class="ts-row"><span class="ts-key">Оператор может</span>
+            <span class="ts-chip danger"><span class="sw"></span>отключить аккаунт</span>
+            <span class="ts-chip danger"><span class="sw"></span>читать сообщения</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Onym -->
+      <div class="ts-side">
+        <div class="ts-head">
+          <div class="ts-name">Onym</div>
+          <div class="ts-tag mono">три стороны · каждая слепа</div>
+        </div>
+        <svg class="ts-svg" viewBox="0 0 280 200" role="img" aria-label="Устройство пользователя обращается к релееру, который видит только шифротекст, и к Soroban-контракту, хранящему обязательства, в публичном реестре Stellar.">
+          <!-- frame -->
+          <rect class="frame" x="0.5" y="0.5" width="279" height="199" rx="8" />
+          <!-- device -->
+          <g>
+            <rect class="node-rect ok" x="10" y="74" width="58" height="56" rx="4" />
+            <text class="node-label" x="39" y="92">DEVICE</text>
+            <text class="node-sub" x="39" y="105">keys</text>
+            <text class="node-sub" x="39" y="115">history</text>
+            <text class="node-sub" x="39" y="125">plaintext</text>
+          </g>
+          <!-- relayer -->
+          <g>
+            <rect class="node-rect partial" x="100" y="80" width="60" height="44" rx="4" />
+            <text class="node-label" x="130" y="98">RELAYER</text>
+            <text class="node-sub" x="130" y="110">ciphertext</text>
+            <text class="node-sub" x="130" y="119">+ timing</text>
+          </g>
+          <!-- soroban -->
+          <g>
+            <rect class="node-rect partial" x="190" y="80" width="78" height="44" rx="4" />
+            <text class="node-label" x="229" y="98">SOROBAN</text>
+            <text class="node-sub" x="229" y="110">commitments</text>
+            <text class="node-sub" x="229" y="119">governance</text>
+          </g>
+          <!-- ledger band -->
+          <g>
+            <rect class="frame" x="100" y="142" width="168" height="20" rx="3" stroke-dasharray="2 3" />
+            <text class="node-sub" x="184" y="156">public stellar ledger · observable</text>
+          </g>
+          <!-- edges -->
+          <line class="edge" x1="68" y1="102" x2="100" y2="102" />
+          <line class="edge" x1="160" y1="102" x2="190" y2="102" />
+          <line class="edge dashed" x1="130" y1="124" x2="130" y2="142" />
+          <line class="edge dashed" x1="229" y1="124" x2="229" y2="142" />
+          <!-- pulses -->
+          <line class="pulse partial a" x1="68" y1="102" x2="100" y2="102" />
+          <line class="pulse partial b" x1="160" y1="102" x2="190" y2="102" />
+          <line class="pulse partial c" x1="130" y1="124" x2="130" y2="142" />
+        </svg>
+        <div class="ts-foot">
+          <div class="ts-row"><span class="ts-key">Релеер видит</span>
+            <span class="ts-chip partial"><span class="sw"></span>шифротекст</span>
+            <span class="ts-chip partial"><span class="sw"></span>ip · тайминг</span>
+          </div>
+          <div class="ts-row"><span class="ts-key">Контракт держит</span>
+            <span class="ts-chip partial"><span class="sw"></span>обязательства</span>
+            <span class="ts-chip partial"><span class="sw"></span>правила управления</span>
+          </div>
+          <div class="ts-row"><span class="ts-key">Реестр показывает</span>
+            <span class="ts-chip muted-chip"><span class="sw" style="background:var(--muted)"></span>вызовы · счётчики · тайминг</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </figure>
+
+  <h2>Как читать этот документ</h2>
+  <p>Onym &mdash; групповой мессенджер со сквозным шифрованием, в котором состояние группы живёт в публичном реестре (Stellar / Soroban), а релеер платит за on-chain комиссии &mdash; пользователю не нужен пополненный счёт. Идентичность создаётся и хранится на устройстве; связи одной идентичности с другой опосредуются ZK-доказательствами членства в группе.</p>
+  <p>Эта архитектура убирает целый класс атак (один оператор с правом вас отключить; сервер, держащий плейнтекст или восстанавливаемый социальный граф). Но она не убирает любую атаку. Список ниже &mdash; то, что архитектура, по нашему мнению, действительно обеспечивает, написанное настолько прямо, насколько у нас получилось.</p>
+
+  <h2>Противники</h2>
+  <p class="muted">«В сфере охвата» означает, что мы делаем явные гарантии и проектируем против этого противника. «Частично» &mdash; что часть атак из этой категории мы отбиваем, а часть нет. «Вне охвата» &mdash; что защиту мы не заявляем, и вы должны понимать почему, прежде чем доверять Onym в этом случае.</p>
+
+  <!-- Spectrum -->
+  <div class="spectrum" aria-label="Спектр охвата: восемь противников расставлены по оси от полностью отбитых до вне охвата.">
+    <div class="spectrum-axis mono">
+      <span>Полностью отбит</span>
+      <span>Частично</span>
+      <span>Вне охвата</span>
+    </div>
+    <div class="spectrum-track" id="spectrumTrack">
+      <div class="spectrum-band b1"><span class="spectrum-band-label">в охвате</span></div>
+      <div class="spectrum-band b2"><span class="spectrum-band-label">частично</span></div>
+      <div class="spectrum-band b3"><span class="spectrum-band-label">вне охвата</span></div>
+
+      <div class="spectrum-pin in up" style="left: 7%; --stem: 70px;" tabindex="0">
+        <div class="stem"></div>
+        <div class="dot"></div>
+        <div class="lbl">Оператор релеера<span class="scope-tag">в охвате</span></div>
+        <div class="spectrum-tip mono">Видит только шифротекст и тайминг. Не может читать, выдавать себя за вас или отключить &mdash; заменяем по желанию.</div>
+      </div>
+      <div class="spectrum-pin in down" style="left: 14%; --stem: 70px;" tabindex="0">
+        <div class="stem"></div>
+        <div class="dot"></div>
+        <div class="lbl">Недобросовестный участник группы<span class="scope-tag">в охвате</span></div>
+        <div class="spectrum-tip mono">Читает то, что ему доступно; не может выдать себя за другого, выйти за роль или переписать историю группы вне правил управления.</div>
+      </div>
+      <div class="spectrum-pin in up" style="left: 26%; --stem: 36px;" tabindex="0">
+        <div class="stem"></div>
+        <div class="dot"></div>
+        <div class="lbl">Пассивный наблюдатель в блокчейне<span class="scope-tag">в охвате</span></div>
+        <div class="spectrum-tip mono">Видит вызовы и обязательства в блокчейне; не может связать on-chain идентичность с человеком или прочитать содержимое.</div>
+      </div>
+
+      <div class="spectrum-pin partial down" style="left: 47%; --stem: 36px;" tabindex="0">
+        <div class="stem"></div>
+        <div class="dot"></div>
+        <div class="lbl">Активный наблюдатель + тайминг<span class="scope-tag">частично</span></div>
+        <div class="spectrum-tip mono">Сопоставление одного события отбито; долгое пересечение по неделям &mdash; нет.</div>
+      </div>
+      <div class="spectrum-pin partial up" style="left: 60%; --stem: 70px;" tabindex="0">
+        <div class="stem"></div>
+        <div class="dot"></div>
+        <div class="lbl">Валидаторы Stellar<span class="scope-tag">частично</span></div>
+        <div class="spectrum-tip mono">Не могут читать содержимое или подделывать подписи; могут отказать во включении, видеть IP, в крайнем случае &mdash; перестроить консенсус.</div>
+      </div>
+
+      <div class="spectrum-pin out down" style="left: 76%; --stem: 70px;" tabindex="0">
+        <div class="stem"></div>
+        <div class="dot"></div>
+        <div class="lbl">Глобальное пассивное наблюдение<span class="scope-tag">вне охвата</span></div>
+        <div class="spectrum-tip mono">Нет паддинга, перемешивания и cover-трафика. Глобальная корреляция по таймингам ломает Onym сам по себе.</div>
+      </div>
+      <div class="spectrum-pin out up" style="left: 87%; --stem: 36px;" tabindex="0">
+        <div class="stem"></div>
+        <div class="dot"></div>
+        <div class="lbl">Противник на устройстве<span class="scope-tag">вне охвата</span></div>
+        <div class="spectrum-tip mono">Скомпрометированная конечная точка, malware ОС, запись экрана. Сквозное шифрование заканчивается на концах.</div>
+      </div>
+      <div class="spectrum-pin out down" style="left: 95%; --stem: 36px;" tabindex="0">
+        <div class="stem"></div>
+        <div class="dot"></div>
+        <div class="lbl">Квантовый противник<span class="scope-tag">в будущем</span></div>
+        <div class="spectrum-tip mono">Сегодня доквантовые примитивы (BLS, secp256k1, Ed25519, X25519). Постквантовая миграция &mdash; план, а не защита.</div>
+      </div>
+    </div>
+
+    <ol class="spectrum-mobile" aria-hidden="false">
+      <li class="sm-row"><span class="sm-pip in" aria-hidden="true"></span><div><div class="sm-name">Оператор релеера <span class="sm-tag">· в охвате</span></div><div class="sm-line">Видит шифротекст и тайминг. Не может читать, выдавать себя за вас или отключить.</div></div></li>
+      <li class="sm-row"><span class="sm-pip in" aria-hidden="true"></span><div><div class="sm-name">Недобросовестный участник группы <span class="sm-tag">· в охвате</span></div><div class="sm-line">Не может выдать себя за другого, выйти за роль или переписать историю вне правил.</div></div></li>
+      <li class="sm-row"><span class="sm-pip in" aria-hidden="true"></span><div><div class="sm-name">Пассивный наблюдатель в блокчейне <span class="sm-tag">· в охвате</span></div><div class="sm-line">Не может связать on-chain идентичность с человеком или прочитать содержимое.</div></div></li>
+      <li class="sm-row"><span class="sm-pip partial" aria-hidden="true"></span><div><div class="sm-name">Активный наблюдатель + тайминг <span class="sm-tag">· частично</span></div><div class="sm-line">Сопоставление одного события отбито; долгое пересечение &mdash; нет.</div></div></li>
+      <li class="sm-row"><span class="sm-pip partial" aria-hidden="true"></span><div><div class="sm-name">Валидаторы Stellar <span class="sm-tag">· частично</span></div><div class="sm-line">Не могут читать содержимое; могут отказать во включении, видеть IP.</div></div></li>
+      <li class="sm-row"><span class="sm-pip out" aria-hidden="true"></span><div><div class="sm-name">Глобальное пассивное наблюдение <span class="sm-tag">· вне охвата</span></div><div class="sm-line">Нет паддинга, перемешивания и cover-трафика.</div></div></li>
+      <li class="sm-row"><span class="sm-pip out" aria-hidden="true"></span><div><div class="sm-name">Противник на устройстве <span class="sm-tag">· вне охвата</span></div><div class="sm-line">Сквозное шифрование заканчивается на концах.</div></div></li>
+      <li class="sm-row"><span class="sm-pip out" aria-hidden="true"></span><div><div class="sm-name">Квантовый противник <span class="sm-tag">· в будущем</span></div><div class="sm-line">Сегодня доквантовые примитивы; постквантовая миграция в плане.</div></div></li>
+    </ol>
+  </div>
+
+  <div class="grid-adv">
+    <div class="adv">
+      <div class="head"><div class="who">Оператор релеера</div><div class="scope in">В охвате</div></div>
+      <p>Релеер &mdash; сервис, который отправляет подписанные пользователем Stellar-транзакции и платит за комиссии. Он видит шифротекст и метаданные соединения. Мы проектируем, исходя из того, что он недоверенный, возможно злонамеренный и возможно ведёт логи.</p>
+    </div>
+    <div class="adv">
+      <div class="head"><div class="who">Недобросовестный участник группы</div><div class="scope in">В охвате</div></div>
+      <p>Любой принятый в группу имеет право читать сообщения этой группы. Мы проектируем против того, чтобы он получал возможности вне правил управления группы &mdash; выдачу себя за другого, переписывание истории, превышение роли.</p>
+    </div>
+    <div class="adv">
+      <div class="head"><div class="who">Пассивный наблюдатель в блокчейне</div><div class="scope in">В охвате</div></div>
+      <p>Любой, кто читает публичный реестр Stellar. Реестр публичен по построению &mdash; групповые операции видны, но они не должны напрямую идентифицировать, какой человек контролирует какую on-chain идентичность.</p>
+    </div>
+    <div class="adv">
+      <div class="head"><div class="who">Активный наблюдатель в блокчейне с анализом тайминга</div><div class="scope partial">Частично</div></div>
+      <p>Наблюдатель, следящий за реестром и сопоставляющий с другими сигналами (логи релеера, сетевые зонды, тайминг публикации в магазинах). Мы отбиваем сопоставление одного события, но не атаки длительного пересечения по неделям.</p>
+    </div>
+    <div class="adv">
+      <div class="head"><div class="who">Валидаторы Stellar / сетевые провайдеры</div><div class="scope partial">Частично</div></div>
+      <p>Валидаторы, упорядочивающие и подтверждающие транзакции, и провайдеры, переносящие пакеты. Содержимое сообщений они читать не могут. Они могут отказаться включать транзакции, видеть ваш IP и (в крайнем случае) сговориться, чтобы перестроить консенсус.</p>
+    </div>
+    <div class="adv">
+      <div class="head"><div class="who">Государство с глобальным пассивным наблюдением</div><div class="scope out">Вне охвата</div></div>
+      <p>Противник, способный наблюдать большую часть или весь интернет-трафик в мире и проводить долгую корреляцию по таймингам. Чтобы это победить, нужны Tor-подобное перемешивание, паддинг и cover-трафик &mdash; чего Onym сейчас не делает.</p>
+    </div>
+    <div class="adv">
+      <div class="head"><div class="who">Противник на устройстве</div><div class="scope out">Вне охвата</div></div>
+      <p>Скомпрометированный телефон, malware на уровне ОС, запись экрана, враждебная клавиатура, jailbreak. Сквозное шифрование заканчивается в конечных точках; если конечная точка взята &mdash; взяты и сообщения.</p>
+    </div>
+    <div class="adv">
+      <div class="head"><div class="who">Будущий квантовый противник</div><div class="scope out">Вне охвата (сегодня)</div></div>
+      <p>Onym использует доквантовые примитивы (BLS12-381, secp256k1, Ed25519, X25519). Криптографически релевантный квантовый компьютер их сломает. Миграция на постквантовые примитивы &mdash; работа на будущее, а не защита сегодня.</p>
+    </div>
+  </div>
+
+  <h2>Гарантии по противникам</h2>
+  <p>Для каждого in-scope противника &mdash; что Onym гарантирует и что нет. Колонки «не может» важны не меньше колонок «гарантирует».</p>
+
+  <h3>Против оператора релеера</h3>
+  <div class="pair">
+    <div class="col yes">
+      <h4>Что он не может</h4>
+      <ul>
+        <li>Прочитать плейнтекст сообщений. Сообщения зашифрованы между участниками сквозным образом; релеер видит только шифротекст.</li>
+        <li>Выдать себя за пользователя в блокчейне. Stellar-транзакции подписываются на устройстве; релеер не может подделать подпись.</li>
+        <li>Переписать состояние группы. Управление группой &mdash; это Soroban-контракт; релеер не имеет права действовать в нём.</li>
+        <li>Окончательно отключить вас. Транспорт открытый; пользователи могут менять релееры, поднимать свои или использовать сразу несколько.</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4>Что он всё ещё может видеть или делать</h4>
+      <ul>
+        <li>Метаданные соединения: ваш IP, время подключения, размер сообщения, частоту, адрес контракта, на который идёт транзакция.</li>
+        <li>Отказаться передавать ваши транзакции. Один релеер может отказать одному пользователю; рекурс &mdash; сменить релеер.</li>
+        <li>Профилировать пользователя со временем, если тот всегда ходит через один и тот же релеер с одного и того же IP без ротации.</li>
+        <li>Сопоставлять тайминг передачи шифротекста с таймингом подтверждения on-chain для отправленных им транзакций.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Против недобросовестного участника группы</h3>
+  <div class="pair">
+    <div class="col yes">
+      <h4>Что он не может</h4>
+      <ul>
+        <li>Расшифровать сообщения групп, в которых он не состоит.</li>
+        <li>Выдать себя за другого участника внутри группы. Каждое сообщение подписано пер-групповым ключом отправителя.</li>
+        <li>Превысить роль, выданную контрактом управления группой. Права принятия, исключения и публикации проверяются в блокчейне.</li>
+        <li>Тихо переписать историю группы за рамки того, что разрешает управление.</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4>Что он всё ещё может</h4>
+      <ul>
+        <li>Читать всё, что отправлено в группу, пока он её участник. Сквозное шифрование &mdash; между конечными точками, включая его.</li>
+        <li>Сделать скриншот, переписать или иным образом утечь содержимое out-of-band. Криптография не защищает от добровольного раскрытия.</li>
+        <li>Видеть полный список участников группы (свойство группового чата, не баг).</li>
+        <li>Прощупать анонимность отправителя в маленькой группе. ZK-доказательства скрывают, кто из участников отправил сообщение; в группе из трёх человек пространство поиска маленькое.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Против пассивного наблюдателя в блокчейне</h3>
+  <div class="pair">
+    <div class="col yes">
+      <h4>Что он не может</h4>
+      <ul>
+        <li>Прочитать плейнтекст. Никакой плейнтекст никогда не попадает в блокчейн.</li>
+        <li>Идентифицировать человека за on-chain идентичностью только из блокчейна. Идентичности по построению развязаны с реальным миром.</li>
+        <li>Сказать, какой именно участник группы инициировал данную групповую операцию, когда вместо идентификатора участника используется ZK-доказательство.</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4>Что он всё ещё видит</h4>
+      <ul>
+        <li>Что группа существует. Что произошла операция. Когда. Как часто.</li>
+        <li>Сколько участников в группе, в небольшом диапазоне, по операциям членства.</li>
+        <li>Какие on-chain идентичности транзаговали с какими другими, даже если ни одна не привязана к реальному имени.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Против активного наблюдателя в блокчейне (с таймингом)</h3>
+  <div class="pair">
+    <div class="col yes">
+      <h4>Что ему сложно сделать</h4>
+      <ul>
+        <li>Связать одиночную on-chain операцию с конкретным реальным пользователем только из блокчейна.</li>
+        <li>Снять анонимность отправителя в достаточно большой группе при использовании ZK-доказательств.</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4>Что он может, имея время</h4>
+      <ul>
+        <li>Сопоставить активность Onym с конкретным IP, если он сам держит релеер или принуждает его держателя.</li>
+        <li>Запустить атаки пересечения. Если конкретный пользователь онлайн в одну и ту же минуту каждый день и групповая операция случается только в эти минуты &mdash; за недели пользователь и группа связываются.</li>
+        <li>Наблюдать всплески активности, изменения размера группы и события управления как профиль использования, даже без идентификации.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Против валидаторов Stellar / сетевых провайдеров</h3>
+  <div class="pair">
+    <div class="col yes">
+      <h4>Что они не могут</h4>
+      <ul>
+        <li>Прочитать содержимое сообщений. Никакого плейнтекста нет ни в блокчейне, ни в полёте.</li>
+        <li>Подделать подписи или поменять правила управления. Soroban-контракты &mdash; неизменяемый код, исполняемый всеми валидаторами.</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4>Что они могут</h4>
+      <ul>
+        <li>Отказаться включать транзакции, замедляя или отказывая в доставке для конкретных аккаунтов.</li>
+        <li>Наблюдать сетевые паттерны на уровне трафика (провайдеры); знать, что ваш IP транзагует со Stellar.</li>
+        <li>В крайнем случае: сговориться, чтобы перестроить или форкнуть сеть. Это свойство использования Stellar в принципе, а не Onym конкретно.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>От чего Onym не защищает</h2>
+  <p>Парадоксально, но именно этот раздел даёт больше доверия, чем любое позитивное утверждение. Лучше быть узким, чем неправым. Шесть категорий угроз живут вне периметра Onym. Диаграмма ниже их называет; текст после &mdash; раскрывает каждую.</p>
+
+  <figure class="perimeter" aria-label="Шесть угроз вне периметра Onym, нарисованных бледно как неохваченные.">
+    <div class="perimeter-head mono">
+      <span>Вне периметра</span>
+      <span class="legend"><span class="sw" aria-hidden="true"></span><span>не заявляется · не защищается</span></span>
+    </div>
+    <div class="perimeter-grid">
+      <div class="perimeter-cells">
+
+        <div class="pcell">
+          <div class="pcell-stripes" aria-hidden="true"></div>
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <path d="M4 24 C 12 12, 36 12, 44 24 C 36 36, 12 36, 4 24 Z" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="24" cy="24" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="24" cy="24" r="2" fill="currentColor"/>
+            <line class="stripe" x1="2"  y1="44" x2="46" y2="44" stroke-width="1" stroke-dasharray="2 2"/>
+          </svg>
+          <svg class="x" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2 L10 10 M10 2 L2 10" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>
+          <span class="ptag">01 · сеть</span>
+          <h5>Глобальное пассивное наблюдение</h5>
+          <p>Тайминг, объём и IP-метаданные видны любому на сетевом пути. Onym не делает паддинг, не перемешивает и не маршрутизирует через Tor.</p>
+        </div>
+
+        <div class="pcell">
+          <div class="pcell-stripes" aria-hidden="true"></div>
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <rect x="13" y="6" width="22" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <line x1="13" y1="12" x2="35" y2="12" stroke="currentColor" stroke-width="1"/>
+            <line x1="13" y1="36" x2="35" y2="36" stroke="currentColor" stroke-width="1"/>
+            <path d="M8 4 L40 44" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+            <path d="M16 24 L22 28 L20 30 L26 36" stroke="currentColor" stroke-width="1" fill="none"/>
+          </svg>
+          <svg class="x" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2 L10 10 M10 2 L2 10" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>
+          <span class="ptag">02 · конечная точка</span>
+          <h5>Скомпрометированное устройство</h5>
+          <p>Malware, jailbreak, запись экрана или изъятие с разблокированным экраном. Сквозное шифрование заканчивается на концах.</p>
+        </div>
+
+        <div class="pcell">
+          <div class="pcell-stripes" aria-hidden="true"></div>
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <rect x="6" y="14" width="36" height="24" rx="2" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M16 14 L20 8 L28 8 L32 14" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="24" cy="26" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="24" cy="26" r="2" fill="currentColor"/>
+            <line class="stripe" x1="38" y1="18" x2="40" y2="18" stroke-width="1.2"/>
+          </svg>
+          <svg class="x" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2 L10 10 M10 2 L2 10" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>
+          <span class="ptag">03 · социальное</span>
+          <h5>Утечка вне канала</h5>
+          <p>Участник группы может сделать скриншот, переписать или пересказать прочитанное. Криптография &mdash; не соглашение о неразглашении.</p>
+        </div>
+
+        <div class="pcell">
+          <div class="pcell-stripes" aria-hidden="true"></div>
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <path d="M24 6 L42 40 L6 40 Z" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <line x1="13" y1="28" x2="35" y2="28" stroke="currentColor" stroke-width="1"/>
+            <line x1="18" y1="34" x2="30" y2="34" stroke="currentColor" stroke-width="1"/>
+            <line x1="20" y1="22" x2="28" y2="22" stroke="currentColor" stroke-width="1"/>
+            <circle cx="24" cy="14" r="2" fill="currentColor"/>
+          </svg>
+          <svg class="x" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2 L10 10 M10 2 L2 10" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>
+          <span class="ptag">04 · вендор</span>
+          <h5>Слежка вендора ОС</h5>
+          <p>Apple, Google и производитель вашего железа имеют привилегированный доступ. Они &mdash; не противники Onym; они часть вашей конечной точки.</p>
+        </div>
+
+        <div class="pcell">
+          <div class="pcell-stripes" aria-hidden="true"></div>
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <path d="M10 38 L26 22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M28 20 m-6 -6 a8 8 0 1 0 12 12 l4 4 l4 -4 l-4 -4 a8 8 0 0 0 -12 -12 z" fill="none" stroke="currentColor" stroke-width="1.4"/>
+            <circle cx="10" cy="38" r="2.4" fill="currentColor"/>
+          </svg>
+          <svg class="x" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2 L10 10 M10 2 L2 10" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>
+          <span class="ptag">05 · физическое</span>
+          <h5>Принуждение вас</h5>
+          <p>Гаечный ключ дешевле ключа криптографического. Мы защищаем от противника, который не может принудить вас лично; не от того, кто может.</p>
+        </div>
+
+        <div class="pcell">
+          <div class="pcell-stripes" aria-hidden="true"></div>
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <path d="M12 32 a8 8 0 1 1 4 -15 a10 10 0 0 1 18 5 a6 6 0 0 1 -2 11 z" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <text x="24" y="34" font-family="SF Mono, ui-monospace, monospace" font-size="9" font-weight="600" letter-spacing="0.06em" text-anchor="middle" fill="currentColor">|0⟩</text>
+          </svg>
+          <svg class="x" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2 L10 10 M10 2 L2 10" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>
+          <span class="ptag">06 · будущее</span>
+          <h5>Квантовый противник</h5>
+          <p>Доквантовые примитивы (BLS, secp256k1, Ed25519, X25519). Релевантный квантовый компьютер их сломает. Постквантовая миграция &mdash; в плане.</p>
+        </div>
+
+      </div>
+    </div>
+  </figure>
+
+  <div class="nope">
+    <ul>
+      <li><b>Анализ трафика на сетевом уровне.</b> Тайминг, объём и IP-метаданные видны любому, кто держит релеер или сидит на сетевом пути. Onym не делает паддинг сообщений, не перемешивает трафик и не маршрутизирует через Tor. Если в вашей модели угроз &mdash; глобальный пассивный наблюдатель, одного Onym недостаточно.</li>
+      <li><b>Утечка размера группы и факта существования группы в блокчейне.</b> Групповые операции публичны. Наблюдатель видит, что у группы X примерно N участников и примерно M операций в день, даже если он не может прочитать содержимое или идентифицировать участников.</li>
+      <li><b>Скомпрометированная конечная точка.</b> Если ваш телефон скомпрометирован &mdash; malware, jailbreak, запись экрана или изъятие с разблокированным экраном &mdash; Onym не поможет. Сквозное шифрование заканчивается на концах.</li>
+      <li><b>Утечка вне канала.</b> Участник группы может сделать скриншот, переписать или пересказать прочитанное. Криптография &mdash; не соглашение о неразглашении.</li>
+      <li><b>Слежка вендора ОС.</b> Apple, Google и производитель железа имеют привилегированный доступ к вашему устройству. Они &mdash; не противники Onym; они часть вашей конечной точки.</li>
+      <li><b>Отказ в обслуживании одного релеера.</b> Если у вас настроен только один релеер и он лёг или вам отказал &mdash; вы офлайн до тех пор, пока не смените. Onym устойчив к цензуре в совокупности, не в любом одном соединении.</li>
+      <li><b>Статистическая деанонимизация в крошечных группах.</b> ZK-доказательства подтверждают «отправил кто-то из участников», не уточняя кто. В группе из трёх внешняя догадка имеет базис «один из трёх». Приватность в маленьких группах &mdash; функция размера, а не криптографии.</li>
+      <li><b>Квантовые противники (сегодня).</b> Наши примитивы доквантовые. Будущий криптографически релевантный квантовый компьютер их сломает. Миграция на постквантовые примитивы &mdash; в плане; в проде её нет.</li>
+      <li><b>Принуждение вас.</b> Гаечный ключ дешевле ключа криптографического. Мы защищаем от противника, который не может принудить вас лично; от того, кто может, мы вас не защищаем.</li>
+    </ul>
+  </div>
+
+  <h2>Что мы имеем в виду, говоря «никакого оператора с правом вас отключить»</h2>
+  <p>Эту формулировку вы встретите по всему сайту. Она у́же, чем «никакого сервера, которому надо доверять» &mdash; так мы говорили раньше. Узкое утверждение &mdash; это то, что мы можем защищать.</p>
+  <p>Оно означает: ни одна сторона &mdash; ни Onym, ни оператор релеера, ни хостинг-провайдер &mdash; не может в одностороннем порядке отключить ваш аккаунт, забрать у вас разговоры или отлучить вас от платформы. Идентичность &mdash; на вашем устройстве. Правила группы &mdash; в публичном реестре. Транспорт &mdash; открытый и заменяемый. Удаление любой одной стороны из системы не лишает вас доступа; вы её просто заменяете.</p>
+  <p>Это не значит, что серверов нет. Релееры &mdash; это серверы. Валидаторы Stellar &mdash; это серверы. Провайдеры &mdash; это серверы. Они видны в этой модели угроз и честно учтены выше.</p>
+
+  <h2>Как меняется этот документ</h2>
+  <p>Это v0.0.1. Где-то он будет неправ &mdash; и мы пока этого не заметили. Когда мы находим дефект, мы обновляем эту страницу, бампим версию и связываем изменение с <a class="inline" href="/ru/changelog/">changelog</a>. Мы не правим тихо.</p>
+  <p>Если вы исследователь безопасности, прочитали это и нашли пробел &mdash; пишите на <a class="inline" href="mailto:lead@onym.app">lead@onym.app</a>. Раскрытие, улучшающее эту страницу &mdash; самое полезное раскрытие, которое бывает.</p>
+
+  <p class="muted" style="margin-top:32px; font-size:.85rem;">v0.0.1 &middot; 2026-05-08 &middot; текст под MIT, как и весь проект</p>
+</section>
+
+<nav class="outro-thin" aria-label="Дальше">
+  <a href="/ru/why/">&larr; Зачем это нужно</a>
+  <a href="/ru/how/">Как это работает</a>
+  <a href="/ru/about/">О проекте &rarr;</a>
+</nav>
+
+</main>
+
+<footer class="site">
+  <div class="row mono">
+    <span>&copy; 2026 &middot; Onym &middot; под MIT</span>
+    <span>Распространяется по лицензии MIT</span>
+    <span>Никогда не платите своей идентичностью.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const root = document.documentElement;
+  const tD = document.getElementById('themeDark');
+  const tL = document.getElementById('themeLight');
+  function setTheme(t){
+    if (t === 'light'){
+      root.setAttribute('data-theme','light');
+      tD.setAttribute('aria-pressed','false');
+      tL.setAttribute('aria-pressed','true');
+    } else {
+      root.removeAttribute('data-theme');
+      tD.setAttribute('aria-pressed','true');
+      tL.setAttribute('aria-pressed','false');
+    }
+    try{ localStorage.setItem('onym.theme', t); }catch(e){}
+  }
+  tD.addEventListener('click', () => setTheme('dark'));
+  tL.addEventListener('click', () => setTheme('light'));
+  try{
+    const saved = localStorage.getItem('onym.theme');
+    if (saved) setTheme(saved);
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

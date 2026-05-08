@@ -4,18 +4,18 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Как устроен Onym · Onym</title>
-<meta name="description" content="Никакого сервера, которому надо доверять. Только математика — в публичном реестре. Храповик ключей на телефоне, доказательство участия в группе с нулевым разглашением, сменный транспорт и правила в публичном смарт-контракте." />
+<meta name="description" content="Никакой компании в цепочке. Только математика на публичном реестре. Ключевой храповик на телефоне, доказательство членства в группе с нулевым разглашением, сменный транспорт и правила группы, закреплённые в публичном смарт-контракте." />
 <meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
 <link rel="icon" type="image/png" href="/assets/icon-dark.png" />
 <link rel="apple-touch-icon" href="/assets/icon-dark.png" />
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Как устроен Onym · Onym" />
-<meta property="og:description" content="Никакого сервера, которому надо доверять. Только математика — в публичном реестре." />
+<meta property="og:description" content="Никакой компании в цепочке. Только математика на публичном реестре." />
 <meta property="og:image" content="https://onym.app/assets/og-card-how.jpg" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Как устроен Onym · Onym" />
-<meta name="twitter:description" content="Никакого сервера, которому надо доверять. Только математика — в публичном реестре." />
+<meta name="twitter:description" content="Никакой компании в цепочке. Только математика на публичном реестре." />
 <meta name="twitter:image" content="https://onym.app/assets/og-card-how.jpg" />
 <link rel="alternate" hreflang="en" href="https://onym.app/how/" />
 <link rel="alternate" hreflang="ru" href="https://onym.app/ru/how/" />
@@ -320,6 +320,37 @@
     max-width:36ch; text-wrap:balance;
   }
 
+  .scene-6 .flows{
+    display:grid; grid-template-columns:1fr; gap: clamp(20px, 3vw, 28px);
+    margin-top: clamp(36px, 5vw, 56px);
+  }
+  @media (min-width: 880px){
+    .scene-6 .flows{ grid-template-columns:1fr 1fr; }
+  }
+  .scene-6 .flow{
+    border:1px solid var(--hair); border-radius:14px;
+    padding: 18px 20px; background: var(--card);
+  }
+  .scene-6 .flow h3{
+    margin:0; font-size:.78rem; letter-spacing:.16em; text-transform:uppercase;
+    color: var(--muted); font-weight:600;
+  }
+  .scene-6 .flow pre{
+    margin: 12px 0 0; padding: 0;
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: clamp(.74rem, .92vw, .82rem);
+    line-height:1.55;
+    color: var(--fg);
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .scene-6 .flow pre .m{ color: var(--muted); }
+  .scene-6 .flow pre .a{ color: var(--fg); }
+  .scene-6 .caption-flows{
+    margin-top: clamp(28px, 3vw, 40px);
+    color: var(--muted); font-size:.95rem; max-width:64ch;
+  }
+
   .outro-thin{
     max-width:1280px; margin:0 auto;
     padding: clamp(32px, 4vw, 56px) clamp(24px, 6vw, 96px) clamp(48px, 6vw, 80px);
@@ -367,8 +398,8 @@
 <!-- Сцена 1: Заголовок -->
 <section class="scene scene-1" data-screen-label="01 Hero">
   <p class="eyebrow">ответ</p>
-  <h1 class="display-xl">Никакого сервера, которому надо доверять.<br/>Только математика — в публичном реестре.</h1>
-  <p class="lede">Onym заменяет доверенного оператора четырьмя деталями: ключевой храповик на телефоне, доказательство участия в группе с нулевым разглашением, сменный транспорт и правила группы, закреплённые в публичном смарт-контракте. Вместе они скрывают всё, что мог видеть мессенджер.</p>
+  <h1 class="display-xl">Никакой компании в цепочке.<br/>Только математика, на публичном реестре.</h1>
+  <p class="lede">Onym заменяет доверенного оператора четырьмя деталями: ключевой храповик на телефоне, доказательство членства в группе с нулевым разглашением, сменный транспорт и правила группы, закреплённые в публичном смарт-контракте. Вместе они скрывают содержимое сообщений и личность отправителя от сети. Что они <em>не</em> скрывают — указано в <a class="text-[var(--fg)]" style="text-decoration:underline; text-decoration-color:var(--hair); text-underline-offset:3px;" href="/ru/threat-model/">модели угроз</a>.</p>
 
   <div class="triplet" aria-hidden="true">
     <div class="col">
@@ -470,7 +501,7 @@
     </div>
   </div>
 
-  <p class="caption">Отправитель доказывает &laquo;это отправил один из участников&raquo;, не раскрывая, кто именно. Группа не узнаёт, кто. Транспорт не узнаёт вообще ничего.</p>
+  <p class="caption">Отправитель доказывает &laquo;это отправил один из участников&raquo;, не раскрывая, кто именно. Группа не узнаёт, кто. Транспорт видит шифротекст и тайминг, не содержание и не отправителя.</p>
 </section>
 
 <!-- Сцена 3: Сменный транспорт -->
@@ -518,35 +549,35 @@
 
   <div class="contract">
     <div class="head">
-      <div class="title">правила группы</div>
-      <div class="meta mono">публичный смарт-контракт</div>
+      <div class="title">поверхность контракта</div>
+      <div class="meta mono">soroban &middot; публично</div>
     </div>
     <div class="body">
       <div class="stamp mono">
-        <span><span class="k">addr</span> 0x4e…a1c3</span>
-        <span><span class="k">развёрнут</span> 2026-03-12</span>
+        <span><span class="k">addr</span> CDQA…HZRW</span>
+        <span><span class="k">flavor</span> sep-*</span>
         <span><span class="k">лицензия</span> mit</span>
         <span><span class="k">переопределение</span> нет</span>
       </div>
       <div class="rule">
         <span class="marker">▸</span>
-        <span class="sig">admit<span class="arg">(участник)</span> требует 2 из 3 админов</span>
-        <span class="req">консенсус</span>
+        <span class="sig">create_group<span class="arg">(commitment, &hellip;)</span> создаёт новую группу с начальным обязательством</span>
+        <span class="req">основатель</span>
       </div>
       <div class="rule">
         <span class="marker">▸</span>
-        <span class="sig">remove<span class="arg">(участник)</span> требует подпись участника ИЛИ кворум</span>
-        <span class="req">сам · кворум</span>
+        <span class="sig">update_commitment<span class="arg">(proof, new_commitment)</span> любое изменение состояния &mdash; принять, исключить, голосование, смена роли</span>
+        <span class="req">zk-доказательство</span>
       </div>
       <div class="rule">
         <span class="marker">▸</span>
-        <span class="sig">message<span class="arg">(payload, proof)</span> требует валидного доказательства участия</span>
-        <span class="req">проверить</span>
+        <span class="sig">verify_membership<span class="arg">(proof, group_id)</span> контракт сверяет доказательство с текущим обязательством</span>
+        <span class="req">проверка</span>
       </div>
       <div class="rule">
         <span class="marker">▸</span>
-        <span class="sig">amend<span class="arg">(правило)</span> требует единогласия активных участников</span>
-        <span class="req">единогласно</span>
+        <span class="sig">bump_group_ttl<span class="arg">(group_id)</span> поддерживает хранилище группы живым между TTL реестра</span>
+        <span class="req">любой</span>
       </div>
     </div>
   </div>
@@ -562,26 +593,100 @@
   <p class="caption">Правила на виду. Среда исполнения &mdash; это и есть правила. Нет админа, который мог бы их переопределить, нет консоли, которая могла бы вас заблокировать, нет версии приложения, которая делала бы что-то отличное от того, что вы можете прочитать.</p>
 </section>
 
-<!-- Сцена 5: Что теперь невидимо -->
+<!-- Сцена 5: Что скрыто, и что нет -->
 <section class="scene scene-5" data-screen-label="05 Hidden">
-  <p class="eyebrow">результат</p>
-  <h2 class="display">Теперь невидимо для всех,<br/>кроме участников группы.</h2>
+  <p class="eyebrow">выгода (и пределы)</p>
+  <h2 class="display">Скрыто по конструкции.<br/>Честно о том, что нет.</h2>
 
   <div class="ledger" id="ledger">
-    <div class="row"><span class="box">▢</span><span>с кем вы говорите</span></div>
-    <div class="row"><span class="box">▢</span><span>когда вы говорите</span></div>
-    <div class="row"><span class="box">▢</span><span>как часто</span></div>
-    <div class="row"><span class="box">▢</span><span>как долго</span></div>
-    <div class="row"><span class="box">▢</span><span>какое устройство отправило какое сообщение</span></div>
-    <div class="row"><span class="box">▢</span><span>какой участник группы &mdash; это вы</span></div>
-    <div class="row"><span class="box">▢</span><span>к какой группе относится сообщение</span></div>
+    <div class="row"><span class="box">▢</span><span>содержание сообщения (всегда, для всех вне группы)</span></div>
+    <div class="row"><span class="box">▢</span><span>какой участник группы отправил сообщение</span></div>
+    <div class="row"><span class="box">▢</span><span>реальный человек за идентичностью на блокчейне (только из блокчейна)</span></div>
+    <div class="row"><span class="box">▢</span><span>фраза восстановления, ключи, история (остаются на устройстве)</span></div>
   </div>
 
-  <p class="closing">Скрыто по конструкции, а не по обещанию.</p>
+  <p class="closing">Что <i>не</i> скрыто &mdash; тайминг соединения, существование группы, диапазон размера группы, тайминг операций в блокчейне &mdash; указано в <a class="text-[var(--fg)]" style="text-decoration:underline; text-decoration-color:var(--hair); text-underline-offset:3px;" href="/ru/threat-model/">модели угроз</a>.</p>
+</section>
+
+<!-- Сцена 6: Потоки -->
+<section class="scene scene-6" data-screen-label="06 Flows">
+  <p class="eyebrow">четыре потока</p>
+  <h2 class="display">Что происходит, по шагам,<br/>когда вы нажимаете кнопку.</h2>
+
+  <div class="flows">
+    <div class="flow">
+      <h3>Создание идентичности</h3>
+<pre><span class="m">[устройство]</span>                    <span class="m">[сеть]</span>
+  <span class="a">|</span>
+  <span class="a">|</span> сгенерировать BIP-39 (128 бит)
+  <span class="a">|</span> вывести ключи secp256k1, Ed25519,
+  <span class="a">|</span>        X25519, BLS12-381
+  <span class="a">|</span> сохранить только на устройстве
+  <span class="a">|</span>
+  <span class="a">|</span> (трафика нет. идентичность локальна
+  <span class="a">|</span>  до первого действия.)
+</pre>
+    </div>
+
+    <div class="flow">
+      <h3>Создание группы</h3>
+<pre><span class="m">[основатель]</span>      <span class="m">[релеер]</span>            <span class="m">[Soroban-контракт]</span>
+  <span class="a">|</span> выбрать group_id
+  <span class="a">|</span> вычислить commitment
+  <span class="a">|</span> подписать Soroban-auth
+  <span class="a">|</span>   для create_group
+  <span class="a">|</span>
+  <span class="a">|</span>--- отправить --&gt;<span class="a">|</span>
+                       <span class="a">|</span>-- Stellar tx+fee --&gt;<span class="a">|</span>
+                                           <span class="a">|</span> проверить auth
+                                           <span class="a">|</span> проверить ZK-доказ.
+                                           <span class="a">|</span> id не занят
+                                           <span class="a">|</span> сохранить commitment
+                                           <span class="a">|</span> emit GroupCreated
+                       <span class="a">|</span>&lt;-- tx подтверждён ---<span class="a">|</span>
+  <span class="a">|</span>&lt;- подтверждено -<span class="a">|</span>
+</pre>
+    </div>
+
+    <div class="flow">
+      <h3>Отправка сообщения</h3>
+<pre><span class="m">[отправитель]</span>     <span class="m">[Nostr-релей]</span>      <span class="m">[получатели]</span>
+  <span class="a">|</span> зашифровать участникам
+  <span class="a">|</span> подписать ключом отправителя
+  <span class="a">|</span>
+  <span class="a">|</span>--- опубликовать --&gt;<span class="a">|</span>
+                          <span class="a">|</span>-- разослать --&gt;<span class="a">|</span>
+                                            <span class="a">|</span> расшифровать,
+                                            <span class="a">|</span> проверить подпись,
+                                            <span class="a">|</span> отрисовать
+</pre>
+    </div>
+
+    <div class="flow">
+      <h3>Действие участника <span style="font-weight:400; color:var(--muted); letter-spacing:0; font-size:.78em;">(принять &middot; голосование &middot; обновление)</span></h3>
+<pre><span class="m">[участник]</span>         <span class="m">[релеер]</span>            <span class="m">[Soroban-контракт]</span>
+  <span class="a">|</span> вычислить новый commitment
+  <span class="a">|</span> построить ZK-доказательство
+  <span class="a">|</span>   корректного перехода
+  <span class="a">|</span> БЕЗ подписи пользователя
+  <span class="a">|</span>
+  <span class="a">|</span>--- отправить --&gt;<span class="a">|</span>
+                        <span class="a">|</span>-- Stellar tx+fee --&gt;<span class="a">|</span>
+                                            <span class="a">|</span> проверить ZK-доказ.
+                                            <span class="a">|</span> c_old совпадает
+                                            <span class="a">|</span> сохранить c_new
+                        <span class="a">|</span>&lt;-- tx подтверждён ---<span class="a">|</span>
+  <span class="a">|</span>&lt;- подтверждено -<span class="a">|</span>
+</pre>
+    </div>
+  </div>
+
+  <p class="caption-flows">В каждом потоке участвует не более трёх сторон: ваше устройство, опционально релеер для оплаты комиссий Stellar, и Soroban-контракт в блокчейне. Релеер никогда не держит плейнтекст и не имеет права подписи. Контракт &mdash; единственное долговременное общее состояние.</p>
 </section>
 
 <nav class="outro-thin" aria-label="Дальше">
   <a href="/ru/why/">&larr; Зачем это нужно</a>
+  <a href="/ru/threat-model/">Модель угроз</a>
   <a href="/ru/about/">О проекте</a>
   <a href="/qa/">Альфа-версия &rarr;</a>
 </nav>
@@ -590,7 +695,7 @@
 
 <footer class="hair border-t" style="border-top-style:solid;">
   <div class="max-w-[1100px] mx-auto px-6 py-10 flex flex-wrap items-center justify-between gap-4 text-[12px] muted mono">
-    <span>&copy; 2026 &middot; Onym Foundation</span>
+    <span>&copy; 2026 &middot; Onym &middot; под MIT</span>
     <span>Распространяется по лицензии MIT</span>
     <span>Никогда не платите личностью.</span>
   </div>

@@ -573,6 +573,32 @@
     border-color: color-mix(in oklab, var(--fg) 25%, transparent);
   }
 
+  /* ---------- Scene 6: Bridge — how the math replaces trust ---------- */
+  .scene-6 .bridge{
+    display:grid; grid-template-columns:1fr; gap: clamp(18px, 2.4vw, 26px);
+    margin-top: clamp(36px, 5vw, 56px);
+  }
+  @media (min-width: 880px){
+    .scene-6 .bridge{ grid-template-columns: 1fr 1fr 1fr; }
+  }
+  .scene-6 .pillar{
+    border:1px solid var(--hair); border-radius:14px;
+    padding: 22px 24px;
+    background: var(--card);
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .scene-6 .pillar .lbl{
+    font-size:.66rem; letter-spacing:.16em; text-transform:uppercase;
+    color: var(--muted); font-weight:600;
+  }
+  .scene-6 .pillar h3{
+    margin:0; font-size: clamp(1.15rem, 1.6vw, 1.35rem);
+    font-weight:600; letter-spacing:-0.01em; line-height:1.2;
+  }
+  .scene-6 .pillar p{ margin:0; color:var(--muted); font-size: .95rem; line-height:1.55; }
+  .scene-6 .pillar .does{ color: var(--fg); font-weight:500; font-size:.92rem; }
+  .scene-6 .pillar .nope{ color: var(--muted); font-size:.86rem; font-style: italic; }
+
   /* ---------- Reduced motion ---------- */
   @media (prefers-reduced-motion: reduce){
     .graph-svg .pulse,
@@ -855,15 +881,43 @@
   <p class="closing">Шифрование должно было убрать часть из них. Не убрало.</p>
 </section>
 
+<!-- Сцена 6: Мост — как математика заменяет доверие -->
+<section class="scene scene-6" data-screen-label="06 Bridge">
+  <p class="eyebrow">мост</p>
+  <h2 class="display">Как математика на самом деле<br/>заменяет доверие.</h2>
+  <p class="lede">Три инженерных решения делают всю работу. Ни одно из них не экзотика. Каждое уже крутится в боевой криптографии где-то ещё.</p>
+
+  <div class="bridge">
+    <div class="pillar">
+      <span class="lbl">01 · ZK-доказательства членства</span>
+      <h3>Публичный реестр без публичных идентичностей.</h3>
+      <p class="does">Отправитель доказывает «я участник этой группы» прямо в блокчейне, не раскрывая, какой именно. Soroban-контракт проверяет доказательство; для всех остальных &mdash; релеера, валидаторов, пассивных наблюдателей &mdash; видно лишь, что какой-то участник совершил действие.</p>
+      <p class="nope">Это не скрывает, что действие было, и в какой группе оно произошло.</p>
+    </div>
+    <div class="pillar">
+      <span class="lbl">02 · Релеер платит за транзакции</span>
+      <h3>Вы действуете без пополненного счёта.</h3>
+      <p class="does">Релеер отправляет вашу подписанную Stellar-транзакцию и платит комиссию. Никакого банка, никакого on-ramp, никакого пополненного счёта, привязывающего вас к реальной идентичности.</p>
+      <p class="nope">Релеер видит шифротекст и метаданные соединения. Он не может прочитать сообщения, выдать себя за вас или переписать состояние группы &mdash; и его можно заменить.</p>
+    </div>
+    <div class="pillar">
+      <span class="lbl">03 · Идентичность на устройстве</span>
+      <h3>Никакого аккаунта, который можно отключить.</h3>
+      <p class="does">Двенадцать BIP-39 слов, сгенерированных на вашем телефоне. Ключи, контакты и история живут там же. Никакого «аккаунта Onym», который можно было бы заблокировать, выдать или удалить.</p>
+      <p class="nope">Если ваш телефон скомпрометирован, ничто из этого не помогает. Конечные точки остаются конечными точками.</p>
+    </div>
+  </div>
+</section>
+
 <!-- Outro: ответ Onym -->
 <section class="outro" aria-label="Что Onym делает вместо этого">
   <p class="eyebrow" style="margin-bottom:24px;">ответ onym</p>
-  <h2>Убрать сервер.<br/>Единственное общее состояние сделать публичным.</h2>
-  <p class="lede" style="margin-top:28px;">Никакой компании в цепочке. Никакой консоли оператора. Никакого деплоя, который нужно принимать на веру. Состояние группы &mdash; в публичном смарт-контракте; сообщения идут через релэи, которые вы можете заменить; идентичность остаётся на вашем устройстве.</p>
+  <h2>Уберите оператора.<br/>Сделайте общее состояние публичным.</h2>
+  <p class="lede" style="margin-top:28px;">Никакой компании в цепочке. Никакого оператора с правом вас отключить. Каждый слой open source и собирается воспроизводимо из исходников &mdash; никакой непрозрачной серверной логики в пути доверия. Состояние группы &mdash; в публичном смарт-контракте; сообщения идут через релееры, которые вы можете заменить; идентичность остаётся на вашем устройстве.</p>
+  <p class="lede" style="margin-top:18px; font-size:.95rem; color:var(--muted);">Onym защищает от оператора, который захочет вас отключить, пассивного наблюдателя в блокчейне и недобросовестного участника группы. Onym не защищает от глобального наблюдения, скомпрометированного устройства или скриншотов. Полный список &mdash; <a class="text-[var(--fg)]" style="text-decoration:underline; text-decoration-color:var(--hair); text-underline-offset:3px;" href="/ru/threat-model/">модель угроз</a>.</p>
   <div class="ctas">
-    <a class="cta primary" href="/ru/how/">Как это устроено</a>
-    <a class="cta secondary" href="/ru/about/">О проекте</a>
-    <a class="cta secondary" href="/qa/">Альфа-версия</a>
+    <a class="cta primary" href="/ru/how/">Посмотреть, как это работает</a>
+    <a class="cta secondary" href="/ru/threat-model/">Прочитать модель угроз</a>
   </div>
 </section>
 
@@ -871,7 +925,7 @@
 
 <footer class="hair border-t mt-12" style="border-top-style:solid;">
   <div class="max-w-[1100px] mx-auto px-6 py-10 flex flex-wrap items-center justify-between gap-4 text-[12px] muted mono">
-    <span>&copy; 2026 &middot; Onym Foundation</span>
+    <span>&copy; 2026 &middot; Onym &middot; под MIT</span>
     <span>Распространяется по лицензии MIT</span>
     <span>Никогда не платите личностью.</span>
   </div>

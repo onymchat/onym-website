@@ -4,14 +4,14 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>О проекте · Onym</title>
-<meta name="description" content="Onym делает мессенджер, не требующий доверия — ни к нам, ни к какой-либо компании, ни к какому-либо серверу. Сквозное шифрование, якорь в Stellar, open source." />
+<meta name="description" content="Onym делает групповой мессенджер, в котором ни один оператор не может отключить ваш аккаунт, прочитать ваши разговоры или передать восстанавливаемый социальный граф. Сквозное шифрование, якорь в Stellar, open source. Поддерживается одним мейнтейнером, открыто на GitHub." />
 <meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
 <link rel="icon" type="image/png" href="/assets/icon-dark.png" />
 <link rel="apple-touch-icon" href="/assets/icon-dark.png" />
 <meta property="og:type" content="website" />
 <meta property="og:title" content="О проекте · Onym" />
-<meta property="og:description" content="Приватность — это право, а не опция. Onym делает мессенджер, не требующий доверия." />
+<meta property="og:description" content="Приватность — это право, а не опция. Onym делает групповой мессенджер, в котором ни один оператор не может вас отключить." />
 <meta property="og:image" content="https://onym.app/assets/og-card.jpg" />
 <link rel="alternate" hreflang="en" href="https://onym.app/about/" />
 <link rel="alternate" hreflang="ru" href="https://onym.app/ru/about/" />
@@ -107,30 +107,30 @@
 </header>
 
 <main class="max-w-[820px] mx-auto px-6 py-16 md:py-24">
-  <p class="eyebrow mb-5">Фонд</p>
+  <p class="eyebrow mb-5">О проекте</p>
   <h1 class="display display-xl mb-8">Приватность — это право,<br/>а не опция.</h1>
   <p class="text-[clamp(1.1rem,1.4vw,1.3rem)] muted leading-[1.55] max-w-[55ch]">
-    Onym делает мессенджер, не требующий доверия — ни к нам, ни к какой-либо компании, ни к какому-либо серверу.
+    Onym делает групповой мессенджер, в котором ни один оператор не может отключить ваш аккаунт, прочитать ваши разговоры или передать восстанавливаемый социальный граф.
   </p>
 
   <hr class="hair border-t my-16" style="border-top-style:solid;" />
 
   <section class="space-y-12">
     <div>
-      <h2 class="display display-md mb-4">Почему мы существуем</h2>
+      <h2 class="display display-md mb-4">Зачем это</h2>
       <div class="muted leading-[1.7] space-y-4 text-[clamp(1rem,1.15vw,1.1rem)]">
-        <p>Каждый сегодняшний мессенджер просит доверять его серверу. Signal доверяет AWS. Telegram — собственным дата-центрам. Apple — своим. WhatsApp — серверам Meta. Шифрование между пользователями сквозное, но инфраструктура всегда работает на чужом железе, и кто-то всегда может быть принуждён её изменить.</p>
-        <p>«Доверие» звучит безобидно, пока не прочитаешь мелкий шрифт: когда приходят государства, суды, юристы или новые владельцы, мессенджер обязан подчиниться. Даже если они не читают сами сообщения, они почти всегда могут раскрыть, с кем ты говоришь, когда и как часто. Это и есть социальный граф — и именно за него людей берут на учёт, профилируют и арестовывают.</p>
-        <p>Единственный способ быть уверенным, что никто не прочитает разговоры и не восстановит связи, — это <strong class="text-[var(--fg)] font-medium">убрать сервер целиком</strong>, а единственное общее состояние сделать публичным, проверяемым и неподконтрольным никому конкретно.</p>
+        <p>Каждый сегодняшний мессенджер просит доверять оператору. Signal крутится на AWS. Telegram — на собственных дата-центрах. iMessage — на Apple. WhatsApp — на инфраструктуре Meta. Шифрование между пользователями сквозное, но трубы крутятся на железе, которое принадлежит одной компании и одну компанию могут заставить это железо изменить.</p>
+        <p>Слово «доверие» звучит безобидно — пока не читаешь мелкий шрифт: когда приходят государства, суды, юристы или новые владельцы, обязанность оператора — подчиниться. Даже когда они не читают ваши сообщения, они почти всегда могут раскрыть, кто с кем говорит, когда и как часто. Это и есть социальный граф — и именно за него людей берут на учёт, профилируют и арестовывают.</p>
+        <p>Onym сужает поверхность доверия. Способ — <strong class="text-[var(--fg)] font-medium">убрать оператора из цепочки</strong> и сделать единственное общее состояние публичным, проверяемым и не подконтрольным никому конкретно. Это не значит, что серверов нет вовсе; мы используем сеть Stellar и релеер, который платит за её комиссии. Что именно видит и делает каждый из них — мы честно описываем на странице <a href="/ru/threat-model/" class="link">модели угроз</a>.</p>
       </div>
     </div>
 
     <div>
-      <h2 class="display display-md mb-4">Как устроен Onym</h2>
+      <h2 class="display display-md mb-4">Как Onym устроен</h2>
       <div class="muted leading-[1.7] space-y-4 text-[clamp(1rem,1.15vw,1.1rem)]">
         <p><strong class="text-[var(--fg)] font-medium">Идентичность на устройстве.</strong> Ключи, контакты и история сообщений генерируются и хранятся на вашем телефоне. Двенадцать слов BIP-39 восстанавливают всё на другом устройстве — и покидают вас только тогда, когда вы их сами набираете. Никакой регистрации, телефонного номера или email.</p>
-        <p><strong class="text-[var(--fg)] font-medium">Состояние группы — в публичном смарт-контракте.</strong> Правила любой группы — кто принимает, кто исключает, кто пишет — живут в Stellar через Soroban. Любой может их проверить; никто не может их переопределить. Контракт — единственное, что разделяют все участники, и он публичен по умолчанию.</p>
-        <p><strong class="text-[var(--fg)] font-medium">Ретрансляторы как тупые трубы.</strong> Зашифрованные сообщения ходят через Nostr-ретрансляторы. Запустите свой. Используйте чужой. Меняйте в любой момент. Транспортный слой заменяемый, и в открытом виде по нему ничего не идёт.</p>
+        <p><strong class="text-[var(--fg)] font-medium">Состояние группы — в публичном смарт-контракте.</strong> Правила любой группы — кто принимает, кто исключает, кто пишет — живут в Stellar через Soroban. Любой может их проверить; никто не может их переопределить. Контракт — единственное общее состояние, и оно публично по умолчанию.</p>
+        <p><strong class="text-[var(--fg)] font-medium">Релеер платит за транзакции и видит обёртку.</strong> Релеер отправляет ваши Stellar-транзакции и платит за on-chain комиссии — пользователю не нужен пополненный счёт. Он видит шифротекст и метаданные соединения — никогда плейнтекст и никогда не знает, кто из участников группы отправил конкретное сообщение. Запустите свой; меняйте в любой момент.</p>
       </div>
     </div>
 
@@ -144,9 +144,19 @@
     </div>
 
     <div>
-      <h2 class="display display-md mb-4">Подключайтесь</h2>
+      <h2 class="display display-md mb-4">Кто это поддерживает</h2>
+      <div class="muted leading-[1.7] space-y-4 text-[clamp(1rem,1.15vw,1.1rem)]">
+        <p>Onym сегодня — работа одного мейнтейнера. Никакого Фонда пока нет. Нет раунда A, нет совета консультантов, нет PR-агентства. Есть один человек, который работает в открытую, над MIT-кодом, который любой может форкнуть в тот день, когда эта страница перестанет быть правдой.</p>
+        <p>Имя мейнтейнера и его аккаунт на GitHub — публичны: они видны на каждом коммите в каждом репозитории Onym. Сайт просто не выводит имя на баннер; проект не должен быть про человека. Для переписки — журналисты, исследователи безопасности, потенциальные участники — пишите на <a href="mailto:lead@onym.app" class="link">lead@onym.app</a>.</p>
+        <p>Формулировки про «Onym Foundation», встречающиеся в других местах в интернете, остались с ранних черновиков — мы их откатываем. Если Фонд будет образован, об этом будет объявлено здесь — с юрисдикцией, регистрацией и реальным уставом. До тех пор: соло, MIT, в открытую.</p>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="display display-md mb-4">Как помочь</h2>
       <ul class="space-y-3 text-[clamp(1rem,1.1vw,1.05rem)]">
-        <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Запустите ретранслятор для себя, своей команды или организации — репозиторий <a href="https://github.com/onymchat/onym-relayer" class="link mono">onym-relayer</a>.</span></li>
+        <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Прочитайте <a href="/ru/threat-model/" class="link">модель угроз</a> и расскажите, где мы ошиблись.</span></li>
+        <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Запустите релеер для себя, своей команды или организации — репозиторий <a href="https://github.com/onymchat/onym-relayer" class="link mono">onym-relayer</a>.</span></li>
         <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Тестируйте альфа-сборки iOS и Android — <a href="/ru/qa/" class="link">QA Dashboard</a>.</span></li>
         <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Смотрите историю выпусков — <a href="/ru/changelog/" class="link">changelog</a>.</span></li>
         <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Запросы для прессы — <a href="/ru/press/" class="link">пресс-кит</a>.</span></li>
@@ -158,7 +168,7 @@
 
 <footer class="hair border-t mt-12" style="border-top-style:solid;">
   <div class="max-w-[1100px] mx-auto px-6 py-10 flex flex-wrap items-center justify-between gap-4 text-[12px] muted mono">
-    <span>&copy; 2026 &middot; Onym Foundation</span>
+    <span>&copy; 2026 &middot; Onym &middot; под MIT</span>
     <span>Распространяется по лицензии MIT</span>
     <span>Никогда не платите своей идентичностью.</span>
   </div>
