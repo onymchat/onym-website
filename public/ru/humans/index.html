@@ -1,0 +1,1195 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Onym простыми словами</title>
+<meta name="description" content="Мессенджер для групп, устроенный так, что те, кто за ним стоит, не видят ни кто в группе, ни когда вы говорили, ни что разговор вообще был. Честно о том, от чего он защищает — и от чего нет." />
+<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+<link rel="icon" type="image/png" href="/assets/icon-dark.png" />
+<link rel="apple-touch-icon" href="/assets/icon-dark.png" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Onym простыми словами" />
+<meta property="og:description" content="Мессенджер для групп, в котором никто не знает, кто в вашей группе, когда вы говорили и что разговор был." />
+<meta property="og:image" content="https://onym.app/assets/og-card.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Onym простыми словами" />
+<meta name="twitter:description" content="Мессенджер для групп, в котором никто не знает, кто в вашей группе, когда вы говорили и что разговор был." />
+<meta name="twitter:image" content="https://onym.app/assets/og-card.jpg" />
+<link rel="alternate" hreflang="en" href="https://onym.app/humans/" />
+<link rel="alternate" hreflang="ru" href="https://onym.app/ru/humans/" />
+<link rel="alternate" hreflang="x-default" href="https://onym.app/humans/" />
+<script>(function(){try{var p=(navigator.language||'').toLowerCase();if(!(p==='ru'||p.startsWith('ru-'))){var pa=location.pathname.replace(/^\/ru/,'')||'/';location.replace(pa);return;}}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
+    --hair:rgba(245,245,247,.10);
+    --card:#101013;
+    --nav-bg: rgba(8,8,10,.72);
+    --danger:#ef4444;
+    --danger-soft:rgba(239,68,68,.10);
+  }
+  html[data-theme="light"]{
+    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
+    --hair:rgba(10,10,10,.08);
+    --card:#fbfbfd;
+    --nav-bg: rgba(245,245,247,.72);
+    --danger:#c8362c;
+    --danger-soft:rgba(200,54,44,.07);
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ background:var(--bg); color:var(--fg); margin:0; padding:0; }
+  body{
+    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+    font-feature-settings: "ss01","ss02";
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+    line-height:1.55;
+    transition: background-color .35s ease, color .35s ease;
+  }
+  .mono{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; }
+  .muted{ color:var(--muted); }
+
+  /* ---------- Nav ---------- */
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:var(--nav-bg);
+    backdrop-filter:saturate(160%) blur(14px);
+    -webkit-backdrop-filter:saturate(160%) blur(14px);
+    border-bottom:1px solid var(--hair);
+  }
+  .mark{
+    display:inline-block; width:22px; height:22px; border-radius:22%;
+    background:url('/assets/icon-dark.png') center/cover no-repeat;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.06),
+      0 4px 16px -2px rgba(255,255,255,.14),
+      0 .5px 0 rgba(255,255,255,.10) inset;
+  }
+  html[data-theme="light"] .mark{
+    background:url('/assets/icon-light.png') center/cover no-repeat;
+    box-shadow:
+      0 4px 12px -3px rgba(10,10,10,.18),
+      0 .5px 0 rgba(255,255,255,.6) inset;
+  }
+  .toggle{
+    position:fixed; bottom:18px; right:18px; z-index:60;
+    background:var(--nav-bg);
+    border:1px solid var(--hair); border-radius:999px;
+    padding:4px; display:flex; gap:2px;
+    backdrop-filter:saturate(180%) blur(14px);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    box-shadow:0 8px 24px -10px rgba(10,10,10,.18);
+  }
+  .toggle button{
+    font-size:12px; letter-spacing:.04em; padding:7px 12px; border-radius:999px;
+    color:var(--muted);
+  }
+  .toggle button[aria-pressed="true"]{ background:var(--fg); color:var(--bg); }
+
+  a.link{
+    color:var(--fg); text-decoration:underline;
+    text-decoration-color:var(--hair); text-underline-offset:3px;
+    transition: text-decoration-color .15s ease;
+  }
+  a.link:hover{ text-decoration-color:var(--fg); }
+
+  /* ---------- Page scaffold ---------- */
+  main{
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(40px, 7vw, 80px) clamp(22px, 6vw, 56px);
+  }
+  section{
+    padding-top: clamp(40px, 6vw, 72px);
+    padding-bottom: clamp(40px, 6vw, 72px);
+    border-bottom: 1px solid var(--hair);
+  }
+  section:first-of-type{ padding-top: clamp(20px, 3vw, 36px); }
+  section:last-of-type{ border-bottom:none; }
+
+  .eyebrow{
+    font-size:.74rem; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--muted);
+    margin: 0 0 clamp(20px, 3vw, 28px) 0;
+    font-weight:500;
+  }
+
+  h1.hero{
+    font-weight:700;
+    letter-spacing:-0.035em;
+    line-height:1.05;
+    margin:0;
+    text-wrap:balance;
+    font-size: clamp(2rem, 5.2vw, 3.4rem);
+  }
+  h2.heading{
+    font-weight:700;
+    letter-spacing:-0.028em;
+    line-height:1.12;
+    margin:0;
+    text-wrap:balance;
+    font-size: clamp(1.5rem, 3.4vw, 2.1rem);
+  }
+  .lede{
+    font-size: clamp(1.05rem, 1.4vw, 1.18rem);
+    color:var(--muted);
+    margin: clamp(20px, 2.6vw, 28px) 0 0 0;
+    line-height:1.6;
+    max-width: 56ch;
+  }
+  p.body{
+    font-size: 1.02rem;
+    color:var(--fg);
+    margin: clamp(16px, 2vw, 22px) 0 0 0;
+    line-height:1.62;
+    max-width: 60ch;
+  }
+  p.body + p.body{ margin-top: 14px; }
+  p.body.muted{ color:var(--muted); }
+
+  /* ---------- Scenarios ---------- */
+  .scenarios{
+    margin-top: clamp(28px, 3.5vw, 36px);
+    display:flex;
+    flex-direction:column;
+    gap: clamp(18px, 2.4vw, 24px);
+  }
+  .scenario{
+    border-top: 1px solid var(--hair);
+    padding-top: clamp(16px, 2vw, 20px);
+    display:grid;
+    grid-template-columns: 28px 1fr 200px;
+    column-gap: 20px;
+    row-gap: 10px;
+    align-items: start;
+  }
+  @media (max-width: 720px){
+    .scenario{ grid-template-columns: 28px 1fr; }
+  }
+  .scenario .num{
+    color: var(--muted);
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.78rem;
+    letter-spacing:.06em;
+    padding-top: 4px;
+  }
+  .scenario p{
+    margin:0;
+    font-size: 1.02rem;
+    line-height:1.6;
+    color: var(--fg);
+    max-width: 58ch;
+  }
+
+  /* ---------- Effect cards ---------- */
+  .effects{
+    margin-top: clamp(28px, 3.5vw, 36px);
+    display:flex;
+    flex-direction:column;
+    gap: 14px;
+  }
+  .effect{
+    border: 1px solid var(--hair);
+    border-radius: 14px;
+    padding: clamp(18px, 2.2vw, 22px) clamp(20px, 2.4vw, 24px);
+    background: var(--card);
+  }
+  .effect h3{
+    margin:0;
+    font-size: 1.05rem;
+    font-weight:600;
+    letter-spacing:-0.005em;
+    line-height:1.35;
+  }
+  .effect p{
+    margin: 8px 0 0 0;
+    color: var(--muted);
+    font-size: .98rem;
+    line-height:1.6;
+  }
+
+  /* ---------- Limits list ---------- */
+  .limits{
+    margin-top: clamp(24px, 3vw, 32px);
+    list-style:none;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap: 0;
+    border-top: 1px solid var(--hair);
+  }
+  .limits li{
+    border-bottom: 1px solid var(--hair);
+    padding: clamp(14px, 1.8vw, 18px) 0;
+    color: var(--fg);
+    font-size: 1rem;
+    line-height:1.6;
+    max-width: 60ch;
+  }
+
+  /* ---------- Outro CTAs ---------- */
+  .doors{
+    display:flex; flex-wrap:wrap; gap:12px;
+    margin-top: clamp(28px, 3.5vw, 36px);
+  }
+  a.cta{
+    display:inline-block;
+    border-radius: 999px;
+    padding: 13px 22px;
+    font-size: 13.5px;
+    letter-spacing:.01em;
+    text-decoration:none;
+  }
+  a.cta.primary{ background: var(--fg); color: var(--bg); }
+  a.cta.secondary{
+    border: 1px solid var(--hair);
+    color: var(--fg);
+  }
+  a.cta.secondary:hover{
+    border-color: color-mix(in oklab, var(--fg) 25%, transparent);
+  }
+  .anchor{
+    margin-top: clamp(20px, 2.4vw, 26px);
+    color: var(--muted);
+    font-size: .92rem;
+    line-height: 1.55;
+    max-width: 50ch;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Per-section visuals (h- prefix). All inherit color via currentColor */
+  /* All animation: see prefers-reduced-motion block at bottom.          */
+  /* Animated elements: hero redaction pulse + courier-swap (= 2 total). */
+  /* ------------------------------------------------------------------ */
+
+  /* Shared chat-row primitive (used by §1 and §2) */
+  .h-row{
+    border: 1px solid var(--hair);
+    border-radius: 12px;
+    background: var(--card);
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    column-gap: 14px;
+    row-gap: 8px;
+    align-items: baseline;
+  }
+  .h-row .h-row-recipient{
+    font-size: .96rem;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    color: var(--fg);
+    line-height: 1.3;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .h-row .h-row-recipient .h-row-meta{
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .h-row .h-row-time{
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: .76rem;
+    color: var(--muted);
+    letter-spacing: .02em;
+    white-space: nowrap;
+  }
+  .h-row .h-row-body{
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+  .h-row .h-row-text{
+    color: var(--fg);
+    font-size: .94rem;
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .h-row .h-row-bar{
+    height: 10px;
+    flex: 1 1 auto;
+    border-radius: 3px;
+    background: currentColor;
+    color: var(--fg);
+    opacity: .9;
+  }
+  .h-row .h-row-bar.short{ flex: 0 1 60%; }
+  .h-row .h-row-bar.medium{ flex: 0 1 78%; }
+
+  /* 1. Hero — trust-surface comparison (before/after) */
+  .h-trust{
+    margin: clamp(28px, 3.5vw, 40px) 0 0 0;
+    width: 100%;
+    max-width: 720px;
+  }
+  .h-trust-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(14px, 1.8vw, 20px);
+  }
+  @media (max-width: 720px){
+    .h-trust-grid{ grid-template-columns: 1fr; }
+  }
+  .h-trust-side{
+    border: 1px solid var(--hair);
+    border-radius: 14px;
+    background: var(--card);
+    padding: clamp(14px, 1.8vw, 18px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+  .h-trust-head{
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .h-trust-name{
+    font-size: .94rem;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    color: var(--fg);
+    line-height: 1.3;
+  }
+  .h-trust-tag{
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: .68rem;
+    letter-spacing: .08em;
+    color: var(--muted);
+  }
+  .h-trust-svg{
+    width: 100%;
+    height: auto;
+    display: block;
+    color: var(--fg);
+  }
+  .h-trust-svg .h-frame{ stroke: var(--hair); fill: none; }
+  .h-trust-svg .h-node{ fill: var(--bg); stroke: currentColor; stroke-width: 1; }
+  .h-trust-svg .h-node.h-danger{ stroke: var(--danger); stroke-width: 1.2; fill: var(--danger-soft); }
+  .h-trust-svg .h-node-label{
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: 9px; font-weight: 600; letter-spacing: .04em;
+    text-anchor: middle; fill: currentColor;
+  }
+  .h-trust-svg .h-node-sub{
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: 7.2px; opacity: .58; letter-spacing: .04em;
+    text-anchor: middle; fill: currentColor;
+  }
+  .h-trust-svg .h-edge{
+    stroke: currentColor; stroke-width: 1; opacity: .35; fill: none;
+  }
+  .h-trust-svg .h-pulse{
+    stroke-width: 1.4; fill: none;
+    stroke-dasharray: 8 200; stroke-dashoffset: 0; opacity: 0;
+  }
+  .h-trust-svg .h-pulse-danger{ stroke: var(--danger); }
+  .h-trust-svg .h-pulse-muted{ stroke: var(--muted); }
+  @keyframes h-trust-pulse{
+    0%   { opacity: 0; stroke-dashoffset: 0; }
+    25%  { opacity: 1; }
+    100% { opacity: 0; stroke-dashoffset: -60; }
+  }
+  .h-trust-svg .h-pulse-a{ animation: h-trust-pulse 5.6s ease-in-out infinite; }
+  .h-trust-svg .h-pulse-b{ animation: h-trust-pulse 5.6s ease-in-out infinite 1.4s; }
+  /* Kill switch is intentionally still — see comment in §1 hero. */
+  .h-trust-svg .h-kill{
+    fill: none; stroke: var(--danger); stroke-width: 1.2;
+  }
+  .h-trust-svg .h-kill text{
+    fill: var(--danger); font-family: "SF Mono",ui-monospace,Menlo,monospace;
+  }
+  .h-trust-foot{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .h-trust-key{
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: .66rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .h-trust-chips{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .h-trust-chip{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--hair);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: .78rem;
+    line-height: 1.3;
+    color: var(--muted);
+    background: transparent;
+    white-space: nowrap;
+  }
+  .h-trust-chip::before{
+    content: "";
+    width: 5px; height: 5px; border-radius: 50%;
+    background: currentColor;
+    opacity: .9;
+  }
+  .h-trust-chip--danger{
+    color: var(--danger);
+    border-color: color-mix(in oklab, var(--danger) 45%, transparent);
+    background: var(--danger-soft);
+  }
+  .h-trust-chip--muted{ color: var(--muted); }
+
+  /* 2. Keystone — before/after redacted-row pair */
+  .h-redacted-pair{
+    margin: clamp(24px, 3vw, 32px) 0 0 0;
+    max-width: 640px;
+  }
+  .h-redacted-pair .h-rp-pane{
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 14px;
+    align-items: center;
+  }
+  .h-redacted-pair .h-rp-label{
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: .68rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    align-self: center;
+    width: 8.5rem;
+  }
+  .h-redacted-pair .h-rp-arrow{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 4px 0 4px calc(8.5rem + 14px);
+    color: var(--muted);
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: .76rem;
+  }
+  .h-redacted-pair .h-rp-arrow .h-rp-rule{
+    flex: 0 1 28px;
+    height: 1px;
+    background: var(--hair);
+  }
+  .h-redacted-pair .h-rp-duration{
+    grid-column: 2 / 3;
+    align-self: center;
+    justify-self: end;
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: .74rem;
+    color: var(--muted);
+    border: 1px solid var(--hair);
+    border-radius: 999px;
+    padding: 2px 8px;
+    letter-spacing: .02em;
+    white-space: nowrap;
+  }
+  /* Pane B server-row treatment: opaque identifier in mono/muted */
+  .h-row-server .h-row-recipient--id{
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    color: var(--muted);
+    font-weight: 400;
+    font-size: .9rem;
+    letter-spacing: .02em;
+  }
+  .h-redacted-pair .h-row-server{
+    grid-template-columns: 1fr auto auto auto;
+    column-gap: 10px;
+  }
+  .h-redacted-pair .h-row-server .h-rp-recipients{ grid-column: 2; }
+  .h-redacted-pair .h-row-server .h-rp-duration:not(.h-rp-recipients){ grid-column: 3; }
+  .h-redacted-pair .h-row-server .h-row-time{ grid-column: 4; }
+  .h-redacted-pair .h-row-server .h-row-body{ grid-column: 1 / -1; }
+  .h-redacted-pair .h-rp-caption{
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: .74rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .h-redacted-pair .h-rp-caption .h-rp-cap-rule{
+    flex: 0 1 36px;
+    height: 1px;
+    background: var(--hair);
+  }
+  @media (max-width: 540px){
+    .h-redacted-pair .h-rp-pane{ grid-template-columns: 1fr; }
+    .h-redacted-pair .h-rp-label{ width: auto; margin-bottom: 6px; }
+    .h-redacted-pair .h-rp-arrow{ margin-left: 0; }
+  }
+
+  /* 3. Scenario micro-mockups */
+  .h-scenario-mock{
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    align-self: start;
+    justify-self: end;
+    width: 100%;
+    max-width: 200px;
+    border: 1px solid var(--hair);
+    border-radius: 10px;
+    background: var(--card);
+    padding: 10px 12px;
+    color: var(--muted);
+    font-size: .76rem;
+    line-height: 1.35;
+    overflow: hidden;
+  }
+  .h-sm-row{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+  }
+  .h-sm-row + .h-sm-row{ border-top: 1px solid var(--hair); }
+  .h-sm-dot{
+    width: 8px; height: 8px; border-radius: 50%;
+    background: currentColor; flex: 0 0 8px;
+  }
+  .h-sm-name{
+    color: var(--muted);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .h-sm-row.is-you .h-sm-dot{
+    background: var(--fg);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--fg) 12%, transparent);
+  }
+  .h-sm-row.is-you .h-sm-name{
+    color: var(--fg);
+    font-weight: 600;
+  }
+  .h-sm-popover{
+    margin-top: 8px;
+    border: 1px solid var(--hair);
+    border-radius: 8px;
+    padding: 6px 8px;
+    color: var(--muted);
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: .68rem;
+    letter-spacing: .04em;
+    line-height: 1.55;
+  }
+  .h-sm-banner{
+    margin-top: 8px;
+    border-top: 1px solid var(--hair);
+    padding-top: 8px;
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: .66rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+  }
+  .h-sm-stack-disabled .h-sm-row{ opacity: .42; }
+  .h-sm-graph{
+    width: 100%;
+    height: auto;
+    aspect-ratio: 200 / 130;
+    color: var(--muted);
+    display: block;
+  }
+  .h-sm-tag{
+    margin-top: 6px;
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: .66rem;
+    letter-spacing: .08em;
+    color: var(--muted);
+    text-align: right;
+  }
+  @media (max-width: 720px){
+    .scenario .h-scenario-mock{
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: start;
+      max-width: 320px;
+      margin-bottom: 4px;
+    }
+    .scenario p{ grid-column: 2; grid-row: 2; }
+  }
+
+  /* 4. Effect-card inline diagrams */
+  .effect{
+    display: grid;
+    grid-template-columns: 1fr 180px;
+    column-gap: clamp(16px, 2vw, 24px);
+    align-items: start;
+  }
+  .effect .h-effect-body h3{ margin: 0; }
+  .effect .h-effect-body p{ margin: 8px 0 0 0; }
+  .h-effect-diagram{
+    width: 100%;
+    max-width: 180px;
+    aspect-ratio: 180 / 120;
+    color: var(--muted);
+    display: block;
+    align-self: start;
+    margin-top: 2px;
+    overflow: visible;
+  }
+  .h-effect-diagram .h-fg{ color: var(--fg); }
+  @media (max-width: 620px){
+    .effect{
+      grid-template-columns: 1fr;
+      row-gap: 14px;
+    }
+    .h-effect-diagram{
+      max-width: 240px;
+      order: 2;
+    }
+    .effect .h-effect-body{ order: 1; }
+  }
+
+  /* Courier swap label cycle (§4 card 3) — only animated piece in §4 */
+  .h-courier-label{
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    fill: var(--fg);
+    font-size: 7px;
+    letter-spacing: .04em;
+  }
+  .h-courier-cycle text{ opacity: 0; animation: h-courier-cycle 7.8s steps(1,end) infinite; }
+  .h-courier-cycle text:nth-child(1){ animation-delay: 0s; }
+  .h-courier-cycle text:nth-child(2){ animation-delay: 2.6s; }
+  .h-courier-cycle text:nth-child(3){ animation-delay: 5.2s; }
+  @keyframes h-courier-cycle{
+    0%, 33%   { opacity: 1; }
+    34%, 100% { opacity: 0; }
+  }
+
+  /* 5. Limits — em-dash bullets, baseline-aligned */
+  .limits{ padding-left: 0; }
+  .limits li{
+    position: relative;
+    padding-left: 28px;
+  }
+  .limits li::before{
+    content: "—";
+    position: absolute;
+    left: 0;
+    top: clamp(14px, 1.8vw, 18px);
+    color: var(--muted);
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    line-height: 1.6;
+  }
+
+  /* 6. CTAs reshaped into doors */
+  .doors{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 180px));
+    gap: 16px;
+    margin-top: clamp(28px, 3.5vw, 36px);
+  }
+  a.cta.door{
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    row-gap: 8px;
+    width: 100%;
+    min-height: 132px;
+    padding: 16px 16px 14px 16px;
+    border-radius: 12px 12px 2px 2px;
+    text-decoration: none;
+    line-height: 1.25;
+    font-size: 13.5px;
+    letter-spacing: .005em;
+    transition: transform .2s ease, border-color .2s ease;
+  }
+  a.cta.door.primary{
+    background: var(--fg);
+    color: var(--bg);
+    border: 1px solid var(--fg);
+  }
+  a.cta.door.secondary{
+    background: transparent;
+    color: var(--fg);
+    border: 1px solid var(--hair);
+  }
+  a.cta.door:hover{ transform: translateY(-1px); }
+  a.cta.door.secondary:hover{
+    border-color: color-mix(in oklab, var(--fg) 30%, transparent);
+  }
+  .h-door-eyebrow{
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: .66rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    opacity: .7;
+  }
+  .h-door-heading{
+    font-size: 1.02rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    align-self: end;
+  }
+  .h-door-foot{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .h-door-caption{
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: .68rem;
+    letter-spacing: .02em;
+    opacity: .72;
+  }
+  .h-door-arrow{
+    width: 22px; height: 1px;
+    background: currentColor;
+    position: relative;
+    opacity: .85;
+    flex: 0 0 22px;
+  }
+  .h-door-arrow::after{
+    content: "";
+    position: absolute;
+    right: 0; top: -3px;
+    width: 7px; height: 7px;
+    border-right: 1px solid currentColor;
+    border-top: 1px solid currentColor;
+    transform: rotate(45deg);
+  }
+  @media (max-width: 480px){
+    .doors{
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    a.cta.door{ min-height: 116px; }
+  }
+
+  /* Reduced-motion: every animated element returns to a steady state */
+  @media (prefers-reduced-motion: reduce){
+    .h-trust-svg .h-pulse{ animation: none !important; opacity: 0; }
+    .h-courier-cycle text{ animation: none; opacity: 0; }
+    .h-courier-cycle text:nth-child(1){ opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toggle" role="group" aria-label="Тема">
+  <button id="themeDark" aria-pressed="true">Тёмная</button>
+  <button id="themeLight" aria-pressed="false">Светлая</button>
+</div>
+
+<header class="nav">
+  <div class="max-w-[1100px] mx-auto px-6 h-[52px] flex items-center justify-between">
+    <a href="/ru/" class="flex items-center gap-3 hover:opacity-80" aria-label="Onym — главная">
+      <span class="mark" role="img" aria-label="Onym"></span>
+      <span class="text-[14px] font-medium tracking-tight">Onym</span>
+    </a>
+    <a href="/ru/" class="text-[12.5px] muted hover:text-[var(--fg)]">&larr; Назад</a>
+  </div>
+</header>
+
+<main>
+
+<!-- 1. Hero -->
+<section aria-labelledby="hero">
+  <h1 class="hero" id="hero">Группа поддержки. Источник. Семья перед тяжёлой новостью.
+</h1>
+  <p class="lede">Onym — мессенджер для групп, устроенный так, что те, кто за ним стоит, не видят ни кто говорит, ни когда, ни что разговор вообще был.</p>
+
+  <div class="h-trust" role="img" aria-label="Сравнение того, где живёт разговор, бок о бок. Слева — привычный мессенджер: одна большая коробка компании держит имена ваших собеседников, ваш аккаунт, всё, что вы когда-либо говорили, и состав каждой группы, с выключателем на ней. Справа — Onym: небольшой курьер с запечатанным конвертом и почти пустой прямоугольник с надписью «правила на виду».">
+    <div class="h-trust-grid">
+      <!-- Слева: привычный мессенджер -->
+      <div class="h-trust-side h-trust-before">
+        <div class="h-trust-head">
+          <div class="h-trust-name">Привычный мессенджер</div>
+          <div class="h-trust-tag">одна компания посередине</div>
+        </div>
+        <svg class="h-trust-svg" viewBox="0 0 280 200" aria-hidden="true">
+          <rect class="h-frame" x="0.5" y="0.5" width="279" height="199" rx="8"/>
+          <!-- вы -->
+          <g>
+            <rect class="h-node" x="10" y="78" width="58" height="48" rx="4"/>
+            <text class="h-node-label" x="39" y="98">ВЫ</text>
+            <text class="h-node-sub" x="39" y="112">ваш телефон</text>
+          </g>
+          <!-- труба + опасный пульс -->
+          <line class="h-edge" x1="68" y1="102" x2="100" y2="102"/>
+          <line class="h-pulse h-pulse-danger h-pulse-a" x1="68" y1="102" x2="100" y2="102"/>
+          <!-- компания -->
+          <rect class="h-node h-danger" x="100" y="20" width="166" height="160" rx="6"/>
+          <text class="h-node-label" x="183" y="38">КОМПАНИЯ</text>
+          <!-- внутренние полки -->
+          <g>
+            <rect class="h-frame" x="110" y="48" width="146" height="18" rx="3"/>
+            <text class="h-node-sub" x="183" y="60">с кем вы говорите</text>
+            <rect class="h-frame" x="110" y="70" width="146" height="18" rx="3"/>
+            <text class="h-node-sub" x="183" y="82">ваш аккаунт</text>
+            <rect class="h-frame" x="110" y="92" width="146" height="18" rx="3">
+            </rect>
+            <text class="h-node-sub" x="183" y="104">всё, что вы когда-либо говорили</text>
+            <rect class="h-frame" x="110" y="114" width="146" height="18" rx="3"/>
+            <text class="h-node-sub" x="183" y="126">состав каждой группы</text>
+          </g>
+          <!-- kill switch (намеренно неподвижен) -->
+          <g class="h-kill">
+            <rect x="128" y="142" width="110" height="24" rx="4"/>
+            <line x1="136" y1="154" x2="150" y2="154"/>
+            <circle cx="154" cy="154" r="3"/>
+            <text x="194" y="158" font-size="7.2" letter-spacing="0.12em" text-anchor="middle">KILL SWITCH</text>
+          </g>
+        </svg>
+        <div class="h-trust-foot">
+          <span class="h-trust-key">компания может</span>
+          <div class="h-trust-chips">
+            <span class="h-trust-chip h-trust-chip--danger">читать ваши сообщения</span>
+            <span class="h-trust-chip h-trust-chip--danger">отключить ваш аккаунт</span>
+            <span class="h-trust-chip h-trust-chip--danger">выдать состав каждой группы</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Справа: Onym -->
+      <div class="h-trust-side h-trust-after">
+        <div class="h-trust-head">
+          <div class="h-trust-name">Onym</div>
+          <div class="h-trust-tag">никого посередине</div>
+        </div>
+        <svg class="h-trust-svg" viewBox="0 0 280 200" aria-hidden="true">
+          <rect class="h-frame" x="0.5" y="0.5" width="279" height="199" rx="8"/>
+          <!-- вы -->
+          <g>
+            <rect class="h-node" x="10" y="78" width="61" height="48" rx="4"/>
+            <text class="h-node-label" x="40.5" y="96">ВЫ</text>
+            <text class="h-node-sub" x="40.5" y="108">ваш телефон</text>
+            <text class="h-node-sub" x="40.5" y="118">двенадцать слов</text>
+          </g>
+          <!-- линии -->
+          <line class="h-edge" x1="71" y1="102" x2="100" y2="102"/>
+          <line class="h-edge" x1="160" y1="102" x2="190" y2="102"/>
+          <!-- приглушённые пульсы -->
+          <line class="h-pulse h-pulse-muted h-pulse-a" x1="71" y1="102" x2="100" y2="102"/>
+          <line class="h-pulse h-pulse-muted h-pulse-b" x1="160" y1="102" x2="190" y2="102"/>
+          <!-- курьер -->
+          <g>
+            <rect class="h-node" x="100" y="78" width="60" height="48" rx="4"/>
+            <text class="h-node-label" x="130" y="96">КУРЬЕР</text>
+            <text class="h-node-sub" x="130" y="110">запечатан-</text>
+            <text class="h-node-sub" x="130" y="120">ный конверт</text>
+          </g>
+          <!-- правила на виду — намеренно почти пусто -->
+          <g>
+            <rect class="h-node" x="190" y="68" width="76" height="68" rx="4"/>
+            <text class="h-node-label" x="228" y="86">ПРАВИЛА</text>
+            <text class="h-node-sub" x="228" y="98">у всех на виду</text>
+          </g>
+        </svg>
+        <div class="h-trust-foot">
+          <span class="h-trust-key">Onym может</span>
+          <div class="h-trust-chips">
+            <span class="h-trust-chip h-trust-chip--muted">видеть, что что-то произошло</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. То, что большинство не замечает -->
+<section aria-labelledby="gap">
+  <p class="eyebrow">то, что легко упустить</p>
+  <h2 class="heading" id="gap">Шифрование скрывает, что вы сказали.<br/>Но не сам факт разговора.</h2>
+  <p class="body">Если вы слышали, что мессенджеры вроде WhatsApp или Signal &laquo;зашифрованы&raquo; — это про сами слова, компания не может их прочитать. Что остаётся на виду — это всё вокруг слов: кому вы написали, когда, как часто, как долго, кто ещё в группе, когда разговор начался, когда закончился. Компания, на серверах которой идёт чат, видит всё это. Большинство компаний это записывает.</p>
+  <p class="body muted">Для большинства разговоров это не важно. Для некоторых — самое важное.</p>
+
+  <div class="h-redacted-pair" role="img" aria-label="Две одинаковые строки списка чатов друг под другом. В первой строке текст сообщения читаемый. Вторая строка идентична, только текст заменён сплошной полосой-редактуры.">
+    <div class="h-rp-pane">
+      <div class="h-rp-label">что видите вы</div>
+      <div class="h-row">
+        <div class="h-row-recipient">группа поддержки <span class="h-row-meta">&middot; 11 участников</span></div>
+        <div class="h-row-time">сегодня, 21:14</div>
+        <div class="h-row-body">
+          <span class="h-row-text">перенесём на четверг?</span>
+        </div>
+      </div>
+    </div>
+    <div class="h-rp-arrow" aria-hidden="true">
+      <span>&darr;</span>
+      <span class="h-rp-rule"></span>
+      <span>та же запись, другой читатель</span>
+    </div>
+    <div class="h-rp-pane">
+      <div class="h-rp-label">ЧТО ВИДЯТ ОСТАЛЬНЫЕ</div>
+      <div class="h-row h-row-server">
+        <div class="h-row-recipient h-row-recipient--id">g/4f8a2c&hellip;3e</div>
+        <div class="h-row-time">сегодня, 21:14</div>
+        <div class="h-row-body">
+          <span class="h-row-bar" aria-hidden="true"></span>
+        </div>
+        <div class="h-rp-duration h-rp-recipients">→ исходящее</div>
+      </div>
+    </div>
+    <div class="h-rp-caption">
+      <span>зашифровано</span>
+      <span class="h-rp-cap-rule" aria-hidden="true"></span>
+      <span>у всех на виду</span>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Что может пойти не так — простыми словами -->
+<section aria-labelledby="scenarios">
+  <p class="eyebrow">три истории, которые уже случаются</p>
+  <h2 class="heading" id="scenarios">Не из триллера. Уже сегодня.</h2>
+
+  <div class="scenarios">
+    <div class="scenario">
+      <span class="num">01</span>
+      <p>Инженер компании может открыть ваш аккаунт. Он увидит все группы, в которых вы состоите, и когда каждая была активной. Скорее всего, не сделает этого. Но может.</p>
+      <div class="h-scenario-mock" role="img" aria-label="Фрагмент внутренней консоли оператора с тремя строками пользователей. Средняя строка с подписью «вы» выделена, под ней маленькая всплывашка со списком действий, которые может совершить оператор.">
+        <div class="h-sm-row"><span class="h-sm-dot" aria-hidden="true"></span><span class="h-sm-name">a. perez</span></div>
+        <div class="h-sm-row is-you"><span class="h-sm-dot" aria-hidden="true"></span><span class="h-sm-name">вы</span></div>
+        <div class="h-sm-row"><span class="h-sm-dot" aria-hidden="true"></span><span class="h-sm-name">l. okafor</span></div>
+        <div class="h-sm-popover">посмотреть группы &middot; история активности &middot; заблокировать</div>
+      </div>
+    </div>
+    <div class="scenario">
+      <span class="num">02</span>
+      <p>Аккаунт блокируют — иногда по делу, иногда по ошибке. Годы переписок, люди, с которыми вы были в группах, целая часть жизни: всё это остаётся за логином, который больше не работает.</p>
+      <div class="h-scenario-mock" role="img" aria-label="Маленький список чатов из четырёх потускневших строк и тонкого баннера поперёк, с надписью «аккаунт больше не активен».">
+        <div class="h-sm-stack-disabled">
+          <div class="h-sm-row"><span class="h-sm-dot" aria-hidden="true"></span><span class="h-sm-name">группа поддержки</span></div>
+          <div class="h-sm-row"><span class="h-sm-dot" aria-hidden="true"></span><span class="h-sm-name">мама</span></div>
+          <div class="h-sm-row"><span class="h-sm-dot" aria-hidden="true"></span><span class="h-sm-name">ж. &mdash; источник</span></div>
+          <div class="h-sm-row"><span class="h-sm-dot" aria-hidden="true"></span><span class="h-sm-name">книжный клуб</span></div>
+        </div>
+        <div class="h-sm-banner">аккаунт больше не активен</div>
+      </div>
+    </div>
+    <div class="scenario">
+      <span class="num">03</span>
+      <p>Утечка, взлом или судебное предписание не обязаны раскрывать, что именно вы говорили. Им достаточно раскрыть, с кем вы говорили. У большинства людей именно эта карта говорит больше, чем содержание.</p>
+      <div class="h-scenario-mock" role="img" aria-label="Маленький граф из пяти узлов: центральный узел с подписью «вы» соединён тонкими линиями с четырьмя листовыми узлами — мама, ж., к. и лекс.">
+        <svg class="h-sm-graph" viewBox="0 0 200 130" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" aria-hidden="true">
+          <line x1="100" y1="66" x2="34"  y2="24"/>
+          <line x1="100" y1="66" x2="166" y2="24"/>
+          <line x1="100" y1="66" x2="34"  y2="108"/>
+          <line x1="100" y1="66" x2="166" y2="108"/>
+          <circle cx="100" cy="66" r="6" fill="currentColor" stroke="none" class="h-fg" style="fill:var(--fg)"/>
+          <circle cx="34"  cy="24"  r="3.5" fill="currentColor" stroke="none"/>
+          <circle cx="166" cy="24"  r="3.5" fill="currentColor" stroke="none"/>
+          <circle cx="34"  cy="108" r="3.5" fill="currentColor" stroke="none"/>
+          <circle cx="166" cy="108" r="3.5" fill="currentColor" stroke="none"/>
+          <text x="100" y="86" text-anchor="middle" font-family="SF Mono, ui-monospace, Menlo, monospace" font-size="9" fill="var(--fg)" stroke="none">вы</text>
+          <text x="34"  y="15"  text-anchor="middle" font-family="SF Mono, ui-monospace, Menlo, monospace" font-size="8" fill="currentColor" stroke="none">мама</text>
+          <text x="166" y="15"  text-anchor="middle" font-family="SF Mono, ui-monospace, Menlo, monospace" font-size="8" fill="currentColor" stroke="none">ж.</text>
+          <text x="34"  y="124" text-anchor="middle" font-family="SF Mono, ui-monospace, Menlo, monospace" font-size="8" fill="currentColor" stroke="none">к.</text>
+          <text x="166" y="124" text-anchor="middle" font-family="SF Mono, ui-monospace, Menlo, monospace" font-size="8" fill="currentColor" stroke="none">лекс</text>
+        </svg>
+        <div class="h-sm-tag">утечка / суд / взлом</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Что в Onym устроено иначе — простыми словами -->
+<section aria-labelledby="differently">
+  <p class="eyebrow">что меняется</p>
+  <h2 class="heading" id="differently">Меньше доверия.<br/>Меньше чего отнять.</h2>
+  <p class="lede">Onym устроен так, что доступ инженера, потерянный аккаунт и раскрытая карта контактов больше невозможны — не потому что мы обещаем этого не делать, а потому что система так не устроена.</p>
+
+  <div class="effects">
+    <div class="effect">
+      <div class="h-effect-body">
+        <h3>Нет аккаунта Onym, который можно отключить.</h3>
+        <p>Ваш доступ — это двенадцать слов, сгенерированных на вашем телефоне; нам они не передаются. У нас нечего блокировать, нечего у нас просить, нечего нам терять. Поменяете телефон — слова заберёте с собой.</p>
+      </div>
+      <svg class="h-effect-diagram" viewBox="0 0 180 120" role="img" aria-label="Маленький телефон, заполненный сеткой 4×3 из точек; рядом панель консоли оператора, в которой нет строки для вас. Тонкая стрелка возвращается от телефона к нему самому, а не к консоли." fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+        <!-- телефон -->
+        <rect x="6" y="10" width="66" height="100" rx="8"/>
+        <line x1="30" y1="100" x2="48" y2="100"/>
+        <g fill="currentColor" stroke="none">
+          <circle cx="18" cy="30" r="1.6"/><circle cx="30" cy="30" r="1.6"/><circle cx="42" cy="30" r="1.6"/><circle cx="54" cy="30" r="1.6"/>
+          <circle cx="18" cy="45" r="1.6"/><circle cx="30" cy="45" r="1.6"/><circle cx="42" cy="45" r="1.6"/><circle cx="54" cy="45" r="1.6"/>
+          <circle cx="18" cy="60" r="1.6"/><circle cx="30" cy="60" r="1.6"/><circle cx="42" cy="60" r="1.6"/><circle cx="54" cy="60" r="1.6"/>
+        </g>
+        <!-- петля стрелки (доступ остаётся у вас) -->
+        <path d="M 60 78 q 18 0 14 16 q -4 8 -14 8" stroke="var(--fg)"/>
+        <polyline points="66,98 60,102 64,108" stroke="var(--fg)"/>
+        <!-- консоль оператора (вашей строки нет) -->
+        <rect x="96" y="22" width="78" height="76" rx="3"/>
+        <text x="104" y="34" font-family="SF Mono, ui-monospace, Menlo, monospace" font-size="6" fill="currentColor" stroke="none" letter-spacing=".06em">ОПЕРАТОР</text>
+        <line x1="104" y1="40" x2="166" y2="40"/>
+        <line x1="104" y1="54" x2="166" y2="54"/>
+        <line x1="104" y1="68" x2="166" y2="68"/>
+        <line x1="104" y1="82" x2="166" y2="82"/>
+        <text x="108" y="94" font-family="SF Mono, ui-monospace, Menlo, monospace" font-size="6" fill="currentColor" stroke="none" letter-spacing=".06em" opacity=".7">вашей строки нет</text>
+      </svg>
+    </div>
+    <div class="effect">
+      <div class="h-effect-body">
+        <h3>Когда вы пишете в группу, вы не говорите, кто вы.</h3>
+        <p>Ваш телефон доказывает «я тут свой» — не называя, кто именно из участников. Это как доказать, что вы знаете пароль, ни разу его не произнеся. Снаружи группы все сообщения выглядят одинаково. С нашей стороны — тоже не отличить.</p>
+      </div>
+      <svg class="h-effect-diagram" viewBox="0 0 180 120" role="img" aria-label="Слева карточка отправителя с полем «имя». Тонкая стрелка ведёт через канал направо в принимающую панель, где поле «имя» заменено запечатанной меткой с подписью «участник»." fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+        <!-- карточка отправителя -->
+        <rect x="6" y="24" width="60" height="60" rx="4"/>
+        <text x="14" y="40" font-family="SF Mono, ui-monospace, Menlo, monospace" font-size="7" fill="currentColor" stroke="none">имя:</text>
+        <line x1="14" y1="50" x2="58" y2="50" stroke="var(--fg)"/>
+        <text x="14" y="64" font-family="SF Mono, ui-monospace, Menlo, monospace" font-size="7" fill="currentColor" stroke="none" opacity=".7">сообщение:</text>
+        <line x1="14" y1="72" x2="58" y2="72"/>
+        <!-- канал -->
+        <line x1="66" y1="54" x2="114" y2="54" stroke-dasharray="3 3"/>
+        <polyline points="110,50 114,54 110,58"/>
+        <!-- принимающая панель -->
+        <rect x="114" y="24" width="60" height="60" rx="4"/>
+        <text x="122" y="40" font-family="SF Mono, ui-monospace, Menlo, monospace" font-size="7" fill="currentColor" stroke="none" opacity=".55">имя:</text>
+        <line x1="122" y1="44" x2="166" y2="50"/>
+        <!-- запечатанная метка -->
+        <rect x="122" y="56" width="44" height="14" rx="3" stroke="var(--fg)"/>
+        <text x="144" y="66" text-anchor="middle" font-family="SF Mono, ui-monospace, Menlo, monospace" font-size="7" fill="var(--fg)" stroke="none">участник</text>
+      </svg>
+    </div>
+    <div class="effect">
+      <div class="h-effect-body">
+        <h3>Сообщения идут запечатанными конвертами.</h3>
+        <p>Их несёт через сеть курьер. Курьер видит, что конверт запечатан; открыть его не может, поменять содержимое — тоже. Курьера можно сменить в любой момент, по любой причине.</p>
+      </div>
+      <svg class="h-effect-diagram" viewBox="0 0 180 120" role="img" aria-label="Три узла, соединённых тонкой линией: отправитель, круг курьера с маленькой эмблемой запечатанного конверта, получатель. Под курьером моноширинная подпись «транспорт» и ниже мельче «меняется в любой момент»." fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+        <!-- путь -->
+        <line x1="22" y1="60" x2="80" y2="60"/>
+        <line x1="100" y1="60" x2="158" y2="60"/>
+        <!-- конверт отправителя -->
+        <rect x="6" y="50" width="22" height="16" rx="2"/>
+        <polyline points="6,52 17,60 28,52"/>
+        <text x="17" y="82" text-anchor="middle" font-family="SF Mono, ui-monospace, Menlo, monospace" font-size="7" fill="currentColor" stroke="none">отправитель</text>
+        <!-- курьер: круг с эмблемой запечатанного конверта -->
+        <circle cx="90" cy="60" r="11" stroke="var(--fg)"/>
+        <rect x="84" y="56" width="12" height="8" rx="1" stroke="var(--fg)"/>
+        <polyline points="84.5,57 90,61.5 95.5,57" stroke="var(--fg)"/>
+        <text x="90" y="82" text-anchor="middle" font-family="SF Mono, ui-monospace, Menlo, monospace" font-size="7" fill="currentColor" stroke="none">транспорт</text>
+        <text x="90" y="94" text-anchor="middle" font-family="SF Mono, ui-monospace, Menlo, monospace" font-size="6" fill="currentColor" stroke="none" opacity=".6" letter-spacing=".08em">МЕНЯЕТСЯ В ЛЮБОЙ МОМЕНТ</text>
+        <!-- конверт получателя -->
+        <rect x="152" y="50" width="22" height="16" rx="2"/>
+        <polyline points="152,52 163,60 174,52"/>
+        <text x="163" y="82" text-anchor="middle" font-family="SF Mono, ui-monospace, Menlo, monospace" font-size="7" fill="currentColor" stroke="none">получатель</text>
+      </svg>
+    </div>
+    <div class="effect">
+      <div class="h-effect-body">
+        <h3>Правила группы записаны на виду.</h3>
+        <p>Кто в группе и кто что может — записано там, где это видно всем; никто, в том числе мы, не может это поменять незаметно. Если что-то меняется — это меняется на виду. Цепочка видит размерный класс группы — маленькая, средняя, большая — но не точное число участников.</p>
+      </div>
+      <svg class="h-effect-diagram" viewBox="0 0 180 120" role="img" aria-label="Панель с правилами в рамке: четыре тонких линии текста внутри, в более бледной внешней рамке, с моноширинной подписью под ней." fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+        <!-- внешняя рамка «на виду» -->
+        <rect x="4" y="6" width="172" height="108" rx="4" opacity=".6"/>
+        <!-- внутренняя панель правил -->
+        <rect x="22" y="20" width="136" height="68" rx="3" stroke="var(--fg)"/>
+        <text x="30" y="32" font-family="SF Mono, ui-monospace, Menlo, monospace" font-size="6" fill="currentColor" stroke="none" letter-spacing=".08em">ПРАВИЛА</text>
+        <line x1="30" y1="42" x2="150" y2="42"/>
+        <line x1="30" y1="52" x2="150" y2="52"/>
+        <line x1="30" y1="62" x2="150" y2="62"/>
+        <line x1="30" y1="72" x2="118" y2="72"/>
+        <text x="90" y="104" text-anchor="middle" font-family="SF Mono, ui-monospace, Menlo, monospace" font-size="7" fill="currentColor" stroke="none" letter-spacing=".04em">версия &middot; публично &middot; видят все</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 5. От чего Onym защитить не может -->
+<section aria-labelledby="cannot">
+  <p class="eyebrow">честно, на той же странице</p>
+  <h2 class="heading" id="cannot">От чего Onym защитить не может.</h2>
+  <p class="body">Мы говорим об этом здесь, потому что весь остальной сайт тоже честен. Продукт о приватности, который перечисляет только сильные стороны, — это рекламная брошюра, а не инфраструктура, на которую можно положиться.</p>
+
+  <ul class="limits">
+    <li>Если ваш телефон скомпрометирован — ничто из этого не поможет. У кого телефон, у того и разговор.</li>
+    <li>Противник, способный смотреть на весь интернет одновременно, всё равно может узнать кое-что по таймингу трафика. Один Onym против такого недостаточно.</li>
+    <li>В группе из трёх знание «кто-то из группы написал» сужает выбор до трёх человек. Чем больше группа, тем сильнее работает математика.</li>
+    <li>Независимого аудита пока нет. У криптографических кирпичей, на которых всё построено, за плечами десятилетия публичного разбора; у того, как мы их собрали вместе, — нет, и никто извне проекта это пока не проверял. Скажем, когда проверят.</li>
+    <li>Если кто-то в группе сделает скриншот — это вопрос между людьми, а не приложения. Никакое приложение его не решит.</li>
+  </ul>
+</section>
+
+<!-- 6. Две двери -->
+<section aria-labelledby="doors">
+  <p class="eyebrow">две двери</p>
+  <h2 class="heading" id="doors">Если хоть один из этих разговоров правда был у вас —</h2>
+  <p class="lede">Выберите дверь по тому, где вы сейчас.</p>
+
+  <div class="doors">
+    <a class="cta door primary" href="/qa/">
+      <span class="h-door-eyebrow">альфа</span>
+      <span class="h-door-heading">Попробовать сборку</span>
+      <span class="h-door-foot">
+        <span class="h-door-caption">ios, android или веб</span>
+        <span class="h-door-arrow" aria-hidden="true"></span>
+      </span>
+    </a>
+    <a class="cta door secondary" href="/ru/">
+      <span class="h-door-eyebrow">сайт</span>
+      <span class="h-door-heading">Посмотреть, как это устроено</span>
+      <span class="h-door-foot">
+        <span class="h-door-caption">технический сайт</span>
+        <span class="h-door-arrow" aria-hidden="true"></span>
+      </span>
+    </a>
+  </div>
+
+  <p class="anchor">Open source. Никого посередине. Сделано так, чтобы доверие не нужно было выдавать.</p>
+</section>
+
+</main>
+
+<footer style="border-top:1px solid var(--hair);">
+  <div class="max-w-[1100px] mx-auto px-6 py-10 flex flex-wrap items-center justify-between gap-4 text-[12px] muted mono">
+    <span>&copy; 2026 &middot; Onym &middot; под MIT</span>
+    <span>Распространяется по лицензии MIT</span>
+    <span>Никогда не платите личностью.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const root = document.documentElement;
+  const tD = document.getElementById('themeDark');
+  const tL = document.getElementById('themeLight');
+  function setTheme(t){
+    if (t === 'light'){
+      root.setAttribute('data-theme', 'light');
+      tD.setAttribute('aria-pressed', 'false');
+      tL.setAttribute('aria-pressed', 'true');
+    } else {
+      root.removeAttribute('data-theme');
+      tD.setAttribute('aria-pressed', 'true');
+      tL.setAttribute('aria-pressed', 'false');
+    }
+    try{ localStorage.setItem('onym.theme', t); }catch(e){}
+  }
+  tD.addEventListener('click', () => setTheme('dark'));
+  tL.addEventListener('click', () => setTheme('light'));
+  try{
+    const saved = localStorage.getItem('onym.theme');
+    if (saved) setTheme(saved);
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
