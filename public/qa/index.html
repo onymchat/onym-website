@@ -302,6 +302,9 @@
 
   // ---- card render ----
   function renderCard(b, isLatest){
+    const detailsHref = '/qa/build/?platform=' + encodeURIComponent(b.platform) +
+                        '&version=' + encodeURIComponent(b.version);
+
     const kindPill = b.kind === 'tag'
       ? '<span class="pill pill-tag mono px-2 py-0.5 text-[11px]">tag · ' + esc(b.tag || '—') + '</span>'
       : '<span class="pill pill-branch mono px-2 py-0.5 text-[11px]">branch · ' + esc(b.branch || '—') + '</span>';
@@ -341,9 +344,6 @@
       ? ' <a href="' + esc(b.workflow_url) + '" target="_blank" rel="noopener" class="ghost-link hover:underline">CI ↗</a>'
       : '';
     const detailsBit = ' <a href="' + esc(detailsHref) + '" class="ghost-link hover:underline">details →</a>';
-
-    const detailsHref = '/qa/build/?platform=' + encodeURIComponent(b.platform) +
-                        '&version=' + encodeURIComponent(b.version);
 
     return '' +
       '<article class="card p-5' + (isLatest ? ' is-latest' : '') + '">' +
