@@ -302,6 +302,9 @@
 
   // ---- card render ----
   function renderCard(b, isLatest){
+    const detailsHref = '/ru/qa/build/?platform=' + encodeURIComponent(b.platform) +
+                        '&version=' + encodeURIComponent(b.version);
+
     const kindPill = b.kind === 'tag'
       ? '<span class="pill pill-tag mono px-2 py-0.5 text-[11px]">tag · ' + esc(b.tag || '—') + '</span>'
       : '<span class="pill pill-branch mono px-2 py-0.5 text-[11px]">branch · ' + esc(b.branch || '—') + '</span>';
@@ -340,13 +343,14 @@
     const workflowBit = b.workflow_url
       ? ' <a href="' + esc(b.workflow_url) + '" target="_blank" rel="noopener" class="ghost-link hover:underline">CI ↗</a>'
       : '';
+    const detailsBit = ' <a href="' + esc(detailsHref) + '" class="ghost-link hover:underline">подробнее →</a>';
 
     return '' +
       '<article class="card p-5' + (isLatest ? ' is-latest' : '') + '">' +
         '<div class="flex items-start justify-between gap-4 mb-3 flex-wrap">' +
           '<div class="flex items-center gap-2 flex-wrap">' +
             platformPill +
-            '<span class="mono text-[14px] font-medium">' + esc(b.version) + '</span>' +
+            '<a href="' + esc(detailsHref) + '" class="mono text-[14px] font-medium hover:underline" title="Сведения о сборке">' + esc(b.version) + '</a>' +
             kindPill +
             latestPill +
           '</div>' +
@@ -356,7 +360,7 @@
         '<div class="flex items-end justify-between gap-4 flex-wrap">' +
           '<div class="flex items-center gap-2 text-[12px] flex-wrap">' +
             commitLink + (repoLink ? ' <span class="muted">·</span> ' + repoLink : '') +
-            sizeBit + releaseBit + workflowBit +
+            sizeBit + releaseBit + workflowBit + detailsBit +
           '</div>' +
           '<div class="flex items-center gap-3 flex-wrap">' +
             issueHTML +

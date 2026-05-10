@@ -1,5 +1,9 @@
 {
   "$comment": "Sample data. onym-ios and onym-android pipelines overwrite this file on each release. Drop the is_sample flag in real publishes.",
+  "$schema_notes": {
+    "issue.body": "Optional. Full markdown body of the linked issue/PR. The build details page extracts the '## Test plan' section client-side. Keeps the page working offline / when GitHub API is rate-limited.",
+    "issue.test_plan": "Optional. Pre-extracted markdown of just the test-plan section. Use this if you don't want to embed the entire issue body."
+  },
   "schema_version": 1,
   "generated_at": "2026-05-06T20:00:00Z",
   "is_sample": true,
@@ -17,7 +21,8 @@
       "issue": {
         "number": 42,
         "title": "Login broken on iPad in landscape",
-        "url": "https://github.com/onymchat/onym-ios/issues/42"
+        "url": "https://github.com/onymchat/onym-ios/issues/42",
+        "body": "On iPad in landscape orientation the login sheet collapses behind the keyboard and Continue is unreachable.\n\n## Repro\n1. Fresh install on iPad\n2. Rotate to landscape before tapping Sign in\n3. Sheet appears, keyboard pushes it offscreen\n\n## Test plan\n- [ ] Install on iPad in landscape — login sheet stays visible above the keyboard\n- [ ] Rotate device mid-flow (portrait <-> landscape) — sheet repositions without losing focus\n- [ ] Tap outside the sheet — dismisses cleanly, no orphaned overlay\n- [ ] iPhone regression: confirm portrait login on iPhone 15 still works as before\n- [ ] VoiceOver: focus order on the sheet matches the visual order\n\n## Notes\nThe new camera badge in the identity hero is unrelated; it ships with this build but has its own QA in #43."
       },
       "install_url": "itms-services://?action=download-manifest&url=https://onym.app/qa/ios/v0.0.14-ab4cd/manifest.plist",
       "ipa_url": "https://onym.app/qa/ios/v0.0.14-ab4cd/onym.ipa",
@@ -39,7 +44,8 @@
       "issue": {
         "number": 17,
         "title": "Crash: switching identity from chat returns to wrong screen",
-        "url": "https://github.com/onymchat/onym-android/issues/17"
+        "url": "https://github.com/onymchat/onym-android/issues/17",
+        "body": "Switching to a different identity from inside an open chat crashes the app and, on resume, lands on the wrong identity's home.\n\n## Test plan\n- [ ] Open a chat under identity A, switch to identity B from the toolbar — no crash, lands on B's home\n- [ ] Repeat with three identities (A -> B -> C -> A) — back stack stays sane\n- [ ] Background the app mid-switch, foreground after 30s — restores to the correct identity\n- [ ] Empty state: brand-new install with one identity — switcher is hidden, no crash on the toolbar tap\n- [ ] Talkback: announces the new identity name on switch"
       },
       "install_url": "https://onym.app/qa/android/v0.0.14-cd8ef/onym.apk",
       "apk_url": "https://onym.app/qa/android/v0.0.14-cd8ef/onym.apk",
@@ -97,7 +103,8 @@
       "issue": {
         "number": 31,
         "title": "Group admit takes >2s on iPhone 12 with 64-member groups",
-        "url": "https://github.com/onymchat/onym-ios/issues/31"
+        "url": "https://github.com/onymchat/onym-ios/pull/31",
+        "test_plan": "- [ ] Join a 64-member group on iPhone 12 — admit completes in < 800 ms\n- [ ] Join a 200-member group on iPhone 15 Pro — admit completes in < 500 ms\n- [ ] Airplane mode mid-admit — fails gracefully with a retry, no zombie membership state\n- [ ] Verify proof on a different device — still verifies (proof object is unchanged)\n- [ ] Battery: 10 sequential admits don't spike CPU above the baseline by more than 30%"
       },
       "install_url": "itms-services://?action=download-manifest&url=https://onym.app/qa/ios/v0.0.13-7a3b9/manifest.plist",
       "ipa_url": "https://onym.app/qa/ios/v0.0.13-7a3b9/onym.ipa",
