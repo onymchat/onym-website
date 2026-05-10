@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Onym · Build details</title>
+<meta name="robots" content="noindex,nofollow" />
+<meta name="description" content="Internal QA build details for the Onym iOS and Android apps." />
+<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+<link rel="icon" type="image/png" href="/assets/icon-dark.png" />
+<link rel="apple-touch-icon" href="/assets/icon-dark.png" />
+<link rel="alternate" hreflang="en" href="https://onym.app/qa/build/" />
+<link rel="alternate" hreflang="ru" href="https://onym.app/ru/qa/build/" />
+<link rel="alternate" hreflang="x-default" href="https://onym.app/qa/build/" />
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
+    --hair:rgba(245,245,247,.10);
+    --card:#101013;
+    --tag-fg:#30d158; --tag-bg:rgba(48,209,88,.15); --tag-border:rgba(48,209,88,.30);
+    --branch-fg:#0A84FF; --branch-bg:rgba(10,132,255,.15); --branch-border:rgba(10,132,255,.30);
+    --warn-fg:#f5a524; --warn-bg:rgba(245,165,36,.10); --warn-border:rgba(245,165,36,.30);
+    --shadow: 0 1px 0 rgba(0,0,0,.4), 0 30px 60px -30px rgba(0,0,0,.6);
+    --nav-bg: rgba(8,8,10,.72);
+    --code-bg: rgba(245,245,247,.06);
+  }
+  html[data-theme="light"]{
+    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
+    --hair:rgba(10,10,10,.08);
+    --card:#fbfbfd;
+    --tag-fg:#1d8a3a; --tag-bg:#dcf5e1; --tag-border:rgba(48,209,88,.35);
+    --branch-fg:#0660d0; --branch-bg:#e3eefb; --branch-border:rgba(10,132,255,.35);
+    --warn-fg:#a36906; --warn-bg:#fdf3df; --warn-border:rgba(245,165,36,.40);
+    --shadow: 0 1px 2px rgba(10,10,10,.04), 0 12px 40px -24px rgba(10,10,10,.18);
+    --nav-bg: rgba(245,245,247,.72);
+    --code-bg: rgba(10,10,10,.05);
+  }
+  html,body{ background:var(--bg); color:var(--fg); }
+  body{
+    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  .mono{ font-family: "SF Mono","JetBrains Mono", ui-monospace, Menlo, monospace; }
+  .hair{ border-color: var(--hair); }
+  .muted{ color: var(--muted); }
+  .pill{ border-radius: 999px; }
+  .card{
+    background: var(--card);
+    border: 1px solid var(--hair);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+  }
+  .pill-tag{ background: var(--tag-bg); color: var(--tag-fg); border: 1px solid var(--tag-border); }
+  .pill-branch{ background: var(--branch-bg); color: var(--branch-fg); border: 1px solid var(--branch-border); }
+  .pill-platform{ background: transparent; border: 1px solid var(--hair); color: var(--fg); }
+  .pill-latest{ background: var(--fg); color: var(--bg); border: 1px solid var(--fg); }
+  .install-btn{
+    background: var(--fg); color: var(--bg);
+    transition: opacity .15s ease;
+  }
+  .install-btn:hover{ opacity: .85; }
+  .ghost-btn{
+    background: transparent; color: var(--fg);
+    border: 1px solid var(--hair);
+    transition: border-color .15s ease, background-color .15s ease;
+  }
+  .ghost-btn:hover{ border-color: var(--fg); }
+  .ghost-link{ color: var(--muted); }
+  .ghost-link:hover{ color: var(--fg); }
+  .toggle{
+    position: fixed; bottom: 18px; right: 18px; z-index:60;
+    background: var(--nav-bg);
+    border: 1px solid var(--hair); border-radius: 999px;
+    padding: 4px; display: flex; gap: 2px;
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    box-shadow: 0 8px 24px -10px rgba(10,10,10,.18);
+  }
+  .toggle button{
+    font-size: 12px; letter-spacing: .04em; padding: 7px 12px; border-radius: 999px;
+    color: var(--muted);
+  }
+  .toggle button[aria-pressed="true"]{ background: var(--fg); color: var(--bg); }
+  .banner{
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    color: var(--warn-fg);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+  .platform-icon{
+    display: inline-block; vertical-align: -2px; margin-right: 4px;
+  }
+  .mark{
+    display: inline-block;
+    width: 22px; height: 22px;
+    border-radius: 22%;
+    background: url('/assets/icon-dark.png') center/cover no-repeat;
+  }
+  html[data-theme="light"] .mark{
+    background: url('/assets/icon-light.png') center/cover no-repeat;
+  }
+  .lang-switch{
+    display: inline-flex; align-items: center; gap: 1px;
+    border: 1px solid var(--hair); border-radius: 999px;
+    padding: 2px; margin-left: 12px;
+    font-size: 11px; letter-spacing: .04em;
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  .lang-switch a{
+    padding: 3px 9px; border-radius: 999px;
+    color: var(--muted); text-decoration: none;
+    transition: background-color .15s ease, color .15s ease;
+  }
+  .lang-switch a[aria-current="true"]{ background: var(--fg); color: var(--bg); }
+  .lang-switch a:not([aria-current="true"]):hover{ color: var(--fg); }
+
+  /* Test plan markdown */
+  .md{ font-size: 14px; line-height: 1.6; }
+  .md h1, .md h2, .md h3{ font-weight: 600; letter-spacing: -0.01em; margin: 14px 0 8px; }
+  .md h1{ font-size: 18px; } .md h2{ font-size: 16px; } .md h3{ font-size: 14px; }
+  .md p{ margin: 8px 0; }
+  .md ul, .md ol{ padding-left: 22px; margin: 8px 0; }
+  .md ul{ list-style: disc; } .md ol{ list-style: decimal; }
+  .md li{ margin: 3px 0; }
+  .md li input[type="checkbox"]{ margin-right: 6px; vertical-align: 1px; }
+  .md a{ color: var(--branch-fg); text-decoration: underline; }
+  .md a:hover{ text-decoration: none; }
+  .md code{
+    font-family: "SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size: 12.5px;
+    background: var(--code-bg);
+    padding: 1px 6px; border-radius: 6px;
+  }
+  .md pre{
+    background: var(--code-bg);
+    padding: 12px 14px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-size: 12.5px;
+    line-height: 1.5;
+    margin: 10px 0;
+  }
+  .md pre code{ background: transparent; padding: 0; }
+  .md blockquote{
+    border-left: 3px solid var(--hair);
+    padding-left: 12px;
+    color: var(--muted);
+    margin: 10px 0;
+  }
+  .copied{ background: var(--tag-bg) !important; color: var(--tag-fg) !important; border-color: var(--tag-border) !important; }
+</style>
+</head>
+<body class="antialiased">
+
+<div class="toggle" role="group" aria-label="Theme">
+  <button id="themeDark" aria-pressed="true">Dark</button>
+  <button id="themeLight" aria-pressed="false">Light</button>
+</div>
+
+<header class="max-w-[860px] mx-auto px-6 pt-10 pb-6">
+  <div class="flex items-center justify-between gap-4 mb-10">
+    <a href="/" class="flex items-center gap-3 hover:opacity-80" aria-label="Onym home">
+      <span class="mark" role="img" aria-label="Onym"></span>
+      <span class="text-[14px] font-medium tracking-tight">Onym <span class="muted">· Build details</span></span>
+    </a>
+    <div class="flex items-center gap-3">
+      <a href="/qa/" class="text-[12px] ghost-link hover:underline">← All builds</a>
+      <span class="lang-switch" role="group" aria-label="Language">
+        <a href="/qa/build/" hreflang="en" aria-current="true">EN</a>
+        <a href="/ru/qa/build/" hreflang="ru">RU</a>
+      </span>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-[860px] mx-auto px-6 pb-16">
+  <div id="banner" class="banner mb-6 hidden"></div>
+  <div id="content"></div>
+</main>
+
+<script>
+(function(){
+  const BUILDS_URL = '/qa/builds.json';
+
+  const params = new URLSearchParams(window.location.search);
+  const wantedPlatform = params.get('platform');
+  const wantedVersion = params.get('version');
+
+  const $ = (id) => document.getElementById(id);
+  const elBanner = $('banner');
+  const elContent = $('content');
+
+  // ---- helpers ----
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+  function fmtDate(iso){
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '—';
+    const diff = Date.now() - d.getTime();
+    const min = Math.round(diff / 60000);
+    if (min < 60) return min + 'm ago';
+    const hr = Math.round(min / 60);
+    if (hr < 24) return hr + 'h ago';
+    const day = Math.round(hr / 24);
+    if (day < 7) return day + 'd ago';
+    return d.toISOString().slice(0, 10);
+  }
+  function fmtBytes(n){
+    if (!n || n < 0) return '';
+    if (n < 1024 * 1024) return Math.round(n / 1024) + ' KB';
+    return (n / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+  function platformLabel(p){
+    return p === 'ios' ? 'iOS' : p === 'android' ? 'Android' : esc(p || '?');
+  }
+  function platformIcon(p){
+    if (p === 'ios') {
+      return '<svg class="platform-icon" width="13" height="14" viewBox="0 0 16 17" fill="currentColor" aria-hidden="true"><path d="M11.7 9.1c0-2 1.6-3 1.7-3-.9-1.4-2.4-1.5-2.9-1.6-1.2-.1-2.4.7-3 .7-.6 0-1.6-.7-2.6-.7-1.4 0-2.6.8-3.3 2-1.4 2.4-.4 6 1 8 .7 1 1.5 2 2.5 2 1 0 1.4-.6 2.6-.6s1.5.6 2.6.6c1.1 0 1.7-1 2.4-2 .7-1 1-2 1-2.1 0 0-2-.7-2-3.3zM9.7 3.4c.5-.6.8-1.5.7-2.4-.7 0-1.6.5-2.1 1.1-.5.5-.9 1.4-.7 2.3.8.1 1.6-.4 2.1-1z"/></svg>';
+    }
+    if (p === 'android') {
+      return '<svg class="platform-icon" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 7v4.5c0 .3.2.5.5.5H4v1.7c0 .4.4.8.9.8s.9-.4.9-.8V12h2.4v1.7c0 .4.4.8.9.8s.9-.4.9-.8V12h.5c.3 0 .5-.2.5-.5V7H3zM2.4 7H2c-.4 0-.8.4-.8.8v3.4c0 .4.4.8.8.8.4 0 .8-.4.8-.8V7.8c0-.4-.4-.8-.8-.8zm11.2 0c-.4 0-.8.4-.8.8v3.4c0 .4.4.8.8.8s.8-.4.8-.8V7.8c0-.4-.4-.8-.8-.8zM10.4 3.5l.7-1.1a.2.2 0 0 0-.4-.2l-.7 1.1c-.7-.3-1.4-.4-2-.4s-1.3.1-2 .4l-.7-1.1a.2.2 0 0 0-.4.2l.7 1.1A4.4 4.4 0 0 0 3 6.5h10a4.4 4.4 0 0 0-2.6-3zM5.7 5.4a.4.4 0 1 1 0-.7.4.4 0 0 1 0 .7zm4.6 0a.4.4 0 1 1 0-.7.4.4 0 0 1 0 .7z"/></svg>';
+    }
+    return '';
+  }
+  function repoFromUrl(url){
+    if (!url) return null;
+    const m = String(url).match(/github\.com\/([^\/]+\/[^\/]+)/);
+    return m ? m[1] : null;
+  }
+  function issueKindFromUrl(url){
+    if (!url) return 'issue';
+    return /\/pull\//.test(url) ? 'pr' : 'issue';
+  }
+  function issueApiFromUrl(url){
+    // Works for both /issues/N and /pull/N — the issues API serves both.
+    const m = String(url || '').match(/github\.com\/([^\/]+)\/([^\/]+)\/(?:issues|pull)\/(\d+)/);
+    if (!m) return null;
+    return 'https://api.github.com/repos/' + m[1] + '/' + m[2] + '/issues/' + m[3];
+  }
+
+  // ---- minimal markdown -> HTML (test plan only; intentionally small) ----
+  // Handles: headings, lists (incl. checklists), inline code, fenced code,
+  // bold/italic, links, blockquotes, paragraphs. No HTML passthrough.
+  function md(src){
+    if (!src) return '';
+    const lines = String(src).replace(/\r\n?/g, '\n').split('\n');
+    let out = [];
+    let i = 0;
+
+    function inline(s){
+      let t = esc(s);
+      // code spans
+      t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
+      // bold
+      t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      t = t.replace(/__([^_]+)__/g, '<strong>$1</strong>');
+      // italics
+      t = t.replace(/(^|[^\*])\*([^\*\s][^\*]*?)\*/g, '$1<em>$2</em>');
+      t = t.replace(/(^|[^_])_([^_\s][^_]*?)_/g, '$1<em>$2</em>');
+      // links [text](url)
+      t = t.replace(/\[([^\]]+)\]\((https?:[^\s)]+)\)/g, function(_, txt, url){
+        return '<a href="' + url + '" target="_blank" rel="noopener">' + txt + '</a>';
+      });
+      // bare urls
+      t = t.replace(/(^|[\s(])((?:https?:\/\/)[^\s<)]+[^\s<).,;:!?])/g, function(_, lead, url){
+        return lead + '<a href="' + url + '" target="_blank" rel="noopener">' + url + '</a>';
+      });
+      return t;
+    }
+
+    while (i < lines.length){
+      const line = lines[i];
+
+      // fenced code
+      if (/^```/.test(line)){
+        i++;
+        const buf = [];
+        while (i < lines.length && !/^```/.test(lines[i])){ buf.push(lines[i]); i++; }
+        if (i < lines.length) i++; // consume closing ```
+        out.push('<pre><code>' + esc(buf.join('\n')) + '</code></pre>');
+        continue;
+      }
+      // heading
+      let h = line.match(/^(#{1,6})\s+(.+?)\s*#*\s*$/);
+      if (h){
+        const n = Math.min(h[1].length, 3); // cap at h3 visually
+        out.push('<h' + n + '>' + inline(h[2]) + '</h' + n + '>');
+        i++; continue;
+      }
+      // blockquote
+      if (/^>\s?/.test(line)){
+        const buf = [];
+        while (i < lines.length && /^>\s?/.test(lines[i])){
+          buf.push(lines[i].replace(/^>\s?/, ''));
+          i++;
+        }
+        out.push('<blockquote>' + inline(buf.join(' ')) + '</blockquote>');
+        continue;
+      }
+      // unordered or ordered list
+      const isUL = /^\s*[-*+]\s+/.test(line);
+      const isOL = /^\s*\d+\.\s+/.test(line);
+      if (isUL || isOL){
+        const tag = isUL ? 'ul' : 'ol';
+        const re = isUL ? /^\s*[-*+]\s+(.*)$/ : /^\s*\d+\.\s+(.*)$/;
+        const items = [];
+        while (i < lines.length && re.test(lines[i])){
+          let item = lines[i].match(re)[1];
+          // checklist
+          const cb = item.match(/^\[([ xX])\]\s+(.*)$/);
+          if (cb){
+            const checked = cb[1].toLowerCase() === 'x';
+            items.push('<li><input type="checkbox" disabled' + (checked ? ' checked' : '') + '> ' + inline(cb[2]) + '</li>');
+          } else {
+            items.push('<li>' + inline(item) + '</li>');
+          }
+          i++;
+        }
+        out.push('<' + tag + '>' + items.join('') + '</' + tag + '>');
+        continue;
+      }
+      // blank line
+      if (/^\s*$/.test(line)){ i++; continue; }
+      // paragraph (collapse consecutive non-blank, non-block lines)
+      const buf = [line];
+      i++;
+      while (i < lines.length){
+        const ln = lines[i];
+        if (/^\s*$/.test(ln)) break;
+        if (/^(```|#{1,6}\s+|>\s?|\s*[-*+]\s+|\s*\d+\.\s+)/.test(ln)) break;
+        buf.push(ln); i++;
+      }
+      out.push('<p>' + inline(buf.join(' ')) + '</p>');
+    }
+    return out.join('\n');
+  }
+
+  // Find a "Test plan" section in a markdown body. Returns the section
+  // body (without the heading), or null if no such heading exists.
+  function extractTestPlan(body){
+    if (!body) return null;
+    const m = String(body).match(
+      /^[ \t]*#{1,6}[ \t]*(?:test\s*plan|testing|qa|how\s+to\s+test)[ \t]*#*[ \t]*$/im
+    );
+    if (!m) return null;
+    const start = m.index + m[0].length;
+    // Find the next heading of equal-or-higher level — simpler: any next ATX heading.
+    const rest = body.slice(start).replace(/^\n+/, '');
+    const next = rest.match(/^[ \t]*#{1,6}[ \t]+\S/m);
+    return (next ? rest.slice(0, next.index) : rest).trim();
+  }
+
+  // ---- render ----
+  function showBanner(text, kind){
+    elBanner.textContent = text;
+    elBanner.classList.remove('hidden');
+    if (kind === 'sample'){
+      elBanner.style.borderColor = 'var(--branch-border)';
+      elBanner.style.background = 'var(--branch-bg)';
+      elBanner.style.color = 'var(--branch-fg)';
+    }
+  }
+
+  function renderNotFound(builds){
+    document.title = 'Onym · Build not found';
+    const params = new URLSearchParams(window.location.search);
+    const wp = params.get('platform') || '—';
+    const wv = params.get('version') || '—';
+    const knownLinks = builds.slice(0, 6).map(function(b){
+      const href = '/qa/build/?platform=' + encodeURIComponent(b.platform) +
+                   '&version=' + encodeURIComponent(b.version);
+      return '<li><a href="' + esc(href) + '" class="mono ghost-link hover:underline">' +
+             platformLabel(b.platform) + ' · ' + esc(b.version) + '</a></li>';
+    }).join('');
+    elContent.innerHTML = '' +
+      '<div class="card p-7">' +
+        '<h1 class="text-[22px] font-semibold tracking-tight mb-2">Build not found</h1>' +
+        '<p class="muted text-[14px] mb-5">No build matches <span class="mono">platform=' + esc(wp) +
+        '</span> · <span class="mono">version=' + esc(wv) + '</span> in the current manifest.</p>' +
+        (knownLinks ? '<p class="text-[12px] uppercase tracking-[.18em] muted mb-2">Recent builds</p>' +
+          '<ul class="space-y-1 text-[14px] mb-5">' + knownLinks + '</ul>' : '') +
+        '<a href="/qa/" class="install-btn pill px-4 py-2 text-[13px] font-medium inline-block">Open QA dashboard</a>' +
+      '</div>';
+  }
+
+  function renderError(msg){
+    document.title = 'Onym · Build details';
+    elContent.innerHTML = '' +
+      '<div class="card p-7">' +
+        '<h1 class="text-[22px] font-semibold tracking-tight mb-2">Could not load builds</h1>' +
+        '<p class="muted text-[14px] mb-5">' + esc(msg) + '</p>' +
+        '<a href="/qa/" class="install-btn pill px-4 py-2 text-[13px] font-medium inline-block">Open QA dashboard</a>' +
+      '</div>';
+  }
+
+  function renderBuild(b, isLatest){
+    document.title = 'Onym · ' + platformLabel(b.platform) + ' ' + b.version;
+
+    const kindPill = b.kind === 'tag'
+      ? '<span class="pill pill-tag mono px-2 py-0.5 text-[11px]">tag · ' + esc(b.tag || '—') + '</span>'
+      : '<span class="pill pill-branch mono px-2 py-0.5 text-[11px]">branch · ' + esc(b.branch || '—') + '</span>';
+
+    const platformPill =
+      '<span class="pill pill-platform px-2.5 py-0.5 text-[12px] font-medium">' +
+      platformIcon(b.platform) + platformLabel(b.platform) + '</span>';
+
+    const latestPill = isLatest
+      ? '<span class="pill pill-latest mono uppercase tracking-[.12em] px-2 py-0.5 text-[10px]">latest</span>'
+      : '';
+
+    const installBtn = b.install_url
+      ? (b.platform === 'ios'
+          ? '<a href="' + esc(b.install_url) + '" class="install-btn pill px-5 py-2.5 text-[14px] font-medium">Install on iOS</a>'
+          : '<a href="' + esc(b.install_url) + '" class="install-btn pill px-5 py-2.5 text-[14px] font-medium" download>Download APK</a>')
+      : '<span class="muted text-[13px]">no install link</span>';
+
+    const rawArtifact = b.platform === 'ios' ? b.ipa_url : b.apk_url;
+    const rawBtn = rawArtifact
+      ? '<a href="' + esc(rawArtifact) + '" class="ghost-btn pill px-4 py-2 text-[13px]" download>Raw ' + (b.platform === 'ios' ? 'IPA' : 'APK') + '</a>'
+      : '';
+
+    const repo = repoFromUrl(b.commit_url) || repoFromUrl(b.release_url) || (b.issue && repoFromUrl(b.issue.url));
+    const repoLink = repo
+      ? '<a href="https://github.com/' + esc(repo) + '" target="_blank" rel="noopener" class="ghost-link mono hover:underline">' + esc(repo) + '</a>'
+      : '<span class="muted">—</span>';
+
+    const commitLink = b.commit_url
+      ? '<a href="' + esc(b.commit_url) + '" target="_blank" rel="noopener" class="ghost-link mono hover:underline">' + esc(b.commit_short || b.commit || '—') + '</a>'
+      : '<span class="mono muted">' + esc(b.commit_short || b.commit || '—') + '</span>';
+
+    const builtAbs = b.built_at ? new Date(b.built_at).toISOString().replace('T',' ').slice(0,16) + ' UTC' : '—';
+
+    const issueKind = b.issue ? issueKindFromUrl(b.issue.url) : null;
+    const issueLabel = issueKind === 'pr' ? 'Pull request' : 'Issue';
+    const issueHTML = b.issue && b.issue.url
+      ? '<a href="' + esc(b.issue.url) + '" target="_blank" rel="noopener" class="ghost-link hover:underline">' +
+        '<span class="mono">#' + esc(b.issue.number) + '</span> · ' + esc(b.issue.title || '') +
+        '</a>'
+      : '<span class="muted">—</span>';
+
+    elContent.innerHTML = '' +
+      '<article class="card p-7 mb-6">' +
+        '<div class="flex items-start justify-between gap-4 flex-wrap mb-3">' +
+          '<div class="flex items-center gap-2 flex-wrap">' +
+            platformPill + kindPill + latestPill +
+          '</div>' +
+          '<span class="muted mono text-[12px]" title="' + esc(b.built_at || '') + '">' + fmtDate(b.built_at) + '</span>' +
+        '</div>' +
+        '<h1 class="mono text-[clamp(1.5rem,3.2vw,2.1rem)] font-semibold tracking-tight mb-2" style="letter-spacing:-0.02em">' + esc(b.version) + '</h1>' +
+        (b.description
+          ? '<p class="text-[15px] mb-5" style="line-height:1.55">' + esc(b.description) + '</p>'
+          : '') +
+        '<div class="flex flex-wrap items-center gap-2 mb-6">' +
+          installBtn +
+          rawBtn +
+          '<button id="copyUrlBtn" type="button" class="ghost-btn pill px-4 py-2 text-[13px]">Copy build URL</button>' +
+        '</div>' +
+
+        '<div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-[13px]">' +
+          row('Repository', repoLink) +
+          row('Commit', commitLink) +
+          row('Built', '<span class="mono muted">' + esc(builtAbs) + '</span>') +
+          row('Size', '<span class="mono muted">' + esc(fmtBytes(b.size_bytes) || '—') + '</span>') +
+          row(issueLabel, issueHTML) +
+          row('CI', linksRow([
+              b.workflow_url && ['workflow run', b.workflow_url],
+              b.release_url && ['release', b.release_url],
+              b.manifest_url && ['manifest', b.manifest_url],
+            ])) +
+        '</div>' +
+      '</article>' +
+
+      '<section id="testPlanSection" class="card p-7 hidden">' +
+        '<div class="flex items-center justify-between mb-3">' +
+          '<h2 class="text-[15px] font-semibold tracking-tight">Test plan</h2>' +
+          '<span id="testPlanSource" class="muted text-[11px] mono"></span>' +
+        '</div>' +
+        '<div id="testPlanBody" class="md"></div>' +
+      '</section>' +
+
+      '<section id="testPlanLoading" class="card p-7 hidden">' +
+        '<p class="muted text-[13px]">Loading test plan from GitHub…</p>' +
+      '</section>' +
+
+      '<section id="testPlanMissing" class="card p-7 hidden">' +
+        '<h2 class="text-[15px] font-semibold tracking-tight mb-2">Test plan</h2>' +
+        '<p class="muted text-[13px]">No <span class="mono">## Test plan</span> section found in the linked ' +
+        (issueKind === 'pr' ? 'pull request' : 'issue') + '.</p>' +
+      '</section>';
+
+    wireCopyButton(b);
+    renderTestPlan(b);
+  }
+
+  function row(label, valueHTML){
+    return '<div>' +
+      '<div class="text-[11px] uppercase tracking-[.18em] muted mb-1">' + esc(label) + '</div>' +
+      '<div>' + valueHTML + '</div>' +
+    '</div>';
+  }
+  function linksRow(pairs){
+    const parts = pairs.filter(Boolean).map(function(p){
+      return '<a href="' + esc(p[1]) + '" target="_blank" rel="noopener" class="ghost-link hover:underline">' + esc(p[0]) + ' ↗</a>';
+    });
+    return parts.length ? parts.join('<span class="muted"> · </span>') : '<span class="muted">—</span>';
+  }
+
+  function wireCopyButton(b){
+    const btn = document.getElementById('copyUrlBtn');
+    if (!btn) return;
+    const shareUrl = window.location.origin + '/qa/build/?platform=' +
+      encodeURIComponent(b.platform) + '&version=' + encodeURIComponent(b.version);
+    btn.addEventListener('click', function(){
+      const original = btn.textContent;
+      const reset = function(){
+        btn.textContent = original;
+        btn.classList.remove('copied');
+      };
+      const ok = function(){
+        btn.textContent = 'Copied ✓';
+        btn.classList.add('copied');
+        setTimeout(reset, 1600);
+      };
+      const fail = function(){
+        btn.textContent = 'Copy failed';
+        setTimeout(reset, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(shareUrl).then(ok, fail);
+      } else {
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = shareUrl; document.body.appendChild(ta);
+          ta.select(); document.execCommand('copy');
+          document.body.removeChild(ta); ok();
+        } catch(e){ fail(); }
+      }
+    });
+  }
+
+  function renderTestPlanFromBody(body, sourceLabel){
+    const elSec = document.getElementById('testPlanSection');
+    const elBody = document.getElementById('testPlanBody');
+    const elSrc = document.getElementById('testPlanSource');
+    const elMiss = document.getElementById('testPlanMissing');
+    const elLoad = document.getElementById('testPlanLoading');
+    const tp = extractTestPlan(body);
+    if (!tp){
+      elMiss.classList.remove('hidden');
+      return false;
+    }
+    elBody.innerHTML = md(tp);
+    elSrc.textContent = sourceLabel || '';
+    elSec.classList.remove('hidden');
+    elLoad && elLoad.classList.add('hidden');
+    return true;
+  }
+
+  function renderTestPlan(b){
+    if (!b.issue || !b.issue.url){
+      // No linked issue/PR at all — quietly skip.
+      return;
+    }
+    // 1. Embedded test plan, ready to render.
+    if (b.issue.test_plan){
+      const sec = document.getElementById('testPlanSection');
+      const body = document.getElementById('testPlanBody');
+      const src = document.getElementById('testPlanSource');
+      body.innerHTML = md(b.issue.test_plan);
+      src.textContent = 'embedded';
+      sec.classList.remove('hidden');
+      return;
+    }
+    // 2. Embedded full body — extract section client-side.
+    if (b.issue.body){
+      renderTestPlanFromBody(b.issue.body, 'embedded');
+      return;
+    }
+    // 3. Fall back to live fetch from GitHub (public repos only).
+    const api = issueApiFromUrl(b.issue.url);
+    if (!api) return;
+    const elLoad = document.getElementById('testPlanLoading');
+    elLoad.classList.remove('hidden');
+    fetch(api, { headers: { Accept: 'application/vnd.github+json' } })
+      .then(function(r){
+        if (!r.ok) throw new Error('GitHub API ' + r.status);
+        return r.json();
+      })
+      .then(function(j){
+        elLoad.classList.add('hidden');
+        renderTestPlanFromBody(j.body || '', 'github.com');
+      })
+      .catch(function(err){
+        elLoad.classList.add('hidden');
+        const elMiss = document.getElementById('testPlanMissing');
+        elMiss.querySelector('p').innerHTML =
+          'Could not load test plan from GitHub (<span class="mono">' + esc(err.message) + '</span>). ' +
+          'Open the linked ' + (issueKindFromUrl(b.issue.url) === 'pr' ? 'PR' : 'issue') + ' for details.';
+        elMiss.classList.remove('hidden');
+      });
+  }
+
+  // ---- load ----
+  fetch(BUILDS_URL, { cache: 'no-cache' })
+    .then(function(r){
+      if (!r.ok) throw new Error('builds.json HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(data){
+      const builds = (Array.isArray(data.builds) ? data.builds : [])
+        .slice()
+        .sort(function(a,b){ return new Date(b.built_at).getTime() - new Date(a.built_at).getTime(); });
+
+      if (data.is_sample){
+        showBanner('Showing sample data. Once onym-ios / onym-android publish their first builds, this banner will disappear.', 'sample');
+      }
+
+      if (!wantedPlatform || !wantedVersion){
+        renderError('Missing platform or version in URL. Expected ?platform=ios&version=v0.0.14-ab4cd');
+        return;
+      }
+      const match = builds.find(function(b){
+        return b.platform === wantedPlatform && b.version === wantedVersion;
+      });
+      if (!match){
+        renderNotFound(builds);
+        return;
+      }
+      const isLatest = builds[0] === match;
+      renderBuild(match, isLatest);
+    })
+    .catch(function(err){
+      renderError('Could not load builds.json (' + err.message + ').');
+    });
+
+  // ---- theme toggle ----
+  const root = document.documentElement;
+  const tD = $('themeDark');
+  const tL = $('themeLight');
+  function setTheme(t){
+    if (t === 'light'){
+      root.setAttribute('data-theme', 'light');
+      tD.setAttribute('aria-pressed', 'false');
+      tL.setAttribute('aria-pressed', 'true');
+    } else {
+      root.removeAttribute('data-theme');
+      tD.setAttribute('aria-pressed', 'true');
+      tL.setAttribute('aria-pressed', 'false');
+    }
+    try{ localStorage.setItem('onym.theme', t); }catch(e){}
+  }
+  tD.addEventListener('click', function(){ setTheme('dark'); });
+  tL.addEventListener('click', function(){ setTheme('light'); });
+  try{
+    const saved = localStorage.getItem('onym.theme');
+    if (saved) setTheme(saved);
+  }catch(e){}
+})();
+</script>
+<script>(function(){
+  document.querySelectorAll('.lang-switch a').forEach(function(a){
+    a.addEventListener('click', function(){
+      // preserve query string when switching languages
+      try{ localStorage.setItem('onym.lang', a.href.indexOf('/ru/') > -1 ? 'ru' : 'en'); }catch(e){}
+      const qs = window.location.search;
+      if (qs && a.getAttribute('href').indexOf('?') === -1){
+        a.setAttribute('href', a.getAttribute('href') + qs);
+      }
+    });
+  });
+})();</script>
+</body>
+</html>
