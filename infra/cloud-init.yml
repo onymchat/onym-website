@@ -34,6 +34,13 @@ write_files:
       # Encrypt as soon as DNS for onym.app points to this droplet.
       onym.app, www.onym.app {
         root * /var/www/onym
+
+        # /architecture is the legacy path (onym.chat had it as a
+        # dedicated page). The current site exposes architecture
+        # under /how/, with #architecture only as a homepage anchor.
+        @arch path /architecture /architecture/
+        redir @arch /how/ 301
+
         try_files {path} {path}.html {path}/
         encode gzip
         file_server
