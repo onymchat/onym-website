@@ -744,6 +744,20 @@
     /* Hero CTAs wrap when cramped */
     .hero-stage .text-center > div.flex{ flex-wrap: wrap; }
   }
+  /* Short-viewport heights (laptops, split windows): keep the eyebrows
+     visible below the 52px fixed nav instead of centering content that
+     overflows symmetrically and gets clipped at the top. */
+  @media (max-height: 820px){
+    .hero-stage{
+      align-items: flex-start;
+      padding-top: clamp(68px, 9vh, 96px);
+      padding-bottom: 16px;
+    }
+    .hero-stage .mt-20{ margin-top: 2.5rem; }
+  }
+  @media (max-height: 640px){
+    .hero-stage .mt-20{ display: none; }
+  }
 
 </style>
 </head>
