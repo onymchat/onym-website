@@ -51,6 +51,13 @@ write_files:
         header @plist Content-Type application/xml
         @ipa path *.ipa
         header @ipa Content-Type application/octet-stream
+
+        # Apple Universal Links: AASA is extensionless, so Caddy
+        # won't auto-set a Content-Type. iOS rejects anything other
+        # than application/json (silently). Path must be exact;
+        # Apple does not follow redirects.
+        @aasa path /.well-known/apple-app-site-association
+        header @aasa Content-Type application/json
       }
 
 runcmd:
