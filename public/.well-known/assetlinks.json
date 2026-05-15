@@ -7,7 +7,8 @@
       "namespace": "android_app",
       "package_name": "app.onym.android",
       "sha256_cert_fingerprints": [
-        "40:AD:4E:78:26:F2:9B:0F:43:47:60:19:02:58:F0:0C:EC:5B:54:7B:5B:0F:D1:B0:11:F2:32:72:DB:90:AC:AD"
+        "40:AD:4E:78:26:F2:9B:0F:43:47:60:19:02:58:F0:0C:EC:5B:54:7B:5B:0F:D1:B0:11:F2:32:72:DB:90:AC:AD",
+        "67:7B:18:CC:10:AB:08:2B:AA:02:C7:2C:A1:CA:C3:A6:48:BB:16:72:98:57:76:83:43:38:18:93:6F:D3:8F:5A"
       ]
     }
   }
