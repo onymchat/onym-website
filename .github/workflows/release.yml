@@ -1,9 +1,14 @@
 name: Release - deploy site
 
-# Idempotent deploy of public/ to the onym-web droplet.
+# Idempotent deploy of public/ + Caddyfile to the onym-web droplet.
 # - First run: creates the droplet via doctl + cloud-init.
-# - Every run: rsyncs public/ -> /var/www/onym/, excluding qa/
-#   so we never wipe the iOS team's QA dashboard uploads.
+# - Every run:
+#     1. rsyncs public/ -> /var/www/onym/, excluding qa/ so we never
+#        wipe the iOS/Android teams' QA dashboard uploads;
+#     2. extracts the Caddyfile from infra/cloud-init.yml (single
+#        source of truth — fresh droplets get it via cloud-init,
+#        existing droplets get it via this step), validates it, and
+#        reloads caddy only if the content actually changed.
 
 on:
   release:
@@ -159,6 +164,49 @@ jobs:
             --exclude='qa/android/' \
             -e 'ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no' \
             public/ "root@${IP}:/var/www/onym/"
+
+      - name: Sync Caddyfile and reload caddy
+        # Keep infra/cloud-init.yml as the single source of truth for the
+        # Caddyfile. Fresh droplets pick it up at first boot via cloud-init;
+        # existing droplets get it here on every release. We validate the
+        # new file BEFORE swapping, so a syntax error never reaches the
+        # live config — the deploy fails, the droplet keeps running.
+        run: |
+          set -euo pipefail
+
+          # yq is preinstalled on ubuntu-latest (Mike Farah's v4).
+          yq '.write_files[] | select(.path == "/etc/caddy/Caddyfile") | .content' \
+            infra/cloud-init.yml > /tmp/Caddyfile
+          [ -s /tmp/Caddyfile ] || {
+            echo "::error::Extracted Caddyfile is empty — check infra/cloud-init.yml"
+            exit 1
+          }
+
+          scp -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
+            /tmp/Caddyfile "root@${IP}:/etc/caddy/Caddyfile.new"
+
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no "root@${IP}" '
+            set -euo pipefail
+
+            # Validate the staged config before doing anything destructive.
+            # On failure, the live /etc/caddy/Caddyfile is untouched.
+            caddy validate --config /etc/caddy/Caddyfile.new --adapter caddyfile
+
+            # Fast path: byte-identical to the live config -> no reload.
+            if cmp -s /etc/caddy/Caddyfile /etc/caddy/Caddyfile.new; then
+              echo "Caddyfile unchanged, skipping reload."
+              rm /etc/caddy/Caddyfile.new
+              exit 0
+            fi
+
+            # Back up before swap so we can roll back by hand if needed.
+            cp /etc/caddy/Caddyfile \
+               /etc/caddy/Caddyfile.bak.$(date +%Y%m%d-%H%M%S)
+            mv /etc/caddy/Caddyfile.new /etc/caddy/Caddyfile
+            systemctl reload caddy
+            systemctl is-active caddy >/dev/null
+            echo "Caddy reloaded with new config."
+          '
 
       - name: Smoke test
         # Non-fatal: on the first run DNS may not point at the droplet
