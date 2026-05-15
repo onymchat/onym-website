@@ -1,0 +1,20 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["7C7LXXWRMG.app.onym.ios"],
+        "components": [
+          {
+            "/": "/join",
+            "?": { "c": "?*" },
+            "comment": "Group invite intro capability — opens IntroCapability join flow"
+          },
+          {
+            "/": "/onboard*",
+            "comment": "Reserved for future onboarding deeplinks"
+          }
+        ]
+      }
+    ]
+  }
+}
