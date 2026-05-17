@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BLS12-381 — pairing-friendly curve under a PLONK-on-Stellar verifier</title>
+<meta name="description" content="What BLS12-381 is, how its bilinear pairing works, and how it slots into a PLONK SNARK deployment running on Stellar Soroban via CAP-0059 host functions." />
+<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+<link rel="icon" type="image/png" href="/assets/icon-dark.png" />
+<link rel="apple-touch-icon" href="/assets/icon-dark.png" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="BLS12-381 — primitive sheet" />
+<meta property="og:description" content="A 381-bit pairing-friendly curve with embedding degree k=12 and a bilinear map e: G_1 × G_2 → G_T. ~128-bit classical security; broken under Shor." />
+<meta property="og:image" content="https://onym.app/assets/og-card.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="BLS12-381 — primitive sheet" />
+<meta name="twitter:description" content="Pairing-friendly curve, bilinearity demo, PLONK-on-Stellar wiring, security stance — on one page." />
+<meta name="twitter:image" content="https://onym.app/assets/og-card.jpg" />
+<link rel="alternate" hreflang="en" href="https://onym.app/primitives/bls/" />
+<link rel="alternate" hreflang="x-default" href="https://onym.app/primitives/bls/" />
+<script>(function(){try{var p=(navigator.language||'').toLowerCase();if(p==='ru'||p.startsWith('ru-')){var pa=location.pathname;location.replace('/ru'+(pa==='/'?'/':pa));return;}}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});"></script>
+
+<style>
+  :root{
+    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
+    --hair:rgba(245,245,247,.10);
+    --hair-strong:rgba(245,245,247,.18);
+    --card:#101013;
+    --card-2:#16161b;
+    --nav-bg: rgba(8,8,10,.72);
+
+    --lane-off:   rgba(120,150,255,.06);
+    --lane-off-edge: rgba(120,150,255,.22);
+    --lane-on:    rgba(255,170,90,.06);
+    --lane-on-edge: rgba(255,170,90,.22);
+    --wire:       #6a8bff;
+    --amber:      #f0b35e;
+    --ok:         #4ade80;
+    --warn:       #f0b35e;
+    --danger:     #ef5350;
+    --danger-soft:rgba(239,83,80,.10);
+    --ok-soft:    rgba(74,222,128,.10);
+  }
+  html[data-theme="light"]{
+    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
+    --hair:rgba(10,10,10,.10);
+    --hair-strong:rgba(10,10,10,.22);
+    --card:#ffffff;
+    --card-2:#fbfbfd;
+    --nav-bg: rgba(245,245,247,.72);
+
+    --lane-off:    rgba(40,80,200,.05);
+    --lane-off-edge: rgba(40,80,200,.22);
+    --lane-on:     rgba(200,110,30,.05);
+    --lane-on-edge: rgba(200,110,30,.22);
+    --wire:        #1d4ed8;
+    --amber:       #b45309;
+    --ok:          #16803c;
+    --warn:        #a05a00;
+    --danger:      #b91c1c;
+    --danger-soft: rgba(185,28,28,.08);
+    --ok-soft:     rgba(22,128,60,.08);
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); color:var(--fg); }
+  body{
+    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+    font-feature-settings: "ss01","ss02","cv11";
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+    line-height:1.55;
+    transition: background-color .35s ease, color .35s ease;
+  }
+  .mono{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-feature-settings:"zero","ss01"; }
+  .muted{ color:var(--muted); }
+  .katex{ font-size:1em; color:inherit; }
+  .focus-ring:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--wire); border-radius:4px; }
+
+  /* ---------- Nav ---------- */
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:var(--nav-bg);
+    backdrop-filter:saturate(160%) blur(14px);
+    -webkit-backdrop-filter:saturate(160%) blur(14px);
+    border-bottom:1px solid var(--hair);
+  }
+  .nav-mark{
+    display:inline-grid; place-items:center; width:22px; height:22px;
+    border:1px solid var(--hair-strong); border-radius:6px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:11px;
+    color:var(--fg);
+  }
+
+  main{ max-width: 1080px; margin:0 auto; padding: 0 clamp(20px, 5vw, 56px); }
+  section{
+    padding-top: clamp(56px, 8vw, 112px);
+    padding-bottom: clamp(56px, 8vw, 112px);
+    border-bottom: 1px solid var(--hair);
+  }
+  section:last-of-type{ border-bottom:none; }
+
+  .eyebrow{
+    font-size:.74rem; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--muted); font-weight:500;
+    margin: 0 0 clamp(20px, 3vw, 28px) 0;
+  }
+  h1.hero{
+    font-weight:700; letter-spacing:-0.035em; line-height:1.05; margin:0;
+    text-wrap:balance;
+    font-size: clamp(2.2rem, 5.5vw, 3.6rem);
+  }
+  h2.heading{
+    font-weight:700; letter-spacing:-0.028em; line-height:1.12; margin:0;
+    text-wrap:balance;
+    font-size: clamp(1.6rem, 3.6vw, 2.3rem);
+  }
+  h3.sub{
+    font-weight:600; letter-spacing:-0.018em; line-height:1.2; margin:0;
+    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+  }
+  .lede{
+    font-size: clamp(1.05rem, 1.35vw, 1.18rem);
+    color:var(--muted); margin: clamp(20px, 2.6vw, 28px) 0 0 0;
+    line-height:1.6; max-width: 62ch;
+  }
+  p.body{ font-size: 1.02rem; color:var(--fg); margin: clamp(16px, 2vw, 22px) 0 0 0; line-height:1.65; max-width: 64ch; }
+  p.body.muted{ color:var(--muted); }
+  p.caption{ font-size:.94rem; color:var(--muted); line-height:1.6; margin: 20px 0 0 0; max-width: 64ch; }
+
+  /* ---------- Theme toggle ---------- */
+  .toggle{
+    position:fixed; bottom:18px; right:18px; z-index:60;
+    background:var(--nav-bg);
+    border:1px solid var(--hair); border-radius:999px;
+    padding:4px; display:flex; gap:2px;
+    backdrop-filter:saturate(180%) blur(14px);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    box-shadow:0 8px 24px -10px rgba(10,10,10,.18);
+  }
+  .toggle button{
+    font-size:12px; letter-spacing:.04em; padding:7px 12px; border-radius:999px;
+    color:var(--muted); border:0; background:transparent; cursor:pointer;
+  }
+  .toggle button[aria-pressed="true"]{ background:var(--fg); color:var(--bg); }
+
+  /* ---------- Stat strip ---------- */
+  .stat-strip{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    display:grid; grid-template-columns: repeat(5, minmax(0,1fr));
+    gap: 1px; background: var(--hair);
+    border: 1px solid var(--hair); border-radius: 10px; overflow:hidden;
+  }
+  .stat-strip > div{ background: var(--bg); padding: 14px 16px; display:flex; flex-direction:column; gap:4px; }
+  .stat-strip .val{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.98rem; font-weight:600; letter-spacing:-0.01em; }
+  .stat-strip .label{ font-size:.72rem; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; }
+  @media (max-width:780px){ .stat-strip{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+
+  /* ---------- §2 Pairing diagram ---------- */
+  .pairing-wrap{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px; background:var(--card);
+    padding: clamp(20px, 3vw, 32px);
+    display:grid; grid-template-columns: 1.4fr 1fr; gap: 28px; align-items:center;
+  }
+  @media (max-width: 900px){ .pairing-wrap{ grid-template-columns: 1fr; } }
+  .pairing-svg{ width:100%; height:auto; display:block; }
+  .pairing-svg text{ font-family:"SF Mono",ui-monospace,Menlo,monospace; }
+  .group-card{
+    border:1px solid var(--hair); border-radius:12px; padding:14px 16px;
+    background: var(--card-2); display:flex; flex-direction:column; gap:4px;
+  }
+  .group-card .name{ font-weight:600; font-size:1rem; letter-spacing:-0.01em; }
+  .group-card .size{ font-size:.78rem; color:var(--muted); font-family:"SF Mono",ui-monospace,Menlo,monospace; }
+  .group-card .use{ font-size:.9rem; color:var(--muted); line-height:1.5; margin-top:2px; }
+  .group-list{ display:flex; flex-direction:column; gap:10px; }
+
+  /* ---------- §3 Interactive ---------- */
+  .play{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px; background:var(--card);
+    padding: clamp(22px, 3vw, 30px);
+    display:grid; grid-template-columns: 280px 1fr; gap: 28px; align-items:center;
+  }
+  @media (max-width: 820px){ .play{ grid-template-columns: 1fr; } }
+  .sliders{ display:flex; flex-direction:column; gap:18px; }
+  .slider-row{ display:flex; flex-direction:column; gap:6px; }
+  .slider-row .row-top{ display:flex; justify-content:space-between; align-items:baseline; }
+  .slider-row label{ font-size:.86rem; color:var(--muted); font-family:"SF Mono",ui-monospace,Menlo,monospace; letter-spacing:.04em; }
+  .slider-row .val{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:1.4rem; font-weight:600; }
+  input[type=range]{
+    -webkit-appearance:none; appearance:none; width:100%; height:4px;
+    background: var(--hair); border-radius:999px; outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none; width:18px; height:18px; border-radius:50%;
+    background: var(--fg); cursor:pointer; border:2px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--hair-strong);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:18px; height:18px; border-radius:50%; background: var(--fg);
+    cursor:pointer; border:2px solid var(--bg); box-shadow:0 0 0 1px var(--hair-strong);
+  }
+  input[type=range]:focus-visible{ box-shadow: 0 0 0 2px var(--wire); }
+  .identities{ display:flex; flex-direction:column; gap:14px; }
+  .identity{
+    border:1px solid var(--hair); border-radius:12px; padding: 16px 18px;
+    background: var(--bg); display:flex; flex-direction:column; gap:6px;
+  }
+  .identity .lbl{ font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+  .identity .eq{ font-size:1.1rem; line-height:1.5; }
+
+  /* ---------- Params table ---------- */
+  .params{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px; background:var(--card); overflow:hidden;
+  }
+  .params .row{
+    display:grid; grid-template-columns: 320px 1fr;
+    border-bottom: 1px solid var(--hair);
+    padding: 14px 20px;
+    gap: 20px;
+  }
+  .params .row:last-child{ border-bottom:none; }
+  .params .k{ color:var(--muted); font-size:.92rem; }
+  .params .v{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.96rem; }
+  @media (max-width:680px){
+    .params .row{ grid-template-columns: 1fr; gap:4px; padding:12px 16px; }
+  }
+
+  /* ---------- §5 Swim-lane ---------- */
+  .swimlane{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px; background:var(--card); overflow:hidden;
+  }
+  .lane-head{
+    display:grid; grid-template-columns: 1fr 1fr 1fr;
+    border-bottom:1px solid var(--hair);
+    font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+  }
+  .lane-head > div{ padding:14px 20px; display:flex; align-items:center; gap:10px; border-right:1px solid var(--hair); }
+  .lane-head > div:last-child{ border-right:none; }
+  .lane-head .dot{ width:8px; height:8px; border-radius:50%; }
+  .lane-head .dot.off{ background:var(--wire); }
+  .lane-head .dot.prov{ background:var(--wire); }
+  .lane-head .dot.on{ background:var(--amber); }
+  .lane-body{
+    display:grid; grid-template-columns: 1fr 1fr 1fr;
+    min-height: 460px;
+  }
+  .lane{
+    padding: 18px;
+    display:flex; flex-direction:column; gap:12px;
+    border-right:1px solid var(--hair);
+  }
+  .lane:last-child{ border-right:none; }
+  .lane.fr{ background: var(--lane-off); }
+  .lane.prover{ background: var(--lane-off); }
+  .lane.verifier{ background: var(--lane-on); }
+  .lane-card{
+    border:1px solid var(--hair); border-radius:12px;
+    background: var(--bg);
+    padding: 12px 14px;
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .lane-card .title{ font-weight:600; font-size:.96rem; letter-spacing:-0.01em; }
+  .lane-card .detail{ font-size:.84rem; color:var(--muted); line-height:1.5; }
+  .lane-card .tag{
+    align-self:flex-start;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.7rem; color:var(--muted);
+    padding:2px 7px; border-radius:999px;
+    border:1px solid var(--hair); background: var(--card-2);
+  }
+  .hostfn{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.78rem;
+    padding:6px 10px; border-radius:8px;
+    border:1px solid var(--lane-on-edge); background: var(--card-2); color: var(--fg);
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .hostfn::before{
+    content:""; width:6px; height:6px; border-radius:50%;
+    background: var(--amber); flex:none;
+  }
+  .lane-card.host{ border-color: var(--lane-on-edge); }
+  .lane-card.host .stack{ display:flex; flex-direction:column; gap:6px; }
+  .cost-note{
+    margin-top: auto;
+    border:1px dashed var(--lane-on-edge);
+    border-radius:10px;
+    padding:10px 12px;
+    font-size:.84rem; color: var(--warn); line-height:1.45;
+    background: rgba(0,0,0,0);
+  }
+  .cost-note .lbl{ display:block; font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; margin-bottom:4px; }
+  @media (max-width: 900px){
+    .lane-head, .lane-body{ grid-template-columns: 1fr; }
+    .lane-head > div, .lane{ border-right:none; border-bottom:1px solid var(--hair); }
+    .lane:last-child, .lane-head > div:last-child{ border-bottom:none; }
+    .lane-body{ min-height: auto; }
+  }
+
+  /* ---------- §6 Security cards ---------- */
+  .sec-grid{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    display:grid; grid-template-columns: 1fr 1.15fr; gap: 18px;
+  }
+  @media (max-width: 820px){ .sec-grid{ grid-template-columns: 1fr; } }
+  .sec-card{
+    border:1px solid var(--hair); border-radius:16px;
+    background: var(--card); padding: 22px 24px;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .sec-card.classical{ border-color: rgba(74,222,128,.30); background: linear-gradient(180deg, var(--ok-soft) 0%, var(--card) 60%); }
+  .sec-card.pq{ border-color: rgba(239,83,80,.30); background: linear-gradient(180deg, var(--danger-soft) 0%, var(--card) 60%); }
+  html[data-theme="light"] .sec-card.classical{ background: linear-gradient(180deg, var(--ok-soft) 0%, var(--card) 70%); }
+  html[data-theme="light"] .sec-card.pq{ background: linear-gradient(180deg, var(--danger-soft) 0%, var(--card) 70%); }
+  .sec-badge{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.74rem; letter-spacing:.08em; text-transform:uppercase;
+    padding: 4px 10px; border-radius:999px;
+    border:1px solid var(--hair); background: var(--bg);
+  }
+  .sec-badge.ok{ color: var(--ok); border-color: rgba(74,222,128,.40); }
+  .sec-badge.bad{ color: var(--danger); border-color: rgba(239,83,80,.45); }
+  .sec-badge .pip{ width:8px; height:8px; border-radius:50%; }
+  .sec-badge.ok .pip{ background: var(--ok); }
+  .sec-badge.bad .pip{ background: var(--danger); }
+  .sec-card h3{ margin:0; font-weight:700; font-size:1.4rem; letter-spacing:-0.02em; }
+  .sec-card p{ margin:0; font-size:.96rem; line-height:1.6; }
+  .sec-card .num{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-weight:600; font-size:2rem; letter-spacing:-0.02em; line-height:1; }
+  .sec-card ul{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:8px; font-size:.92rem; }
+  .sec-card ul li{ display:flex; gap:10px; align-items:flex-start; line-height:1.5; }
+  .sec-card ul li::before{ content:"·"; color: var(--muted); flex:none; padding-top:2px; }
+  .sec-card.pq{ position:relative; }
+  .sec-card.pq::after{
+    content:""; position:absolute; inset:0;
+    border-radius:16px; pointer-events:none;
+    box-shadow: 0 0 0 1px rgba(239,83,80,.18) inset;
+  }
+
+  /* ---------- §7 Timeline ---------- */
+  .timeline{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px; background:var(--card);
+    padding: clamp(22px, 3vw, 32px);
+  }
+  .timeline-row{
+    display:grid; grid-template-columns: 120px 1fr 1fr;
+    gap: 24px; align-items:flex-start;
+    padding: 18px 0;
+    border-bottom: 1px dashed var(--hair);
+  }
+  .timeline-row:last-child{ border-bottom:none; }
+  .timeline-year{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:1.1rem; font-weight:600; letter-spacing:-0.01em; }
+  .timeline-title{ font-weight:600; font-size:1rem; letter-spacing:-0.01em; }
+  .timeline-body{ color: var(--muted); font-size:.92rem; line-height:1.55; }
+  .strike{ text-decoration: line-through; text-decoration-color: var(--danger); text-decoration-thickness: 1.5px; }
+  .ledger-note{
+    margin-top: 18px;
+    border:1px solid var(--lane-on-edge); border-radius:12px;
+    background: var(--lane-on); padding: 14px 18px;
+    font-size:.92rem; color: var(--fg); line-height:1.55;
+  }
+  .ledger-note .lbl{ display:block; font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color: var(--warn); margin-bottom:4px; }
+  @media (max-width:680px){ .timeline-row{ grid-template-columns: 1fr; gap:6px; } }
+
+  /* ---------- References ---------- */
+  .refs{ margin-top: clamp(24px, 3vw, 32px); display:grid; grid-template-columns: 1fr; gap: 16px; }
+  .refs li{ font-size:.96rem; line-height:1.55; list-style:none; padding: 14px 0; border-bottom:1px solid var(--hair); }
+  .refs li:first-child{ border-top:1px solid var(--hair); }
+  .refs ul{ margin:0; padding:0; }
+  .refs a{ color:var(--fg); text-decoration:underline; text-decoration-color:var(--hair); text-underline-offset:3px; }
+  .refs a:hover{ text-decoration-color:var(--fg); }
+  .refs .authors{ color:var(--muted); }
+  .refs .venue{ color:var(--muted); font-style:italic; }
+
+  footer{
+    padding: 40px clamp(20px, 5vw, 56px) 80px;
+    color: var(--muted); font-size:.88rem; max-width:1080px; margin:0 auto;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ scroll-behavior:auto !important; transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body x-data="bls()">
+
+<!-- ============== Nav ============== -->
+<nav class="nav" aria-label="Site">
+  <div style="max-width:1080px;margin:0 auto;padding:14px clamp(20px, 5vw, 56px);display:flex;align-items:center;justify-content:space-between;gap:18px;">
+    <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+      <span class="nav-mark mono" aria-hidden="true">B12</span>
+      <span style="font-weight:600;letter-spacing:-0.01em;">BLS12-381</span>
+      <span class="muted mono" style="font-size:.76rem;letter-spacing:.08em;">/ primitive sheet</span>
+    </div>
+    <a href="/" class="text-[12.5px] muted hover:text-[var(--fg)] focus-ring" style="white-space:nowrap;">&larr; Back</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============== §1 Hero ============== -->
+<section data-screen-label="01 Hero" aria-labelledby="hero-h">
+  <p class="eyebrow">elliptic curves, pairings, and one host function</p>
+  <h1 class="hero" id="hero-h">BLS12-381 — the pairing-friendly curve under a PLONK-on-Stellar verifier.</h1>
+  <p class="lede">A 381-bit Barreto–Lynn–Scott curve with embedding degree $k=12$, two prime-order subgroups $G_1, G_2$, and a non-degenerate bilinear pairing $e: G_1 \times G_2 \to G_T$. That pairing is what makes KZG commitments openable and PLONK proofs checkable in a single on-chain call.</p>
+  <p class="body muted">48-byte $G_1$ points, ~128-bit classical security, one CAP-0059 pairing on chain. Broken under Shor — the curve, KZG, PLONK, and BLS signatures collapse together on a CRQC.</p>
+
+  <div class="stat-strip" aria-label="BLS12-381 at a glance">
+    <div><div class="val">381-bit</div><div class="label">base field</div></div>
+    <div><div class="val">255-bit</div><div class="label">scalar field $F_r$</div></div>
+    <div><div class="val">k = 12</div><div class="label">embedding degree</div></div>
+    <div><div class="val">48 / 96 B</div><div class="label">$G_1$ / $G_2$ compressed</div></div>
+    <div><div class="val">CAP-0059</div><div class="label">soroban host fns</div></div>
+  </div>
+</section>
+
+<!-- ============== §2 Shape ============== -->
+<section data-screen-label="02 Shape" aria-labelledby="shape-h">
+  <p class="eyebrow">the shape</p>
+  <h2 class="heading" id="shape-h">Two source groups, one target. One bilinear map between them.</h2>
+  <p class="lede">A pairing is a non-degenerate bilinear map from two source groups into a target group. On BLS12-381, the source groups $G_1$ and $G_2$ are cyclic subgroups of large prime order $r$; the target $G_T$ is a subgroup of the multiplicative group of $F_{p^{12}}$. The map is computable in polynomial time; inverting it is not.</p>
+
+  <div class="pairing-wrap">
+    <svg class="pairing-svg" viewBox="0 0 520 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Pairing diagram: G1 × G2 → GT">
+      <g>
+        <circle cx="110" cy="100" r="60" fill="none" stroke="var(--wire)" stroke-width="1.4" opacity=".7"/>
+        <text x="110" y="95" text-anchor="middle" font-size="22" font-weight="700" fill="var(--fg)">G₁</text>
+        <text x="110" y="116" text-anchor="middle" font-size="11" fill="var(--muted)">order r · 48 B</text>
+        <circle cx="135" cy="80" r="3" fill="var(--wire)"/>
+        <text x="142" y="84" font-size="11" fill="var(--muted)">P</text>
+      </g>
+      <g>
+        <circle cx="110" cy="260" r="60" fill="none" stroke="var(--wire)" stroke-width="1.4" opacity=".7"/>
+        <text x="110" y="255" text-anchor="middle" font-size="22" font-weight="700" fill="var(--fg)">G₂</text>
+        <text x="110" y="276" text-anchor="middle" font-size="11" fill="var(--muted)">order r · 96 B</text>
+        <circle cx="135" cy="240" r="3" fill="var(--wire)"/>
+        <text x="142" y="244" font-size="11" fill="var(--muted)">Q</text>
+      </g>
+      <path d="M 170 110 Q 260 130 320 175" fill="none" stroke="var(--hair-strong)" stroke-width="1.2"/>
+      <path d="M 170 250 Q 260 230 320 185" fill="none" stroke="var(--hair-strong)" stroke-width="1.2"/>
+      <g>
+        <rect x="300" y="158" width="56" height="44" rx="6" fill="var(--card-2)" stroke="var(--fg)" stroke-width="1.2"/>
+        <text x="328" y="186" text-anchor="middle" font-size="20" font-style="italic" font-family="Charter,Georgia,serif" fill="var(--fg)">e</text>
+      </g>
+      <path d="M 356 180 L 410 180" fill="none" stroke="var(--hair-strong)" stroke-width="1.2"/>
+      <polygon points="408,176 418,180 408,184" fill="var(--hair-strong)"/>
+      <g>
+        <circle cx="460" cy="180" r="50" fill="none" stroke="var(--amber)" stroke-width="1.4" opacity=".8"/>
+        <text x="460" y="178" text-anchor="middle" font-size="22" font-weight="700" fill="var(--fg)">G_T</text>
+        <text x="460" y="198" text-anchor="middle" font-size="11" fill="var(--muted)">⊂ F_{p¹²}</text>
+      </g>
+      <text x="240" y="140" font-size="11" fill="var(--muted)">P ∈ G₁</text>
+      <text x="240" y="234" font-size="11" fill="var(--muted)">Q ∈ G₂</text>
+      <text x="378" y="172" font-size="11" fill="var(--muted)">e(P,Q)</text>
+    </svg>
+
+    <div class="group-list">
+      <div class="group-card">
+        <div class="name">$G_1$ — KZG commitments &amp; proof bytes</div>
+        <div class="size">48 B compressed · order r · over $F_p$</div>
+        <div class="use">Carries every KZG commitment and the group portion of the PLONK proof. Most multi-scalar multiplications happen here.</div>
+      </div>
+      <div class="group-card">
+        <div class="name">$G_2$ — verifier-side pairing input</div>
+        <div class="size">96 B compressed · order r · over $F_{p^2}$</div>
+        <div class="use">A careful deployment keeps $G_2$ to the right-hand input of the single verifier pairing. Operations are an order of magnitude more expensive than $G_1$.</div>
+      </div>
+      <div class="group-card">
+        <div class="name">$G_T$ — where the check happens</div>
+        <div class="size">subgroup of $F_{p^{12}}^*$ · order r</div>
+        <div class="use">The pairing check actually compares two values here. Equality in $G_T$ is what tells the verifier the proof is valid.</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="caption">In-circuit arithmetic lives in $F_r$, the 255-bit scalar field. Every field operation the SNARK encodes is reduced mod $r$ before the prover ever touches a group element.</p>
+</section>
+
+<!-- ============== §3 Bilinearity ============== -->
+<section data-screen-label="03 Bilinearity" aria-labelledby="bilin-h">
+  <p class="eyebrow">bilinearity, interactively</p>
+  <h2 class="heading" id="bilin-h">Slide the scalars. Watch the exponents rearrange.</h2>
+  <p class="lede">The pairing is linear in each argument. Pulling a scalar out of either source group multiplies the exponent in $G_T$. This is the single algebraic property KZG opens its commitments with, and the one PLONK's verifier reduces to.</p>
+
+  <div class="play">
+    <div class="sliders">
+      <div class="slider-row">
+        <div class="row-top">
+          <label for="a-slider">a</label>
+          <div class="val mono" x-text="a"></div>
+        </div>
+        <input id="a-slider" type="range" min="1" max="8" step="1" x-model.number="a" aria-label="scalar a">
+      </div>
+      <div class="slider-row">
+        <div class="row-top">
+          <label for="b-slider">b</label>
+          <div class="val mono" x-text="b"></div>
+        </div>
+        <input id="b-slider" type="range" min="1" max="8" step="1" x-model.number="b" aria-label="scalar b">
+      </div>
+      <p class="muted" style="font-size:.86rem;margin:0;line-height:1.5;">Symbolic — no actual curve points evaluated. The point is the shape.</p>
+    </div>
+
+    <div class="identities">
+      <div class="identity">
+        <div class="lbl">multiplicativity</div>
+        <div class="eq" x-html="eq1()"></div>
+      </div>
+      <div class="identity">
+        <div class="lbl">additivity in one argument</div>
+        <div class="eq" x-html="eq2()"></div>
+      </div>
+      <div class="identity">
+        <div class="lbl">non-degeneracy</div>
+        <div class="eq" x-html="eq3()"></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="caption">A KZG opening at point $z$ for a polynomial committed as $[f]_1$ asks the verifier to check $e([f]_1 - [f(z)]_1,\ [1]_2) = e([q]_1,\ [x - z]_2)$. PLONK's full verifier batches several such openings into <em>two</em> pairings — one fixed, one variable. The whole soundness story bottoms out at the identity in the top card.</p>
+</section>
+
+<!-- ============== §4 Parameters ============== -->
+<section data-screen-label="04 Parameters" aria-labelledby="params-h">
+  <p class="eyebrow">parameters</p>
+  <h2 class="heading" id="params-h">Concrete numbers.</h2>
+  <p class="lede">All values are fixed by the curve definition or by the deployment's host-function surface. None are tunable knobs.</p>
+
+  <div class="params" aria-label="BLS12-381 parameters">
+    <div class="row"><div class="k">Curve</div><div class="v">BLS12-381</div></div>
+    <div class="row"><div class="k">Base-field bit length</div><div class="v">381</div></div>
+    <div class="row"><div class="k">Scalar-field bit length</div><div class="v">255</div></div>
+    <div class="row"><div class="k">Embedding degree</div><div class="v">k = 12</div></div>
+    <div class="row"><div class="k">Approx. classical security</div><div class="v">~128 bits</div></div>
+    <div class="row"><div class="k">Compressed $G_1$ point</div><div class="v">48 bytes</div></div>
+    <div class="row"><div class="k">Compressed $G_2$ point</div><div class="v">96 bytes</div></div>
+    <div class="row"><div class="k">Soroban host functions</div><div class="v">Stellar CAP-0059 (Protocol 22)</div></div>
+  </div>
+</section>
+
+<!-- ============== §5 Wiring ============== -->
+<section data-screen-label="05 Wiring" aria-labelledby="wire-h">
+  <p class="eyebrow">how it wires into plonk-on-stellar</p>
+  <h2 class="heading" id="wire-h">Three columns: scalar field, group ops, host functions.</h2>
+  <p class="lede">In-circuit arithmetic happens in $F_r$. The off-chain prover lifts those values into $G_1$ via multi-scalar multiplications. The on-chain verifier never touches the witness — it calls three host functions and reads one bit of output.</p>
+
+  <div class="swimlane" role="group" aria-label="PLONK on Stellar wiring">
+    <div class="lane-head">
+      <div><span class="dot off"></span>In-circuit · $F_r$</div>
+      <div><span class="dot prov"></span>Off-chain prover · $G_1$, MSM</div>
+      <div><span class="dot on"></span>On-chain verifier · Soroban</div>
+    </div>
+    <div class="lane-body">
+      <div class="lane fr">
+        <div class="lane-card">
+          <span class="tag">F_r · 255-bit</span>
+          <div class="title">Poseidon2 absorption</div>
+          <div class="detail">Sponge updates over $F_r$ — the in-circuit hash that gates state transitions and seeds Fiat-Shamir.</div>
+        </div>
+        <div class="lane-card">
+          <span class="tag">F_r · 255-bit</span>
+          <div class="title">Witness-encoded signing</div>
+          <div class="detail">EdDSA-style verification represented as constraints in the scalar field; the private key never leaves the circuit.</div>
+        </div>
+        <div class="lane-card">
+          <span class="tag">F_r · 255-bit</span>
+          <div class="title">Merkle update step</div>
+          <div class="detail">Sibling-path rehash, leaf insertion, root rebind. Same Poseidon2 used as the compression function at each level.</div>
+        </div>
+      </div>
+
+      <div class="lane prover">
+        <div class="lane-card">
+          <span class="tag">G₁ · MSM</span>
+          <div class="title">Commit witness polynomials</div>
+          <div class="detail">For each polynomial $f(x)$, compute $[f]_1 = \sum_i f_i \cdot \tau^i \cdot G$ — one MSM per commitment, all in $G_1$.</div>
+        </div>
+        <div class="lane-card">
+          <span class="tag">G₁ · MSM</span>
+          <div class="title">Quotient &amp; linearization commits</div>
+          <div class="detail">PLONK's quotient $t(x)$ and the opening polynomial reduce to more MSMs; output is a handful of 48-byte $G_1$ points.</div>
+        </div>
+        <div class="lane-card">
+          <span class="tag">G₁ · proof bytes</span>
+          <div class="title">Pack proof π</div>
+          <div class="detail">$G_1$ commitments plus a few $F_r$ evaluations. The whole proof ships in a few hundred bytes.</div>
+        </div>
+      </div>
+
+      <div class="lane verifier">
+        <div class="lane-card host">
+          <span class="tag">CAP-0059</span>
+          <div class="title">Aggregate verifier MSM</div>
+          <div class="stack">
+            <span class="hostfn">bls12_381_g1_add</span>
+            <span class="hostfn">bls12_381_g1_mul</span>
+          </div>
+          <div class="detail">Reduces all commitments and Fiat-Shamir challenges to two final $G_1$ elements.</div>
+        </div>
+        <div class="lane-card host">
+          <span class="tag">CAP-0059</span>
+          <div class="title">Pairing check</div>
+          <div class="stack">
+            <span class="hostfn">bls12_381_pairing</span>
+          </div>
+          <div class="detail">One call. Returns true iff the proof opens correctly — the KZG identity verified in $G_T$.</div>
+        </div>
+        <div class="cost-note">
+          <span class="lbl">cost asymmetry</span>
+          $G_2$ operations are an order of magnitude more expensive than $G_1$. A careful deployment keeps $G_2$ to the single verifier-side pairing — never inside the MSM.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="caption">Without these host functions, PLONK on Soroban would be cost-prohibitive in pure WASM. Stellar Protocol 22 added them in CAP-0059; chains without a native pairing precompile cannot host this configuration cost-effectively.</p>
+</section>
+
+<!-- ============== §6 Security ============== -->
+<section data-screen-label="06 Security" aria-labelledby="sec-h">
+  <p class="eyebrow">security</p>
+  <h2 class="heading" id="sec-h">Classically conservative. Quantum-fragile.</h2>
+  <p class="lede">Two assumptions, two horizons. The classical card is the working margin today; the post-quantum card is the load-bearing caveat — and the one a deployment must say out loud.</p>
+
+  <div class="sec-grid">
+    <div class="sec-card classical">
+      <span class="sec-badge ok"><span class="pip" aria-hidden="true"></span>classical · holding</span>
+      <div class="num">~128 bits</div>
+      <h3>Discrete log in $G_1$, $G_2$. q-SDH in the pairing.</h3>
+      <p class="muted">Reduces to discrete-logarithm hardness in the source subgroups and the q-strong Diffie–Hellman family used by KZG and PLONK.</p>
+      <ul>
+        <li><strong>Pollard rho</strong> on $G_1$ and $G_2$ — the best generic attack on the source subgroups; $O(\sqrt{r})$.</li>
+        <li><strong>(Sub-)exponential index calculus</strong> on the embedding-degree-12 target group $G_T$.</li>
+        <li>Conservative estimates remain near the 128-bit design target.</li>
+      </ul>
+    </div>
+
+    <div class="sec-card pq">
+      <span class="sec-badge bad"><span class="pip" aria-hidden="true"></span>post-quantum · broken</span>
+      <div class="num" style="color:var(--danger);">Shor</div>
+      <h3>A CRQC recovers discrete logs in $G_1$ in polynomial time.</h3>
+      <p>That single break collapses every BLS12-381-based scheme simultaneously: <strong>KZG, PLONK, and BLS signatures</strong> all fail together. There is no graceful degradation; there is no equivocation in the literature.</p>
+      <ul>
+        <li>Shor (1994) gives a polynomial-time algorithm for discrete log on any abelian group, including elliptic-curve subgroups.</li>
+        <li>The pairing-friendly structure is not a hardening factor — the source-group break is sufficient.</li>
+        <li>Mitigation is a curve change, not a parameter bump: lattice-based polynomial commitments or hash-based SNARKs.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============== §7 BN254 ============== -->
+<section data-screen-label="07 BN254" aria-labelledby="bn-h">
+  <p class="eyebrow">why this curve, not bn254</p>
+  <h2 class="heading" id="bn-h">A curve change in 2016. A host-function vote in 2024.</h2>
+  <p class="lede">BLS12-381 is the contemporary default for new pairing-based deployments. Two events made it the default — one cryptanalytic, one ecosystem.</p>
+
+  <div class="timeline">
+    <div class="timeline-row">
+      <div class="timeline-year">2010s</div>
+      <div>
+        <div class="timeline-title">BN254 was the default.</div>
+      </div>
+      <div class="timeline-body">Tornado Cash, Semaphore, and the first wave of pairing-based zk deployments shipped on BN254 (Barreto–Naehrig, $k=12$, ~254-bit base field) at a ~128-bit security target.</div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-year">2016</div>
+      <div>
+        <div class="timeline-title">Kim–Barbulescu / ExTNFS.</div>
+      </div>
+      <div class="timeline-body">An extended tower number-field sieve improved the index-calculus attack on the target group of medium-prime pairings. BN254's practical security dropped to <span class="strike">~128 bits</span> ~100 bits.</div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-year">2017</div>
+      <div>
+        <div class="timeline-title">BLS12-381 published.</div>
+      </div>
+      <div class="timeline-body">A BLS-family curve with the same embedding degree but a 381-bit base field, chosen so the post-ExTNFS security target lands back at ~128 bits. Adopted by Zcash Sapling, Ethereum BLS signatures, and most subsequent pairing-based work.</div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-year">2024</div>
+      <div>
+        <div class="timeline-title">CAP-0059 lands on Stellar.</div>
+      </div>
+      <div class="timeline-body">Protocol 22 added host functions for $G_1$ add, $G_1$ scalar multiplication, and the pairing. PLONK on Soroban becomes cost-effective for the first time.</div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-year">now</div>
+      <div>
+        <div class="timeline-title">Contemporary default.</div>
+      </div>
+      <div class="timeline-body">BLS12-381 is the working choice for new pairing-based deployments. The PQ caveat (§6) is the load-bearing footnote.</div>
+    </div>
+  </div>
+
+  <div class="ledger-note">
+    <span class="lbl">platform constraint</span>
+    Chains without a native pairing precompile — Solana, Bitcoin — cannot host this configuration cost-effectively. The deployment's feasibility is tied to the presence of CAP-0059 in the host environment.
+  </div>
+</section>
+
+<!-- ============== §8 References ============== -->
+<section data-screen-label="08 References" aria-labelledby="refs-h">
+  <p class="eyebrow">references</p>
+  <h2 class="heading" id="refs-h">Primary literature.</h2>
+  <p class="lede">Four sources. Two for the curve itself, one for the host-function surface, one for the post-quantum baseline.</p>
+
+  <div class="refs">
+    <ul>
+      <li>
+        <span class="authors">Bowe, S. 2017.</span>
+        <a href="https://electriccoin.co/blog/new-snark-curve/" target="_blank" rel="noopener">BLS12-381: New zk-SNARK Elliptic Curve Construction.</a>
+        <span class="venue">Electric Coin Co. blog.</span>
+      </li>
+      <li>
+        <span class="authors">Kim, T.; Barbulescu, R. 2016.</span>
+        <a href="https://doi.org/10.1007/978-3-662-53018-4_20" target="_blank" rel="noopener">Extended Tower Number Field Sieve: A New Complexity for the Medium Prime Case.</a>
+        <span class="venue">CRYPTO 2016, 543–571.</span>
+      </li>
+      <li>
+        <span class="authors">Stellar Development Foundation. 2024.</span>
+        <a href="https://github.com/stellar/stellar-protocol/blob/master/core/cap-0059.md" target="_blank" rel="noopener">CAP-0059: Host Functions for BLS12-381 Curve Operations.</a>
+      </li>
+      <li>
+        <span class="authors">Shor, P. W. 1994.</span>
+        <a href="https://doi.org/10.1109/SFCS.1994.365700" target="_blank" rel="noopener">Algorithms for Quantum Computation: Discrete Logarithms and Factoring.</a>
+        <span class="venue">FOCS 1994, 124–134.</span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;">
+    <span class="mono">primitive sheet · BLS12-381</span>
+    <span>·</span>
+    <span class="muted">no tracking · no analytics · no external requests beyond Tailwind, Alpine, and KaTeX CDNs</span>
+  </div>
+  <p style="margin-top:16px;max-width:64ch;">Classically secure today. Broken under Shor on a CRQC — the curve, KZG, PLONK, and BLS signatures collapse together.</p>
+</footer>
+
+<!-- Theme toggle -->
+<div class="toggle" role="group" aria-label="Theme">
+  <button id="t-dark"  aria-pressed="true"  onclick="setTheme('dark')">Dark</button>
+  <button id="t-light" aria-pressed="false" onclick="setTheme('light')">Light</button>
+</div>
+
+<script>
+  function setTheme(mode){
+    if(mode==='light') document.documentElement.setAttribute('data-theme','light');
+    else document.documentElement.removeAttribute('data-theme');
+    document.getElementById('t-dark').setAttribute('aria-pressed', mode==='dark');
+    document.getElementById('t-light').setAttribute('aria-pressed', mode==='light');
+    try{ localStorage.setItem('onym.theme', mode); }catch(e){}
+  }
+  (function(){
+    var t='dark';
+    try{ t = localStorage.getItem('onym.theme') || 'dark'; }catch(e){}
+    setTheme(t);
+  })();
+</script>
+
+<script>
+  function bls(){
+    return {
+      a: 3,
+      b: 2,
+      eq1(){
+        var ab = this.a * this.b;
+        var tex = 'e(' + this.a + 'P,\\ ' + this.b + 'Q) \\;=\\; e(P,Q)^{' + this.a + '\\cdot ' + this.b + '} \\;=\\; e(P,Q)^{' + ab + '}';
+        return this.renderTex(tex);
+      },
+      eq2(){
+        var ab = this.a + this.b;
+        var tex = 'e(' + this.a + 'P,\\ Q) \\cdot e(P,\\ ' + this.b + 'Q) \\;=\\; e(P,Q)^{' + this.a + ' + ' + this.b + '} \\;=\\; e(P,Q)^{' + ab + '}';
+        return this.renderTex(tex);
+      },
+      eq3(){
+        var tex = 'e(P,Q) \\ne 1_{G_T} \\quad\\text{whenever}\\quad P \\ne 0,\\ Q \\ne 0';
+        return this.renderTex(tex);
+      },
+      renderTex(tex){
+        try {
+          if(window.katex){
+            return window.katex.renderToString(tex, {throwOnError:false, displayMode:false});
+          }
+        } catch(e){}
+        return tex;
+      }
+    };
+  }
+</script>
+
+</body>
+</html>
