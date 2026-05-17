@@ -1,0 +1,988 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>PLONK — universal-updatable SNARK over BLS12-381, single-pairing verifier</title>
+<meta name="description" content="What PLONK produces, the six-stage prover pipeline, where the trust assumptions live, what falls under Shor, and how it compares with Groth16 and FRI/STARKs." />
+<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+<link rel="icon" type="image/png" href="/assets/icon-dark.png" />
+<link rel="apple-touch-icon" href="/assets/icon-dark.png" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="PLONK — primitive sheet" />
+<meta property="og:description" content="Universal-updatable zk-SNARK over BLS12-381. ~700-byte proofs, verified in one pairing. Broken under Shor — KZG falls, and PLONK falls with it." />
+<meta property="og:image" content="https://onym.app/assets/og-card.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="PLONK — primitive sheet" />
+<meta name="twitter:description" content="Six-stage prover pipeline, single-pairing verifier, PLONK vs Groth16 vs STARK — on one page." />
+<meta name="twitter:image" content="https://onym.app/assets/og-card.jpg" />
+<link rel="alternate" hreflang="en" href="https://onym.app/primitives/plonk/" />
+<link rel="alternate" hreflang="x-default" href="https://onym.app/primitives/plonk/" />
+<script>(function(){try{var p=(navigator.language||'').toLowerCase();if(p==='ru'||p.startsWith('ru-')){var pa=location.pathname;location.replace('/ru'+(pa==='/'?'/':pa));return;}}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});"></script>
+
+<style>
+  :root{
+    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
+    --hair:rgba(245,245,247,.10);
+    --hair-strong:rgba(245,245,247,.18);
+    --card:#101013;
+    --card-2:#16161b;
+    --nav-bg: rgba(8,8,10,.72);
+
+    --lane-off:   rgba(120,150,255,.06);
+    --lane-off-edge: rgba(120,150,255,.22);
+    --lane-on:    rgba(255,170,90,.06);
+    --lane-on-edge: rgba(255,170,90,.22);
+    --wire:       #6a8bff;
+    --amber:      #f0b35e;
+    --ok:         #4ade80;
+    --warn:       #f0b35e;
+    --danger:     #ef5350;
+    --danger-soft:rgba(239,83,80,.10);
+    --ok-soft:    rgba(74,222,128,.10);
+    --highlight-edge: rgba(120,150,255,.55);
+    --highlight-bg: rgba(120,150,255,.08);
+  }
+  html[data-theme="light"]{
+    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
+    --hair:rgba(10,10,10,.10);
+    --hair-strong:rgba(10,10,10,.22);
+    --card:#ffffff;
+    --card-2:#fbfbfd;
+    --nav-bg: rgba(245,245,247,.72);
+
+    --lane-off:    rgba(40,80,200,.05);
+    --lane-off-edge: rgba(40,80,200,.22);
+    --lane-on:     rgba(200,110,30,.05);
+    --lane-on-edge: rgba(200,110,30,.22);
+    --wire:        #1d4ed8;
+    --amber:       #b45309;
+    --ok:          #16803c;
+    --warn:        #a05a00;
+    --danger:      #b91c1c;
+    --danger-soft: rgba(185,28,28,.08);
+    --ok-soft:     rgba(22,128,60,.08);
+    --highlight-edge: rgba(40,80,200,.55);
+    --highlight-bg: rgba(40,80,200,.06);
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); color:var(--fg); }
+  body{
+    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+    font-feature-settings: "ss01","ss02","cv11";
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+    line-height:1.55;
+    transition: background-color .35s ease, color .35s ease;
+  }
+  .mono{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-feature-settings:"zero","ss01"; }
+  .muted{ color:var(--muted); }
+  .katex{ font-size:1em; color:inherit; }
+  .focus-ring:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--wire); border-radius:4px; }
+
+  /* ---------- Nav ---------- */
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:var(--nav-bg);
+    backdrop-filter:saturate(160%) blur(14px);
+    -webkit-backdrop-filter:saturate(160%) blur(14px);
+    border-bottom:1px solid var(--hair);
+  }
+  .nav-mark{
+    display:inline-grid; place-items:center; width:22px; height:22px;
+    border:1px solid var(--hair-strong); border-radius:6px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:11px;
+    color:var(--fg);
+  }
+
+  main{ max-width: 1080px; margin:0 auto; padding: 0 clamp(20px, 5vw, 56px); }
+  section{
+    padding-top: clamp(56px, 8vw, 112px);
+    padding-bottom: clamp(56px, 8vw, 112px);
+    border-bottom: 1px solid var(--hair);
+  }
+  section:last-of-type{ border-bottom:none; }
+
+  .eyebrow{
+    font-size:.74rem; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--muted); font-weight:500;
+    margin: 0 0 clamp(20px, 3vw, 28px) 0;
+  }
+  h1.hero{
+    font-weight:700; letter-spacing:-0.035em; line-height:1.05; margin:0;
+    text-wrap:balance;
+    font-size: clamp(2.2rem, 5.5vw, 3.6rem);
+  }
+  h2.heading{
+    font-weight:700; letter-spacing:-0.028em; line-height:1.12; margin:0;
+    text-wrap:balance;
+    font-size: clamp(1.6rem, 3.6vw, 2.3rem);
+  }
+  h3.sub{
+    font-weight:600; letter-spacing:-0.018em; line-height:1.2; margin:0;
+    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+  }
+  .lede{
+    font-size: clamp(1.05rem, 1.35vw, 1.18rem);
+    color:var(--muted); margin: clamp(20px, 2.6vw, 28px) 0 0 0;
+    line-height:1.6; max-width: 62ch;
+  }
+  p.body{ font-size: 1.02rem; color:var(--fg); margin: clamp(16px, 2vw, 22px) 0 0 0; line-height:1.65; max-width: 64ch; }
+  p.body.muted{ color:var(--muted); }
+  p.caption{ font-size:.94rem; color:var(--muted); line-height:1.6; margin: 20px 0 0 0; max-width: 64ch; }
+
+  /* ---------- Theme toggle ---------- */
+  .toggle{
+    position:fixed; bottom:18px; right:18px; z-index:60;
+    background:var(--nav-bg);
+    border:1px solid var(--hair); border-radius:999px;
+    padding:4px; display:flex; gap:2px;
+    backdrop-filter:saturate(180%) blur(14px);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    box-shadow:0 8px 24px -10px rgba(10,10,10,.18);
+  }
+  .toggle button{
+    font-size:12px; letter-spacing:.04em; padding:7px 12px; border-radius:999px;
+    color:var(--muted); border:0; background:transparent; cursor:pointer;
+  }
+  .toggle button[aria-pressed="true"]{ background:var(--fg); color:var(--bg); }
+
+  /* ---------- Stat strip ---------- */
+  .stat-strip{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    display:grid; grid-template-columns: repeat(5, minmax(0,1fr));
+    gap: 1px; background: var(--hair);
+    border: 1px solid var(--hair); border-radius: 10px; overflow:hidden;
+  }
+  .stat-strip > div{ background: var(--bg); padding: 14px 16px; display:flex; flex-direction:column; gap:4px; }
+  .stat-strip .val{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.98rem; font-weight:600; letter-spacing:-0.01em; }
+  .stat-strip .label{ font-size:.72rem; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; }
+  @media (max-width:780px){ .stat-strip{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+
+  /* ---------- §2 Shape diagram ---------- */
+  .shape-wrap{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px; background:var(--card);
+    padding: clamp(20px, 3vw, 32px);
+    display:flex; flex-direction:column; gap: 28px;
+  }
+  .shape-svg{ width:100%; height:auto; display:block; }
+  .shape-svg text{ font-family:"SF Mono",ui-monospace,Menlo,monospace; }
+  .obj-grid{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+  @media (max-width: 820px){ .obj-grid{ grid-template-columns: 1fr; } }
+  .obj-card{
+    border:1px solid var(--hair); border-radius:12px; padding:14px 16px;
+    background: var(--card-2); display:flex; flex-direction:column; gap:6px;
+  }
+  .obj-card .name{ font-weight:600; font-size:1rem; letter-spacing:-0.01em; }
+  .obj-card .size{ font-size:.78rem; color:var(--muted); font-family:"SF Mono",ui-monospace,Menlo,monospace; }
+  .obj-card .use{ font-size:.9rem; color:var(--muted); line-height:1.5; margin-top:2px; }
+
+  /* ---------- §3 Step-through ---------- */
+  .pipe{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px; background:var(--card);
+    padding: clamp(22px, 3vw, 30px);
+    display:flex; flex-direction:column; gap: 22px;
+  }
+  .pipe-controls{
+    display:flex; justify-content:space-between; align-items:center; gap:14px;
+    border-bottom: 1px solid var(--hair); padding-bottom: 16px;
+  }
+  .pipe-controls .ix{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.86rem; color:var(--muted); letter-spacing:.04em;
+  }
+  .pipe-controls .right{ display:flex; gap:8px; }
+  .btn{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.82rem;
+    padding:7px 14px; border-radius:999px;
+    border:1px solid var(--hair-strong); background: var(--bg); color:var(--fg);
+    cursor:pointer; letter-spacing:.04em;
+  }
+  .btn:hover{ background: var(--card-2); }
+  .btn:focus-visible{ outline:2px solid var(--wire); outline-offset:2px; }
+  .btn[disabled]{ opacity:.4; cursor:not-allowed; }
+
+  .pipe-track{
+    display:grid; grid-template-columns: repeat(6, minmax(0,1fr));
+    gap: 6px;
+  }
+  @media (max-width: 820px){ .pipe-track{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
+  .pipe-tick{
+    display:flex; flex-direction:column; gap:6px;
+    padding: 10px 6px; border-radius:8px;
+    border:1px solid transparent;
+    background: transparent;
+    text-align:left;
+    cursor:pointer;
+    color:var(--muted);
+    transition: background-color .25s ease, color .25s ease, border-color .25s ease;
+    font-family:inherit;
+  }
+  .pipe-tick:hover{ background: var(--card-2); color: var(--fg); }
+  .pipe-tick:focus-visible{ outline:2px solid var(--wire); outline-offset:2px; }
+  .pipe-tick .n{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.74rem; letter-spacing:.06em; display:flex; align-items:center; gap:6px; }
+  .pipe-tick .n .pip{ width:7px; height:7px; border-radius:50%; flex:none; }
+  .pipe-tick .n .pip.fr{ background: var(--wire); }
+  .pipe-tick .n .pip.g1{ background: var(--wire); }
+  .pipe-tick .n .pip.gt{ background: var(--amber); }
+  .pipe-tick .t{ font-size:.86rem; font-weight:600; color:var(--fg); letter-spacing:-0.01em; line-height:1.25; }
+  .pipe-tick.active{
+    background: var(--card-2);
+    border-color: var(--hair-strong);
+  }
+  .pipe-tick.active .t{ color:var(--fg); }
+
+  .pipe-card{
+    border:1px solid var(--hair); border-radius:12px;
+    background: var(--bg);
+    padding: 22px 24px;
+    display:grid; grid-template-columns: 1fr; gap:14px;
+    min-height: 240px;
+  }
+  .pipe-head{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .pipe-head .num{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.78rem;
+    padding: 3px 9px; border-radius:999px;
+    border:1px solid var(--hair-strong); background: var(--card-2);
+  }
+  .pipe-head .domain{
+    display:inline-flex; align-items:center; gap:7px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.72rem;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--muted);
+  }
+  .pipe-head .domain .pip{ width:8px; height:8px; border-radius:50%; }
+  .pipe-head .domain .pip.fr{ background: var(--wire); }
+  .pipe-head .domain .pip.g1{ background: var(--wire); }
+  .pipe-head .domain .pip.gt{ background: var(--amber); }
+  .pipe-title{ font-size: clamp(1.15rem, 2vw, 1.45rem); font-weight:700; letter-spacing:-0.018em; margin:0; }
+  .pipe-desc{ color:var(--muted); font-size:.98rem; line-height:1.6; margin:0; max-width:64ch; }
+  .pipe-formula{
+    border:1px dashed var(--hair-strong); border-radius:10px;
+    padding: 16px 18px; background: var(--card-2);
+    overflow-x:auto;
+  }
+  .pipe-formula .lbl{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.68rem;
+    letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+    margin-bottom: 6px;
+  }
+  .pipe-formula .eq{ font-size: 1.06rem; line-height:1.6; }
+  @media (prefers-reduced-motion: reduce){ .pipe-tick{ transition:none; } }
+
+  /* ---------- Params table ---------- */
+  .params{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px; background:var(--card); overflow:hidden;
+  }
+  .params .row{
+    display:grid; grid-template-columns: 320px 1fr;
+    border-bottom: 1px solid var(--hair);
+    padding: 14px 20px;
+    gap: 20px;
+  }
+  .params .row:last-child{ border-bottom:none; }
+  .params .k{ color:var(--muted); font-size:.92rem; }
+  .params .v{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.96rem; }
+  @media (max-width:680px){
+    .params .row{ grid-template-columns: 1fr; gap:4px; padding:12px 16px; }
+  }
+
+  /* ---------- §5 Swim-lane ---------- */
+  .swimlane{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px; background:var(--card); overflow:hidden;
+  }
+  .lane-head{
+    display:grid; grid-template-columns: 1fr 1fr 1fr;
+    border-bottom:1px solid var(--hair);
+    font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+  }
+  .lane-head > div{ padding:14px 20px; display:flex; align-items:center; gap:10px; border-right:1px solid var(--hair); }
+  .lane-head > div:last-child{ border-right:none; }
+  .lane-head .dot{ width:8px; height:8px; border-radius:50%; }
+  .lane-head .dot.off{ background:var(--wire); }
+  .lane-head .dot.prov{ background:var(--wire); }
+  .lane-head .dot.on{ background:var(--amber); }
+  .lane-body{
+    display:grid; grid-template-columns: 1fr 1fr 1fr;
+    min-height: 520px;
+  }
+  .lane{
+    padding: 18px;
+    display:flex; flex-direction:column; gap:12px;
+    border-right:1px solid var(--hair);
+  }
+  .lane:last-child{ border-right:none; }
+  .lane.setup{ background: var(--lane-off); }
+  .lane.prover{ background: var(--lane-off); }
+  .lane.verifier{ background: var(--lane-on); }
+  .lane-card{
+    border:1px solid var(--hair); border-radius:12px;
+    background: var(--bg);
+    padding: 12px 14px;
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .lane-card .title{ font-weight:600; font-size:.96rem; letter-spacing:-0.01em; }
+  .lane-card .detail{ font-size:.84rem; color:var(--muted); line-height:1.5; }
+  .lane-card .tag{
+    align-self:flex-start;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.7rem; color:var(--muted);
+    padding:2px 7px; border-radius:999px;
+    border:1px solid var(--hair); background: var(--card-2);
+  }
+  .hostfn{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.78rem;
+    padding:6px 10px; border-radius:8px;
+    border:1px solid var(--lane-on-edge); background: var(--card-2); color: var(--fg);
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .hostfn::before{
+    content:""; width:6px; height:6px; border-radius:50%;
+    background: var(--amber); flex:none;
+  }
+  .lane-card.host{ border-color: var(--lane-on-edge); }
+  .lane-card.host .stack{ display:flex; flex-direction:column; gap:6px; }
+  .annot-note{
+    margin-top: auto;
+    border:1px dashed var(--lane-off-edge);
+    border-radius:10px;
+    padding:10px 12px;
+    font-size:.84rem; color: var(--fg); line-height:1.45;
+    background: rgba(0,0,0,0);
+  }
+  .annot-note .lbl{ display:block; font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; margin-bottom:4px; color:var(--muted); }
+  @media (max-width: 900px){
+    .lane-head, .lane-body{ grid-template-columns: 1fr; }
+    .lane-head > div, .lane{ border-right:none; border-bottom:1px solid var(--hair); }
+    .lane:last-child, .lane-head > div:last-child{ border-bottom:none; }
+    .lane-body{ min-height: auto; }
+  }
+
+  /* ---------- §6 Security cards ---------- */
+  .sec-grid{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    display:grid; grid-template-columns: 1fr 1.15fr; gap: 18px;
+  }
+  @media (max-width: 820px){ .sec-grid{ grid-template-columns: 1fr; } }
+  .sec-card{
+    border:1px solid var(--hair); border-radius:16px;
+    background: var(--card); padding: 22px 24px;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .sec-card.classical{ border-color: rgba(74,222,128,.30); background: linear-gradient(180deg, var(--ok-soft) 0%, var(--card) 60%); }
+  .sec-card.pq{ border-color: rgba(239,83,80,.30); background: linear-gradient(180deg, var(--danger-soft) 0%, var(--card) 60%); }
+  html[data-theme="light"] .sec-card.classical{ background: linear-gradient(180deg, var(--ok-soft) 0%, var(--card) 70%); }
+  html[data-theme="light"] .sec-card.pq{ background: linear-gradient(180deg, var(--danger-soft) 0%, var(--card) 70%); }
+  .sec-badge{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.74rem; letter-spacing:.08em; text-transform:uppercase;
+    padding: 4px 10px; border-radius:999px;
+    border:1px solid var(--hair); background: var(--bg);
+  }
+  .sec-badge.ok{ color: var(--ok); border-color: rgba(74,222,128,.40); }
+  .sec-badge.bad{ color: var(--danger); border-color: rgba(239,83,80,.45); }
+  .sec-badge .pip{ width:8px; height:8px; border-radius:50%; }
+  .sec-badge.ok .pip{ background: var(--ok); }
+  .sec-badge.bad .pip{ background: var(--danger); }
+  .sec-card h3{ margin:0; font-weight:700; font-size:1.4rem; letter-spacing:-0.02em; }
+  .sec-card p{ margin:0; font-size:.96rem; line-height:1.6; }
+  .sec-card .num{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-weight:600; font-size:2rem; letter-spacing:-0.02em; line-height:1; }
+  .sec-card ul{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:8px; font-size:.92rem; }
+  .sec-card ul li{ display:flex; gap:10px; align-items:flex-start; line-height:1.5; }
+  .sec-card ul li::before{ content:"·"; color: var(--muted); flex:none; padding-top:2px; }
+  .sec-card.pq{ position:relative; }
+  .sec-card.pq::after{
+    content:""; position:absolute; inset:0;
+    border-radius:16px; pointer-events:none;
+    box-shadow: 0 0 0 1px rgba(239,83,80,.18) inset;
+  }
+
+  .se-callout{
+    margin-top: 18px;
+    border:1px solid rgba(239,83,80,.35);
+    border-radius:12px;
+    background: var(--danger-soft);
+    padding: 14px 18px;
+    display:flex; gap:14px; align-items:flex-start;
+    line-height:1.55; font-size:.95rem;
+  }
+  .se-callout .lbl{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.7rem; letter-spacing:.1em; text-transform:uppercase;
+    color: var(--danger);
+    flex:none; padding-top:2px;
+  }
+  .se-callout strong{ color:var(--fg); }
+
+  /* ---------- §7 Compare ---------- */
+  .compare{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    display:grid; grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 14px;
+  }
+  @media (max-width: 900px){ .compare{ grid-template-columns: 1fr; } }
+  .cmp{
+    border:1px solid var(--hair); border-radius:16px;
+    background: var(--card);
+    padding: 22px 22px 18px;
+    display:flex; flex-direction:column; gap:14px;
+    position:relative;
+  }
+  .cmp .crown{
+    position:absolute; top:-1px; right:18px;
+    background: var(--wire); color: var(--bg);
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
+    padding: 4px 10px; border-radius:0 0 8px 8px;
+  }
+  .cmp.subject{
+    border-color: var(--highlight-edge);
+    background: linear-gradient(180deg, var(--highlight-bg) 0%, var(--card) 65%);
+    box-shadow: 0 0 0 1px var(--highlight-edge) inset, 0 12px 32px -18px rgba(106,139,255,.4);
+  }
+  .cmp h3{ margin:0; font-size:1.3rem; font-weight:700; letter-spacing:-0.02em; }
+  .cmp .meta{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.74rem; color:var(--muted); letter-spacing:.06em;
+  }
+  .cmp dl{ margin:0; display:grid; grid-template-columns: 1fr; gap:10px; }
+  .cmp dl > div{
+    display:grid; grid-template-columns: 1fr; gap:2px;
+    border-top: 1px solid var(--hair); padding-top: 10px;
+  }
+  .cmp dl dt{
+    font-size:.72rem; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--muted);
+  }
+  .cmp dl dd{
+    margin:0;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.92rem; color:var(--fg); line-height:1.45;
+  }
+  .cmp .pq-line{ color: var(--danger); }
+  .cmp .pq-line.maybe{ color: var(--ok); }
+
+  /* ---------- References ---------- */
+  .refs{ margin-top: clamp(24px, 3vw, 32px); display:grid; grid-template-columns: 1fr; gap: 16px; }
+  .refs li{ font-size:.96rem; line-height:1.55; list-style:none; padding: 14px 0; border-bottom:1px solid var(--hair); }
+  .refs li:first-child{ border-top:1px solid var(--hair); }
+  .refs ul{ margin:0; padding:0; }
+  .refs a{ color:var(--fg); text-decoration:underline; text-decoration-color:var(--hair); text-underline-offset:3px; }
+  .refs a:hover{ text-decoration-color:var(--fg); }
+  .refs .authors{ color:var(--muted); }
+  .refs .venue{ color:var(--muted); font-style:italic; }
+
+  footer{
+    padding: 40px clamp(20px, 5vw, 56px) 80px;
+    color: var(--muted); font-size:.88rem; max-width:1080px; margin:0 auto;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ scroll-behavior:auto !important; transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body x-data="plonk()">
+
+<!-- ============== Nav ============== -->
+<nav class="nav" aria-label="Site">
+  <div style="max-width:1080px;margin:0 auto;padding:14px clamp(20px, 5vw, 56px);display:flex;align-items:center;justify-content:space-between;gap:18px;">
+    <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+      <span class="nav-mark mono" aria-hidden="true">PLK</span>
+      <span style="font-weight:600;letter-spacing:-0.01em;">PLONK</span>
+      <span class="muted mono" style="font-size:.76rem;letter-spacing:.08em;">/ primitive sheet</span>
+    </div>
+    <a href="/" class="text-[12.5px] muted hover:text-[var(--fg)] focus-ring" style="white-space:nowrap;">&larr; Back</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============== §1 Hero ============== -->
+<section data-screen-label="01 Hero" aria-labelledby="hero-h">
+  <p class="eyebrow">arithmetic circuits, KZG, and one verifier pairing</p>
+  <h1 class="hero" id="hero-h">PLONK — the universal-updatable SNARK authorising state changes in a metadata-hiding registry.</h1>
+  <p class="lede">A succinct non-interactive argument of knowledge for arithmetic circuits over $F_r$. The prover encodes a witness as polynomials, commits via KZG, and proves a permutation-argument identity. The verifier samples challenges via Fiat-Shamir and checks one algebraic identity with a single pairing.</p>
+  <p class="body muted">~700-byte proof, verified by one CAP-0059 pairing on Stellar, one universal SRS across every circuit in the deployment. Order of magnitude larger than Groth16's 192 B; two orders smaller than FRI configurations.</p>
+
+  <div class="stat-strip" aria-label="PLONK at a glance">
+    <div><div class="val">~700 B</div><div class="label">proof size</div></div>
+    <div><div class="val">1 pairing</div><div class="label">verifier work</div></div>
+    <div><div class="val">KZG</div><div class="label">commitment</div></div>
+    <div><div class="val">BLS12-381</div><div class="label">curve</div></div>
+    <div><div class="val">universal</div><div class="label">updatable setup</div></div>
+  </div>
+</section>
+
+<!-- ============== §2 Shape ============== -->
+<section data-screen-label="02 Shape" aria-labelledby="shape-h">
+  <p class="eyebrow">the shape</p>
+  <h2 class="heading" id="shape-h">What a SNARK actually is: circuit and witness in, one bit out.</h2>
+  <p class="lede">A prover holds a witness $w$ and a circuit $C$. They produce a short proof $\pi$ that $C(x,w)=0$ for some public input $x$, revealing nothing about $w$. The verifier reads $\pi$ and $x$, runs a fixed-cost check, and accepts or rejects. PLONK fixes the algebraic machinery: KZG over BLS12-381, Fiat-Shamir under Poseidon2, one pairing at the end.</p>
+
+  <div class="shape-wrap">
+    <svg class="shape-svg" viewBox="0 0 1040 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PLONK prover-verifier diagram">
+      <g>
+        <rect x="20" y="80" width="170" height="120" rx="10" fill="var(--card-2)" stroke="var(--hair-strong)" stroke-width="1.2"/>
+        <text x="105" y="115" text-anchor="middle" font-size="14" font-weight="700" fill="var(--fg)">circuit C</text>
+        <text x="105" y="138" text-anchor="middle" font-size="11" fill="var(--muted)">+ witness w</text>
+        <text x="105" y="170" text-anchor="middle" font-size="10" fill="var(--muted)">F_r constraints</text>
+        <text x="105" y="186" text-anchor="middle" font-size="10" fill="var(--muted)">public input x</text>
+      </g>
+
+      <path d="M 195 140 L 240 140" fill="none" stroke="var(--hair-strong)" stroke-width="1.2"/>
+      <polygon points="238,136 248,140 238,144" fill="var(--hair-strong)"/>
+
+      <g>
+        <rect x="250" y="50" width="240" height="180" rx="12" fill="rgba(106,139,255,0.06)" stroke="var(--wire)" stroke-width="1.2" opacity=".95"/>
+        <text x="370" y="78" text-anchor="middle" font-size="11" font-family="SF Mono,Menlo,monospace" fill="var(--wire)" letter-spacing="2">PROVER · OFF-CHAIN</text>
+        <text x="370" y="108" text-anchor="middle" font-size="15" font-weight="700" fill="var(--fg)">encode → commit → hash</text>
+        <text x="370" y="135" text-anchor="middle" font-size="11" fill="var(--muted)">polynomials over F_r</text>
+        <text x="370" y="153" text-anchor="middle" font-size="11" fill="var(--muted)">KZG commitments in G₁</text>
+        <text x="370" y="171" text-anchor="middle" font-size="11" fill="var(--muted)">Fiat-Shamir via Poseidon2</text>
+        <text x="370" y="199" text-anchor="middle" font-size="10" font-style="italic" font-family="Charter,Georgia,serif" fill="var(--muted)">AGM + ROM</text>
+      </g>
+
+      <path d="M 495 140 L 560 140" fill="none" stroke="var(--hair-strong)" stroke-width="1.2"/>
+      <polygon points="558,136 568,140 558,144" fill="var(--hair-strong)"/>
+      <text x="528" y="128" text-anchor="middle" font-size="11" font-family="SF Mono,Menlo,monospace" fill="var(--fg)">π</text>
+      <text x="528" y="156" text-anchor="middle" font-size="10" fill="var(--muted)">~700 B</text>
+
+      <g>
+        <rect x="570" y="50" width="240" height="180" rx="12" fill="rgba(240,179,94,0.06)" stroke="var(--amber)" stroke-width="1.2" opacity=".95"/>
+        <text x="690" y="78" text-anchor="middle" font-size="11" font-family="SF Mono,Menlo,monospace" fill="var(--amber)" letter-spacing="2">VERIFIER · ON-CHAIN</text>
+        <text x="690" y="108" text-anchor="middle" font-size="15" font-weight="700" fill="var(--fg)">one pairing</text>
+        <text x="690" y="135" text-anchor="middle" font-size="13" font-style="italic" font-family="Charter,Georgia,serif" fill="var(--fg)">e(L, [1]₂) =? e(R, [τ]₂)</text>
+        <text x="690" y="165" text-anchor="middle" font-size="11" fill="var(--muted)">G₁ MSMs + 1 pairing</text>
+        <text x="690" y="199" text-anchor="middle" font-size="10" font-style="italic" font-family="Charter,Georgia,serif" fill="var(--muted)">+ verifying key (preprocessed)</text>
+      </g>
+
+      <path d="M 815 140 L 870 140" fill="none" stroke="var(--hair-strong)" stroke-width="1.2"/>
+      <polygon points="868,136 878,140 868,144" fill="var(--hair-strong)"/>
+
+      <g>
+        <rect x="880" y="100" width="140" height="80" rx="10" fill="var(--card-2)" stroke="var(--hair-strong)" stroke-width="1.2"/>
+        <text x="950" y="130" text-anchor="middle" font-size="22" font-weight="700" font-family="SF Mono,Menlo,monospace" fill="var(--fg)">0 / 1</text>
+        <text x="950" y="156" text-anchor="middle" font-size="11" fill="var(--muted)">accept / reject</text>
+      </g>
+    </svg>
+
+    <div class="obj-grid">
+      <div class="obj-card">
+        <div class="name">Witness polynomials</div>
+        <div class="size">over $F_r$ · 255-bit scalar field</div>
+        <div class="use">Wire values $a(X), b(X), c(X)$ and selector polynomials $q_*(X)$ encode the circuit and its assignment as low-degree polynomials.</div>
+      </div>
+      <div class="obj-card">
+        <div class="name">KZG commitments</div>
+        <div class="size">48 B $G_1$ elements per polynomial</div>
+        <div class="use">$[f]_1 = \sum_i f_i \tau^i G$ — each polynomial collapses to one curve point. Binding reduces to $d$-SBDH on BLS12-381.</div>
+      </div>
+      <div class="obj-card">
+        <div class="name">Fiat-Shamir transcript</div>
+        <div class="size">Poseidon2 over $F_r$</div>
+        <div class="use">Hashes public inputs and commitments, sampling every challenge $\beta, \gamma, \alpha, \zeta$. Replaces an interactive verifier with a deterministic one.</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="caption">Three objects, two algebraic domains. Steps 1–2 of the pipeline live in $F_r$, steps 3–5 in $G_1$, step 6 in $G_T$. The same colour convention runs through the rest of the page.</p>
+</section>
+
+<!-- ============== §3 Pipeline ============== -->
+<section data-screen-label="03 Pipeline" aria-labelledby="pipe-h">
+  <p class="eyebrow">the pipeline, step-through</p>
+  <h2 class="heading" id="pipe-h">Six stages off-chain. One pairing on-chain.</h2>
+  <p class="lede">From a circuit to a 700-byte proof in six moves. Each step produces a concrete object the next step consumes — polynomials, commitments, evaluations, finally one pairing equation. Step through them.</p>
+
+  <div class="pipe" role="region" aria-label="PLONK pipeline">
+    <div class="pipe-controls">
+      <div class="ix" aria-live="polite">
+        <span x-text="String(step+1).padStart(2,'0')"></span> / 06 ·
+        <span x-text="steps[step].domain"></span>
+      </div>
+      <div class="right">
+        <button class="btn" type="button" @click="prev()" :disabled="step===0" aria-label="Previous step">◂ Prev</button>
+        <button class="btn" type="button" @click="next()" :disabled="step===steps.length-1" aria-label="Next step">Next ▸</button>
+        <button class="btn" type="button" @click="reset()" aria-label="Reset to step 1">Reset</button>
+      </div>
+    </div>
+
+    <div class="pipe-track" role="tablist" aria-label="Pipeline steps">
+      <template x-for="(s,i) in steps" :key="i">
+        <button class="pipe-tick"
+                role="tab"
+                :aria-selected="step===i"
+                :class="step===i ? 'active' : ''"
+                @click="step=i"
+                :aria-label="`Step ${i+1}: ${s.title}`">
+          <span class="n">
+            <span class="pip" :class="s.dom"></span>
+            <span x-text="'0' + (i+1)"></span>
+          </span>
+          <span class="t" x-text="s.title"></span>
+        </button>
+      </template>
+    </div>
+
+    <div class="pipe-card" role="tabpanel" :aria-label="`Step ${step+1} detail`">
+      <div class="pipe-head">
+        <span class="num" x-text="'STEP 0' + (step+1)"></span>
+        <span class="domain"><span class="pip" :class="steps[step].dom"></span><span x-text="steps[step].domain"></span></span>
+      </div>
+      <h3 class="pipe-title" x-text="steps[step].title"></h3>
+      <p class="pipe-desc" x-text="steps[step].desc"></p>
+      <div class="pipe-formula">
+        <div class="lbl" x-text="steps[step].formulaLbl"></div>
+        <div class="eq" x-html="render(steps[step].tex)"></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="caption">Six stages off-chain, one pairing on-chain. The ~700-byte proof is the only thing that crosses the wire.</p>
+</section>
+
+<!-- ============== §4 Parameters ============== -->
+<section data-screen-label="04 Parameters" aria-labelledby="params-h">
+  <p class="eyebrow">parameters</p>
+  <h2 class="heading" id="params-h">Concrete numbers.</h2>
+  <p class="lede">All values are fixed by the protocol definition or by the deployment's host-function surface. None are tunable knobs.</p>
+
+  <div class="params" aria-label="PLONK parameters">
+    <div class="row"><div class="k">Curve</div><div class="v">BLS12-381</div></div>
+    <div class="row"><div class="k">Polynomial commitment</div><div class="v">KZG (constant-size openings)</div></div>
+    <div class="row"><div class="k">In-circuit hash</div><div class="v">Poseidon2 over $F_r$</div></div>
+    <div class="row"><div class="k">Proof size</div><div class="v">~700 bytes</div></div>
+    <div class="row"><div class="k">Public input — R_Mem</div><div class="v">32 bytes</div></div>
+    <div class="row"><div class="k">Public input — R_Upd</div><div class="v">96 bytes</div></div>
+    <div class="row"><div class="k">Setup</div><div class="v">universal updatable · EF KZG SRS reuse</div></div>
+    <div class="row"><div class="k">Verifier work</div><div class="v">1 pairing + $G_1$ MSMs</div></div>
+    <div class="row"><div class="k">Prover wall-clock (smallest tier)</div><div class="v">sub-second</div></div>
+  </div>
+</section>
+
+<!-- ============== §5 Wiring ============== -->
+<section data-screen-label="05 Wiring" aria-labelledby="wire-h">
+  <p class="eyebrow">wiring — setup, prover, verifier</p>
+  <h2 class="heading" id="wire-h">One SRS, many circuits, one pairing.</h2>
+  <p class="lede">The setup runs once and produces a structured reference string usable by every circuit in the deployment. The prover runs once per proof, off-chain. The verifier runs once per proof, on-chain — three host functions, one bit of output.</p>
+
+  <div class="swimlane" role="group" aria-label="PLONK lifecycle">
+    <div class="lane-head">
+      <div><span class="dot off"></span>Setup · once</div>
+      <div><span class="dot prov"></span>Prover · per proof, off-chain</div>
+      <div><span class="dot on"></span>Verifier · per proof, on-chain</div>
+    </div>
+    <div class="lane-body">
+      <div class="lane setup">
+        <div class="lane-card">
+          <span class="tag">SRS</span>
+          <div class="title">Universal updatable SRS</div>
+          <div class="detail">Ethereum Foundation KZG ceremony reuse (~141 000 contributors). Trust survives as long as one contributor was honest.</div>
+        </div>
+        <div class="lane-card">
+          <span class="tag">preprocessing</span>
+          <div class="title">Per-circuit verifying key</div>
+          <div class="detail">Selector and permutation polynomials for each circuit are committed up front; the on-chain verifier reads the verifying key, not the circuit.</div>
+        </div>
+        <div class="annot-note">
+          <span class="lbl">two relations · multiple tiers</span>
+          <strong>R_Mem</strong> ("I am a current member", for reads) and <strong>R_Upd</strong> ("this new commitment is the legitimate successor under the policy", for writes) compile to PLONK circuits in multiple size tiers. All share one SRS, producing a fixed verifying-key set per deployment.
+        </div>
+      </div>
+
+      <div class="lane prover">
+        <div class="lane-card">
+          <span class="tag">F_r</span>
+          <div class="title">Arithmetize → encode</div>
+          <div class="detail">Relation becomes gate constraints; wire values and selectors become low-degree polynomials $a(X), b(X), c(X), q_*(X)$ over $F_r$.</div>
+        </div>
+        <div class="lane-card">
+          <span class="tag">G₁ · MSM</span>
+          <div class="title">KZG-commit over BLS12-381</div>
+          <div class="detail">Each polynomial collapses to a 48-byte $G_1$ commitment $[f]_1 = \sum_i f_i \tau^i G$ — one multi-scalar multiplication per commitment.</div>
+        </div>
+        <div class="lane-card">
+          <span class="tag">F_r · Poseidon2</span>
+          <div class="title">Fiat-Shamir &amp; opening</div>
+          <div class="detail">Challenges $\beta, \gamma, \alpha, \zeta$ are hashed from the transcript-so-far; prover opens all commitments at $\zeta$ and batches into one linearization.</div>
+        </div>
+        <div class="lane-card">
+          <span class="tag">G₁ · proof bytes</span>
+          <div class="title">Pack ~700 B proof</div>
+          <div class="detail">$G_1$ commitments plus a handful of $F_r$ evaluations. The whole proof ships in roughly seven hundred bytes.</div>
+        </div>
+      </div>
+
+      <div class="lane verifier">
+        <div class="lane-card host">
+          <span class="tag">CAP-0059</span>
+          <div class="title">Aggregate verifier MSM</div>
+          <div class="stack">
+            <span class="hostfn">bls12_381_g1_add</span>
+            <span class="hostfn">bls12_381_g1_mul</span>
+          </div>
+          <div class="detail">Reduces all commitments and Fiat-Shamir challenges to two final $G_1$ elements $L$ and $R$.</div>
+        </div>
+        <div class="lane-card host">
+          <span class="tag">CAP-0059</span>
+          <div class="title">One pairing decides</div>
+          <div class="stack">
+            <span class="hostfn">bls12_381_pairing</span>
+          </div>
+          <div class="detail">$e(L, [1]_2) \overset{?}{=} e(R, [\tau]_2)$. The single pairing returns the one bit of output the contract reads.</div>
+        </div>
+        <div class="lane-card">
+          <span class="tag">on-chain</span>
+          <div class="title">No witness, ever</div>
+          <div class="detail">The verifier sees only the proof, the public input, and the verifying key. The witness never crosses the chain boundary.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="caption">Setup and prover share the cool/blue lane tint — both run off-chain in $F_r$ and $G_1$. The verifier's lane is amber: warm, host-function-bound, the only thing the chain pays for.</p>
+</section>
+
+<!-- ============== §6 Security ============== -->
+<section data-screen-label="06 Security" aria-labelledby="sec-h">
+  <p class="eyebrow">security</p>
+  <h2 class="heading" id="sec-h">A heuristic that holds. A break that's coming.</h2>
+  <p class="lede">Two assumptions, two horizons. The classical card is the working margin today; the post-quantum card is the load-bearing caveat — and the one a deployment must say out loud.</p>
+
+  <div class="sec-grid">
+    <div class="sec-card classical">
+      <span class="sec-badge ok"><span class="pip" aria-hidden="true"></span>classical · holding</span>
+      <div class="num">AGM + ROM</div>
+      <h3>Knowledge soundness in the algebraic group model; Fiat-Shamir under the random oracle.</h3>
+      <p class="muted">Commitment binding reduces to the $d$-SBDH assumption on BLS12-381. Zero-knowledge holds against unbounded distinguishers in the standard model.</p>
+      <ul>
+        <li><strong>AGM is a heuristic</strong>, not a standard-model proof — a separation from the generic group model could in principle be exploited.</li>
+        <li>Fiat-Shamir collapses interaction to one round under the random-oracle model; in-circuit Poseidon2 is the concrete instantiation.</li>
+        <li>The zero-knowledge guarantee is information-theoretic against unbounded distinguishers; the only thing computational here is soundness.</li>
+      </ul>
+    </div>
+
+    <div class="sec-card pq">
+      <span class="sec-badge bad"><span class="pip" aria-hidden="true"></span>post-quantum · broken under Shor</span>
+      <div class="num" style="color:var(--danger);">Shor</div>
+      <h3>The KZG sub-component falls; PLONK falls with it.</h3>
+      <p>The bound is the same as for the underlying curve — discrete log in $G_1$ on BLS12-381 is solvable in polynomial time on a CRQC, which collapses KZG's binding, which collapses PLONK's soundness. There is no graceful degradation.</p>
+      <ul>
+        <li><strong>Migration paths:</strong> FRI-based STARKs, Plonky3 with hash-based polynomial commitments, or lattice-based SNARKs.</li>
+        <li>Current deployment constraints depend on the host environment's precompile surface — a curve change isn't free if the chain only exposes BLS12-381 host functions.</li>
+        <li>Mitigation is a commitment-scheme swap, not a parameter bump.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="se-callout" role="note" aria-label="Simulation-extractability caveat">
+    <span class="lbl">required</span>
+    <div>
+      <strong>Simulation-extractability is required</strong> for authorising operations like R_Upd. Every public input must enter the Fiat-Shamir transcript <em>before</em> any challenge is drawn. Omitting it has caused real exploitable bugs — proof malleability and rewriting public inputs in flight.
+    </div>
+  </div>
+</section>
+
+<!-- ============== §7 Comparison ============== -->
+<section data-screen-label="07 Comparison" aria-labelledby="cmp-h">
+  <p class="eyebrow">plonk vs groth16 vs fri/stark</p>
+  <h2 class="heading" id="cmp-h">Where PLONK sits in the trilemma.</h2>
+  <p class="lede">Three working SNARK families, three different trades. Setup-trust on one axis, proof-size and PQ-stance on the other.</p>
+
+  <div class="compare">
+    <div class="cmp">
+      <h3>Groth16</h3>
+      <div class="meta">pairing-based · per-circuit MPC</div>
+      <dl>
+        <div><dt>Setup</dt><dd>per-circuit MPC ceremony</dd></div>
+        <div><dt>Proof size</dt><dd>192 B</dd></div>
+        <div><dt>Verifier work</dt><dd>3 pairings</dd></div>
+        <div><dt>PQ stance</dt><dd class="pq-line">broken under Shor</dd></div>
+        <div><dt>Representative deployments</dt><dd>Tornado Cash, Semaphore</dd></div>
+      </dl>
+    </div>
+
+    <div class="cmp subject" aria-current="true">
+      <span class="crown">this page</span>
+      <h3>PLONK</h3>
+      <div class="meta">pairing-based · universal updatable</div>
+      <dl>
+        <div><dt>Setup</dt><dd>universal updatable · one SRS, many circuits</dd></div>
+        <div><dt>Proof size</dt><dd>~700 B</dd></div>
+        <div><dt>Verifier work</dt><dd>1 pairing</dd></div>
+        <div><dt>PQ stance</dt><dd class="pq-line">broken under Shor</dd></div>
+        <div><dt>Representative deployments</dt><dd>universal-updatable SNARK stacks on pairing-friendly chains</dd></div>
+      </dl>
+    </div>
+
+    <div class="cmp">
+      <h3>FRI / STARK</h3>
+      <div class="meta">hash-based · transparent</div>
+      <dl>
+        <div><dt>Setup</dt><dd>transparent · no trusted setup</dd></div>
+        <div><dt>Proof size</dt><dd>~50–200 KB · config-dependent</dd></div>
+        <div><dt>Verifier work</dt><dd>hash verifier</dd></div>
+        <div><dt>PQ stance</dt><dd class="pq-line maybe">conjectured PQ-secure</dd></div>
+        <div><dt>Representative deployments</dt><dd>StarkNet, Plonky3</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <p class="caption">Universal-updatable vs per-circuit-MPC is the trust-posture differentiator vs Groth16. Proof-size vs PQ-stance is the differentiator vs STARKs. PLONK trades the post-quantum break for two orders of magnitude smaller proofs.</p>
+</section>
+
+<!-- ============== §8 References ============== -->
+<section data-screen-label="08 References" aria-labelledby="refs-h">
+  <p class="eyebrow">references</p>
+  <h2 class="heading" id="refs-h">Primary literature.</h2>
+  <p class="lede">Five sources. The PLONK paper, the KZG paper, the curve construction, the Fiat-Shamir security note, and the Groth16 paper for the size baseline.</p>
+
+  <div class="refs">
+    <ul>
+      <li>
+        <span class="authors">Gabizon, A.; Williamson, Z. J.; Ciobotaru, O. 2019.</span>
+        <a href="https://eprint.iacr.org/2019/953" target="_blank" rel="noopener">PLONK: Permutations over Lagrange-bases for Oecumenical Noninteractive arguments of Knowledge.</a>
+        <span class="venue">IACR ePrint 2019/953.</span>
+      </li>
+      <li>
+        <span class="authors">Kate, A.; Zaverucha, G.; Goldberg, I. 2010.</span>
+        <a href="https://doi.org/10.1007/978-3-642-17373-8_11" target="_blank" rel="noopener">Constant-Size Commitments to Polynomials and Their Applications.</a>
+        <span class="venue">ASIACRYPT 2010, 177–194.</span>
+      </li>
+      <li>
+        <span class="authors">Bowe, S. 2017.</span>
+        <a href="https://electriccoin.co/blog/new-snark-curve/" target="_blank" rel="noopener">BLS12-381: New zk-SNARK Elliptic Curve Construction.</a>
+        <span class="venue">Electric Coin Co. blog.</span>
+      </li>
+      <li>
+        <span class="authors">Don, J.; Fehr, S.; Majenz, C.; Schaffner, C. 2019.</span>
+        <a href="https://eprint.iacr.org/2019/190" target="_blank" rel="noopener">Security of the Fiat-Shamir Transformation in the Quantum Random-Oracle Model.</a>
+        <span class="venue">CRYPTO 2019.</span>
+      </li>
+      <li>
+        <span class="authors">Groth, J. 2016.</span>
+        <a href="https://doi.org/10.1007/978-3-662-49896-5_11" target="_blank" rel="noopener">On the Size of Pairing-Based Non-Interactive Arguments.</a>
+        <span class="venue">EUROCRYPT 2016, 305–326.</span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;">
+    <span class="mono">primitive sheet · PLONK</span>
+    <span>·</span>
+    <span class="muted">no tracking · no analytics · no external requests beyond Tailwind, Alpine, and KaTeX CDNs</span>
+  </div>
+  <p style="margin-top:16px;max-width:64ch;">~700-byte proofs, verified in one pairing, under a universal-updatable SRS shared across every circuit in the deployment. Broken under Shor — KZG falls, and PLONK falls with it.</p>
+</footer>
+
+<!-- Theme toggle -->
+<div class="toggle" role="group" aria-label="Theme">
+  <button id="t-dark"  aria-pressed="true"  onclick="setTheme('dark')">Dark</button>
+  <button id="t-light" aria-pressed="false" onclick="setTheme('light')">Light</button>
+</div>
+
+<script>
+  function setTheme(mode){
+    if(mode==='light') document.documentElement.setAttribute('data-theme','light');
+    else document.documentElement.removeAttribute('data-theme');
+    document.getElementById('t-dark').setAttribute('aria-pressed', mode==='dark');
+    document.getElementById('t-light').setAttribute('aria-pressed', mode==='light');
+    try{ localStorage.setItem('onym.theme', mode); }catch(e){}
+  }
+  (function(){
+    var t='dark';
+    try{ t = localStorage.getItem('onym.theme') || 'dark'; }catch(e){}
+    setTheme(t);
+  })();
+</script>
+
+<script>
+  function plonk(){
+    return {
+      step: 0,
+      steps: [
+        {
+          title: 'Arithmetize',
+          domain: 'F_r · scalar field',
+          dom: 'fr',
+          desc: 'Turn the relation into gate constraints. Each gate of the circuit is one linear-plus-multiplication equation in five selectors and three wire values.',
+          formulaLbl: 'gate constraint (PLONK form)',
+          tex: 'q_L \\cdot a + q_R \\cdot b + q_O \\cdot c + q_M \\cdot a\\,b + q_C \\;=\\; 0'
+        },
+        {
+          title: 'Encode',
+          domain: 'F_r · scalar field',
+          dom: 'fr',
+          desc: 'Wire values and selectors become low-degree polynomials over F_r. The witness assignment is the prover’s private input; the selector polynomials are public preprocessing.',
+          formulaLbl: 'polynomial encoding',
+          tex: 'a(X),\\ b(X),\\ c(X),\\ q_L(X),\\ q_R(X),\\ q_O(X),\\ q_M(X),\\ q_C(X)\\ \\in\\ F_r[X]'
+        },
+        {
+          title: 'KZG-commit',
+          domain: 'G_1 · curve points',
+          dom: 'g1',
+          desc: 'Prover sends KZG commitments to the wire polynomials — each is a 48-byte G_1 element. Binding reduces to d-SBDH on BLS12-381.',
+          formulaLbl: 'commitment messages',
+          tex: '[a]_1,\\ [b]_1,\\ [c]_1,\\ [z]_1,\\ [t_{lo}]_1,\\ [t_{mid}]_1,\\ [t_{hi}]_1 \\;\\in\\; G_1'
+        },
+        {
+          title: 'Fiat-Shamir',
+          domain: 'G_1 · transcript',
+          dom: 'g1',
+          desc: 'Challenges are drawn by hashing the transcript-so-far with Poseidon2. Every public input must be in the transcript before the first challenge — the simulation-extractability requirement.',
+          formulaLbl: 'challenges, in order',
+          tex: '\\beta, \\gamma \\;\\leftarrow\\; H(x, [a]_1, [b]_1, [c]_1);\\quad \\alpha \\;\\leftarrow\\; H(\\cdot, [z]_1);\\quad \\zeta \\;\\leftarrow\\; H(\\cdot, [t]_1)'
+        },
+        {
+          title: 'Open & linearize',
+          domain: 'G_1 · openings',
+          dom: 'g1',
+          desc: 'Prover opens all commitments at the evaluation point ζ and batches every constraint into a single linearization polynomial r(X). The resulting opening is one KZG quotient.',
+          formulaLbl: 'linearization & opening',
+          tex: 'r(X) \\;=\\; \\textstyle\\sum_i \\alpha^i \\cdot p_i(X);\\quad \\pi_\\zeta \\;=\\; \\bigl[ (r(X) - r(\\zeta))/(X - \\zeta) \\bigr]_1'
+        },
+        {
+          title: 'One pairing',
+          domain: 'G_T · pairing check',
+          dom: 'gt',
+          desc: 'Verifier reduces the entire proof to a single pairing equation over G_T. One bit out: pass or fail.',
+          formulaLbl: 'final pairing identity',
+          tex: 'e\\bigl(L,\\ [1]_2\\bigr) \\;\\overset{?}{=}\\; e\\bigl(R,\\ [\\tau]_2\\bigr)'
+        }
+      ],
+      next(){ if(this.step < this.steps.length-1) this.step++; },
+      prev(){ if(this.step > 0) this.step--; },
+      reset(){ this.step = 0; },
+      render(tex){
+        try {
+          if(window.katex){
+            return window.katex.renderToString(tex, {throwOnError:false, displayMode:false});
+          }
+        } catch(e){}
+        return tex;
+      }
+    };
+  }
+</script>
+
+</body>
+</html>
