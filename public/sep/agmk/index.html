@@ -1,0 +1,2282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AGMK — Anonymous Group-Membership Keystone (SEP draft)</title>
+<meta name="description" content="One Soroban contract, any R_Upd-shape update relation, no admin. Verifies one PLONK proof per state-transition step and stays neutral about what the transition means." />
+<meta property="og:title" content="AGMK — Anonymous Group-Membership Keystone (SEP draft)" />
+<meta property="og:description" content="A Soroban-hosted keystone that verifies one PLONK proof per state-transition step and stays neutral about what the transition means." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://onym.app/sep/agmk/" />
+<meta property="og:image" content="https://onym.app/assets/og-card.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="AGMK — Anonymous Group-Membership Keystone (SEP draft)" />
+<meta name="twitter:description" content="One contract. Any update relation. No admin." />
+<link rel="canonical" href="https://onym.app/sep/agmk/" />
+<link rel="alternate" hreflang="en" href="https://onym.app/sep/agmk/" />
+<link rel="alternate" hreflang="x-default" href="https://onym.app/sep/agmk/" />
+<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});"></script>
+<script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
+
+<style>
+  :root{
+    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
+    --hair:rgba(245,245,247,.10);
+    --hair-strong:rgba(245,245,247,.18);
+    --card:#101013;
+    --card-2:#16161b;
+    --nav-bg: rgba(8,8,10,.72);
+
+    --wire:        #6a8bff;
+    --wire-soft:   rgba(106,139,255,.10);
+    --wire-edge:   rgba(106,139,255,.40);
+    --amber:       #f0b35e;
+    --amber-soft:  rgba(240,179,94,.10);
+    --amber-edge:  rgba(240,179,94,.45);
+    --ok:          #4ade80;
+    --ok-soft:     rgba(74,222,128,.10);
+    --ok-edge:     rgba(74,222,128,.45);
+    --danger:      #ef5350;
+    --danger-soft: rgba(239,83,80,.12);
+    --danger-edge: rgba(239,83,80,.55);
+    --gold:        #f0b35e;
+    --gold-edge:   rgba(240,179,94,.55);
+    --plum:        #c084fc;
+    --plum-soft:   rgba(192,132,252,.10);
+    --plum-edge:   rgba(192,132,252,.45);
+
+    --brick-fill:        rgba(106,139,255,.07);
+    --brick-stroke:      rgba(106,139,255,.32);
+    --brick-fill-hot:    rgba(106,139,255,.18);
+    --brick-stroke-hot:  rgba(106,139,255,.85);
+    --brick-fill-fail:   rgba(239,83,80,.16);
+    --brick-stroke-fail: rgba(239,83,80,.85);
+    --edge:        rgba(106,139,255,.22);
+    --edge-hot:    rgba(106,139,255,.95);
+    --edge-fail:   rgba(239,83,80,.95);
+    --mortar:      rgba(245,245,247,.04);
+  }
+  html[data-theme="light"]{
+    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
+    --hair:rgba(10,10,10,.10);
+    --hair-strong:rgba(10,10,10,.22);
+    --card:#ffffff;
+    --card-2:#fbfbfd;
+    --nav-bg: rgba(245,245,247,.72);
+
+    --wire:        #1d4ed8;
+    --wire-soft:   rgba(29,78,216,.08);
+    --wire-edge:   rgba(29,78,216,.45);
+    --amber:       #b45309;
+    --amber-soft:  rgba(180,83,9,.08);
+    --amber-edge:  rgba(180,83,9,.45);
+    --ok:          #16803c;
+    --ok-soft:     rgba(22,128,60,.10);
+    --ok-edge:     rgba(22,128,60,.45);
+    --danger:      #b91c1c;
+    --danger-soft: rgba(185,28,28,.10);
+    --danger-edge: rgba(185,28,28,.55);
+    --gold:        #b45309;
+    --gold-edge:   rgba(180,83,9,.55);
+    --plum:        #7e22ce;
+    --plum-soft:   rgba(126,34,206,.08);
+    --plum-edge:   rgba(126,34,206,.45);
+
+    --brick-fill:        rgba(29,78,216,.06);
+    --brick-stroke:      rgba(29,78,216,.40);
+    --brick-fill-hot:    rgba(29,78,216,.14);
+    --brick-stroke-hot:  rgba(29,78,216,1);
+    --brick-fill-fail:   rgba(185,28,28,.10);
+    --brick-stroke-fail: rgba(185,28,28,1);
+    --edge:        rgba(29,78,216,.30);
+    --edge-hot:    rgba(29,78,216,1);
+    --edge-fail:   rgba(185,28,28,1);
+    --mortar:      rgba(10,10,10,.04);
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); color:var(--fg); }
+  body{
+    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+    font-feature-settings: "ss01","ss02","cv11";
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+    line-height:1.55;
+    transition: background-color .35s ease, color .35s ease;
+  }
+  .mono{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-feature-settings:"zero","ss01"; }
+  .muted{ color:var(--muted); }
+  .katex{ font-size:1em; color:inherit; }
+
+  /* Nav */
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:var(--nav-bg);
+    backdrop-filter:saturate(160%) blur(14px);
+    -webkit-backdrop-filter:saturate(160%) blur(14px);
+    border-bottom:1px solid var(--hair);
+  }
+  .nav-mark{
+    display:inline-grid; place-items:center; width:22px; height:22px;
+    border:1px solid var(--hair-strong); border-radius:6px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:10px;
+  }
+  .nav-crumb{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.74rem; letter-spacing:.06em; color:var(--muted);
+  }
+
+  main{ max-width: 1080px; margin:0 auto; padding: 0 clamp(20px, 5vw, 56px); }
+  section{
+    padding-top: clamp(56px, 8vw, 112px);
+    padding-bottom: clamp(56px, 8vw, 112px);
+    border-bottom: 1px solid var(--hair);
+  }
+  section:last-of-type{ border-bottom:none; }
+
+  .eyebrow{
+    font-size:.74rem; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--muted); font-weight:500;
+    margin: 0 0 clamp(20px, 3vw, 28px) 0;
+  }
+  h1.hero{
+    font-weight:700; letter-spacing:-0.035em; line-height:1.05; margin:0;
+    text-wrap:balance;
+    font-size: clamp(2.2rem, 5.5vw, 3.6rem);
+  }
+  h2.heading{
+    font-weight:700; letter-spacing:-0.028em; line-height:1.12; margin:0;
+    text-wrap:balance;
+    font-size: clamp(1.6rem, 3.6vw, 2.3rem);
+  }
+  h3.sub{
+    font-weight:600; letter-spacing:-0.018em; line-height:1.2; margin:0;
+    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+  }
+  .lede{
+    font-size: clamp(1.05rem, 1.35vw, 1.18rem);
+    color:var(--muted); margin: clamp(20px, 2.6vw, 28px) 0 0 0;
+    line-height:1.6; max-width: 62ch;
+  }
+  p.body{ font-size: 1.02rem; color:var(--fg); margin: clamp(16px, 2vw, 22px) 0 0 0; line-height:1.65; max-width: 64ch; }
+  p.body.muted{ color:var(--muted); }
+  p.caption{ font-size:.94rem; color:var(--muted); line-height:1.6; margin: 20px 0 0 0; max-width: 64ch; }
+
+  /* Stat strip */
+  .stat-strip{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    display:grid; grid-template-columns: repeat(6, minmax(0,1fr));
+    gap: 1px; background: var(--hair);
+    border: 1px solid var(--hair); border-radius: 10px; overflow:hidden;
+  }
+  .stat-strip > div{ background: var(--bg); padding: 14px 16px; display:flex; flex-direction:column; gap:4px; }
+  .stat-strip .val{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.98rem; font-weight:600; letter-spacing:-0.01em; }
+  .stat-strip .label{ font-size:.66rem; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; }
+  @media (max-width: 980px){ .stat-strip{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
+  @media (max-width: 560px){ .stat-strip{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+
+  /* Bill of materials */
+  .bom{
+    margin-top: clamp(22px, 2.6vw, 28px);
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.86rem; color:var(--muted); letter-spacing:.02em;
+    display:flex; flex-wrap:wrap; gap:6px 0;
+    line-height:1.9;
+  }
+  .bom .b{ color:var(--fg); }
+  .bom .sep{ color:var(--muted); padding:0 8px; }
+  .bom .cap{ color:var(--amber); }
+
+  /* Theme toggle */
+  .toggle{
+    position:fixed; bottom:18px; right:18px; z-index:60;
+    background:var(--nav-bg);
+    border:1px solid var(--hair); border-radius:999px;
+    padding:4px; display:flex; gap:2px;
+    backdrop-filter:saturate(180%) blur(14px);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    box-shadow:0 8px 24px -10px rgba(10,10,10,.18);
+  }
+  .toggle button{
+    font-size:12px; letter-spacing:.04em; padding:7px 12px; border-radius:999px;
+    color:var(--muted); border:0; background:transparent; cursor:pointer;
+  }
+  .toggle button[aria-pressed="true"]{ background:var(--fg); color:var(--bg); }
+
+  /* Buttons */
+  .btn{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.82rem;
+    padding:7px 14px; border-radius:999px;
+    border:1px solid var(--hair-strong); background: var(--bg); color:var(--fg);
+    cursor:pointer; letter-spacing:.04em;
+  }
+  .btn:hover{ background: var(--card-2); }
+  .btn:focus-visible{ outline:2px solid var(--wire); outline-offset:2px; }
+  .btn[disabled]{ opacity:.4; cursor:not-allowed; }
+  .btn.primary{ background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .btn.primary:hover{ filter: brightness(0.95); background: var(--fg); }
+  .btn.danger{ border-color: var(--danger-edge); color: var(--danger); }
+
+  /* Cards (shared) */
+  .wall-card{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px; background:var(--card);
+    padding: clamp(18px, 2.8vw, 28px);
+    display:grid; gap: 22px;
+  }
+  .col-card{
+    border:1px solid var(--hair); border-radius:16px;
+    background: var(--card);
+    padding: 22px 24px;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .col-card .colhead{
+    display:flex; justify-content:space-between; align-items:baseline; gap:10px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+  }
+  .codebox{
+    border:1px solid var(--hair); border-radius:12px;
+    background: var(--bg);
+    padding: 14px 16px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.82rem; line-height:1.7;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .codebox .k{ color: var(--wire); }
+  .codebox .t{ color: var(--amber); }
+  .codebox .s{ color: var(--ok); }
+  .codebox .c{ color: var(--muted); font-style: italic; }
+  .codebox .n{ color: var(--muted); }
+  .codebox .fn{ color: var(--fg); font-weight:600; }
+
+  /* ===== §1 Contract surface ===== */
+  .methods{
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .method{
+    border:1px solid var(--hair); border-radius:14px;
+    background: var(--card-2);
+    overflow:hidden;
+    transition: border-color .25s ease, background-color .25s ease;
+  }
+  .method[data-open="true"]{ border-color: var(--hair-strong); background: var(--card); }
+  .method[data-mut="false"]{ border-color: rgba(106,139,255,.18); }
+  .method-head{
+    display:grid; grid-template-columns: 56px 1fr auto; gap:16px;
+    align-items:center; padding:16px 18px;
+    cursor:pointer; user-select:none;
+  }
+  .method-head:focus-visible{ outline:2px solid var(--wire); outline-offset:-2px; }
+  .method-num{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.72rem; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--muted); align-self:start; padding-top:3px;
+  }
+  .method-sig{ display:flex; flex-direction:column; gap:4px; }
+  .method-sig .sig{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.94rem; color:var(--fg); line-height:1.5;
+    word-break: break-word;
+  }
+  .method-sig .sig .arg{ color: var(--wire); }
+  .method-sig .sig .ret{ color: var(--amber); }
+  .method-sig .gist{ font-size:.86rem; color: var(--muted); }
+  .method-pill{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.68rem; letter-spacing:.08em; text-transform:uppercase;
+    padding: 3px 10px; border-radius:999px;
+    border:1px solid var(--hair-strong);
+    color: var(--muted);
+  }
+  .method-pill.mut{ color: var(--amber); border-color: var(--amber-edge); }
+  .method-pill.ro{ color: var(--wire); border-color: var(--wire-edge); }
+  .method-body{
+    display:grid; grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 0;
+    border-top: 1px solid var(--hair);
+  }
+  @media (max-width: 800px){ .method-body{ grid-template-columns: 1fr; } }
+  .method-body > div{
+    padding: 16px 18px;
+    border-right: 1px solid var(--hair);
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .method-body > div:last-child{ border-right:none; }
+  @media (max-width: 800px){
+    .method-body > div{ border-right:none; border-top:1px solid var(--hair); }
+    .method-body > div:first-child{ border-top:none; }
+  }
+  .method-body .lbl{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color: var(--muted);
+  }
+  .method-body ul{ margin:0; padding-left:0; list-style:none; }
+  .method-body li{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.84rem; line-height:1.55; color: var(--fg);
+    padding: 1px 0;
+  }
+  .method-body li .ty{ color: var(--wire); }
+  .method-body .secref{
+    margin-top: auto; padding-top: 8px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.74rem; color: var(--muted);
+  }
+
+  /* views grid */
+  .views{
+    margin-top: 16px;
+    display:grid; grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 1px; background: var(--hair);
+    border: 1px solid var(--hair); border-radius: 12px; overflow:hidden;
+  }
+  @media (max-width: 720px){ .views{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  .views > div{ background: var(--card); padding: 10px 14px; display:flex; flex-direction:column; gap:2px; }
+  .views .nm{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.84rem; color:var(--wire); }
+  .views .rt{ font-size:.72rem; color:var(--muted); }
+
+  .no-admin-pill{
+    margin-top: 18px;
+    display:inline-flex; align-items:center; gap:10px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    padding: 8px 14px; border-radius:999px;
+    border: 1px solid var(--ok-edge); color: var(--ok);
+    background: var(--ok-soft);
+    font-size:.82rem; letter-spacing:.04em;
+  }
+  .no-admin-pill .dot{
+    width:8px; height:8px; border-radius:50%; background: var(--ok);
+    box-shadow: 0 0 0 4px rgba(74,222,128,.20);
+  }
+
+  /* ===== §2 Registry ===== */
+  .registry{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px;
+    background: var(--card);
+    overflow:hidden;
+  }
+  .registry-head{
+    display:grid; grid-template-columns: 1fr auto;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--hair);
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.78rem; color: var(--muted); letter-spacing:.04em;
+    background: var(--card-2);
+  }
+  .registry-head .addr{ color: var(--fg); }
+  .registry-rows{ display:flex; flex-direction:column; }
+  .relrow{
+    border-top: 1px solid var(--hair);
+  }
+  .relrow:first-child{ border-top: none; }
+  .relrow-head{
+    display:grid; grid-template-columns: auto 1fr auto auto;
+    gap: 16px; align-items:center;
+    padding: 14px 18px; cursor:pointer; user-select:none;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+  }
+  .relrow-head:hover{ background: var(--card-2); }
+  .relrow-head .tag{ color: var(--fg); font-size:.92rem; }
+  .relrow-head .ix{ color: var(--muted); font-size:.72rem; letter-spacing:.08em; width:18px; text-align:right; }
+  .relrow-head .pill{
+    font-size:.7rem; letter-spacing:.06em; text-transform:uppercase;
+    padding: 3px 10px; border-radius: 999px;
+    border:1px solid var(--hair-strong); color: var(--muted);
+  }
+  .relrow-head .chev{ color: var(--muted); transition: transform .25s ease; }
+  .relrow[data-open="true"] .chev{ transform: rotate(90deg); }
+  .relrow-body{
+    overflow:hidden;
+    transition: max-height .35s ease;
+  }
+  .reltab{
+    display:grid; grid-template-columns: 1fr 1fr;
+    gap: 0; background: var(--bg);
+    border-top: 1px solid var(--hair);
+  }
+  @media (max-width: 740px){ .reltab{ grid-template-columns: 1fr; } }
+  .reltab > div{ padding: 14px 18px; border-right: 1px solid var(--hair); display:flex; flex-direction:column; gap:8px; }
+  .reltab > div:last-child{ border-right:none; }
+  @media (max-width: 740px){
+    .reltab > div{ border-right:none; border-bottom: 1px solid var(--hair); }
+    .reltab > div:last-child{ border-bottom: none; }
+  }
+  .reltab .sect{
+    display:flex; align-items:center; gap:10px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.7rem; letter-spacing:.1em; text-transform:uppercase;
+  }
+  .reltab .sect.immut{ color: var(--wire); }
+  .reltab .sect.mut{ color: var(--amber); }
+  .reltab .sect .lk{ font-size:.85em; opacity:.7; }
+  .reltab dl{ margin:0; display:grid; gap:6px; }
+  .reltab dl > div{ display:grid; grid-template-columns: 130px 1fr; gap:10px; align-items:start; }
+  .reltab dt{ font-size:.72rem; color: var(--muted); text-transform:uppercase; letter-spacing:.06em; padding-top:2px; }
+  .reltab dd{ margin:0; font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.82rem; color:var(--fg); line-height:1.5; word-break: break-all; }
+
+  .callout{
+    margin-top: 18px;
+    border:1px dashed var(--amber-edge); border-radius:12px;
+    padding: 14px 18px; background: var(--amber-soft);
+    font-size:.92rem; line-height:1.6;
+  }
+  .callout .lbl{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.66rem; color: var(--amber); letter-spacing:.1em; text-transform:uppercase;
+    margin-right: 6px;
+  }
+
+  /* ===== §3 Apply pipeline ===== */
+  .pipe-grid{
+    display:grid; grid-template-columns: 1.25fr 1fr; gap: 18px;
+    margin-top: clamp(28px, 3.4vw, 40px);
+  }
+  @media (max-width: 900px){ .pipe-grid{ grid-template-columns: 1fr; } }
+
+  .pipe-list{
+    border:1px solid var(--hair); border-radius:16px; background: var(--card);
+    overflow:hidden;
+  }
+  .pipe-controls{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--hair);
+    background: var(--card-2);
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+  }
+  .pipe-controls .ix{ font-size:.82rem; color: var(--muted); }
+  .pipe-controls .right{ display:flex; gap:8px; flex-wrap:wrap; }
+  .pipe-step{
+    display:grid; grid-template-columns: 36px 1fr auto;
+    gap: 10px; align-items:center;
+    padding: 10px 14px;
+    border-top: 1px solid var(--hair);
+    cursor:pointer;
+    transition: background-color .2s ease;
+    font-family: inherit;
+    width:100%; text-align:left; border-left:none; border-right:none; border-bottom:none;
+    background: transparent; color: inherit;
+  }
+  .pipe-step:hover{ background: var(--card-2); }
+  .pipe-step:focus-visible{ outline:2px solid var(--wire); outline-offset:-2px; }
+  .pipe-step .n{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.78rem; color: var(--muted);
+    width: 30px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .pipe-step .marker{
+    width: 8px; height: 8px; border-radius: 2px;
+    background: var(--hair-strong);
+  }
+  .pipe-step.cheap .marker{ background: var(--wire); }
+  .pipe-step.expensive .marker{ background: var(--amber); }
+  .pipe-step .name{
+    font-size:.92rem; color: var(--fg); line-height:1.35;
+  }
+  .pipe-step .name .sub{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.76rem; color: var(--muted); margin-top: 2px; display:block;
+  }
+  .pipe-step .err{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.74rem; color: var(--muted);
+    padding: 2px 9px; border-radius: 999px;
+    border: 1px solid var(--hair);
+    transition: color .2s ease, border-color .2s ease, background-color .2s ease;
+  }
+  .pipe-step.passed{ background: rgba(74,222,128,.04); }
+  .pipe-step.passed .marker{ background: var(--ok); }
+  .pipe-step.active{ background: var(--card-2); }
+  .pipe-step.active .name{ color: var(--fg); font-weight:600; }
+  .pipe-step.failed{ background: var(--danger-soft); }
+  .pipe-step.failed .marker{ background: var(--danger); }
+  .pipe-step.failed .err{ color: var(--danger); border-color: var(--danger-edge); background: rgba(239,83,80,.08); }
+  .pipe-legend{
+    display:flex; gap:14px;
+    padding: 10px 14px;
+    border-top: 1px solid var(--hair);
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.72rem; color: var(--muted);
+  }
+  .pipe-legend .dot{ width:8px; height:8px; border-radius:2px; display:inline-block; vertical-align:middle; margin-right:6px; }
+  .pipe-legend .dot.cheap{ background: var(--wire); }
+  .pipe-legend .dot.expensive{ background: var(--amber); }
+
+  .state-panel{
+    border:1px solid var(--hair); border-radius:16px;
+    background: var(--card);
+    padding: 18px 20px;
+    display:flex; flex-direction:column; gap: 14px;
+    align-self:start;
+  }
+  .state-row{
+    display:grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  .state-cell{
+    border:1px solid var(--hair); border-radius: 10px;
+    background: var(--card-2);
+    padding: 12px 14px;
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .state-cell .nm{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.7rem; letter-spacing:.08em; color: var(--muted); text-transform:uppercase;
+  }
+  .state-cell .v{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.88rem; color: var(--fg);
+    transition: color .25s ease;
+  }
+  .state-cell.before .v{ color: var(--muted); }
+  .state-cell.after .v{ color: var(--ok); }
+  .state-cell.fail .v{ color: var(--danger); }
+  .state-pi{
+    border:1px dashed var(--hair-strong); border-radius:10px;
+    padding: 12px 14px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.82rem; line-height:1.7;
+    background: var(--bg);
+  }
+  .state-pi .pi-lbl{ font-size:.66rem; color: var(--muted); letter-spacing:.08em; text-transform:uppercase; }
+  .state-pi .slot{
+    display:grid; grid-template-columns: 26px 1fr 1fr; gap: 8px;
+    padding: 2px 0;
+  }
+  .state-pi .slot .ix{ color: var(--muted); }
+  .state-pi .slot .nm{ color: var(--wire); }
+  .state-pi .slot .v{ color: var(--fg); }
+  .revert-bar{
+    border:1px solid var(--danger-edge); background: var(--danger-soft);
+    border-radius:10px; padding: 12px 14px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.82rem;
+    color: var(--danger);
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .revert-bar .nm{ font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; opacity:.8; }
+  .emit-bar{
+    border:1px solid var(--ok-edge); background: var(--ok-soft);
+    border-radius:10px; padding: 12px 14px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.82rem;
+    color: var(--ok);
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .emit-bar .nm{ font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; opacity:.8; }
+
+  /* ===== §4 PI vector folding ===== */
+  .pi-grid{
+    display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;
+    margin-top: clamp(28px, 3.4vw, 40px);
+  }
+  @media (max-width: 900px){ .pi-grid{ grid-template-columns: 1fr; } }
+  .pi-col{
+    border:1px solid var(--hair); border-radius:14px;
+    background: var(--card);
+    padding: 16px 18px;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .pi-col .h{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.7rem; letter-spacing:.1em; color: var(--muted); text-transform:uppercase;
+  }
+  .extras{ display:flex; flex-direction:column; gap: 6px; }
+  .extras .e{
+    display:grid; grid-template-columns: 24px 1fr;
+    gap: 8px; align-items:center;
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--wire-edge);
+    background: var(--wire-soft);
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.82rem;
+    transition: opacity .2s ease;
+  }
+  .extras .e .ix{ color: var(--muted); }
+  .extras .empty{
+    padding: 8px 10px; border-radius:8px;
+    border: 1px dashed var(--hair); color: var(--muted);
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.78rem;
+    text-align:center;
+  }
+  .pi-out{
+    display:flex; flex-direction:column; gap: 6px;
+  }
+  .pi-slot{
+    display:grid; grid-template-columns: 30px 100px 1fr; gap: 10px;
+    align-items:center; padding: 8px 12px;
+    border:1px solid var(--hair); border-radius: 8px;
+    background: var(--card-2);
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.82rem;
+  }
+  .pi-slot.r{
+    border-color: var(--amber-edge);
+    background: var(--amber-soft);
+  }
+  .pi-slot .ix{ color: var(--muted); }
+  .pi-slot .nm{ color: var(--wire); }
+  .pi-slot.r .nm{ color: var(--amber); }
+  .pi-slot .v{ color: var(--fg); }
+  .pi-slider-row{
+    display:flex; align-items:center; gap: 12px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.82rem;
+  }
+  .pi-slider-row input[type="range"]{ flex:1; accent-color: var(--wire); }
+
+  .sponge{ width:100%; height:auto; display:block; }
+  .sponge text{ font-family:"SF Mono",ui-monospace,Menlo,monospace; }
+
+  /* ===== §5 FS transcript ===== */
+  .fs-strip{
+    margin-top: 18px;
+    display:grid; grid-template-columns: repeat(8, minmax(0,1fr));
+    gap: 8px;
+  }
+  @media (max-width: 940px){ .fs-strip{ grid-template-columns: repeat(4, minmax(0,1fr)); } }
+  @media (max-width: 560px){ .fs-strip{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  .fs-slot{
+    border:1px solid var(--hair); border-radius: 12px;
+    background: var(--card-2);
+    padding: 12px 12px 10px;
+    display:flex; flex-direction:column; gap: 6px;
+    position:relative;
+    transition: border-color .25s ease, background-color .25s ease;
+  }
+  .fs-slot.swapped{
+    border-color: var(--danger-edge);
+    background: var(--danger-soft);
+  }
+  .fs-slot .ix{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.7rem; color: var(--muted); letter-spacing:.06em;
+  }
+  .fs-slot .nm{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.78rem; color: var(--fg); line-height:1.35; word-break: break-word;
+  }
+  .fs-slot.swapped .nm{ color: var(--danger); }
+  .fs-slot .swap{
+    align-self:flex-end;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.66rem;
+    padding: 3px 8px; border-radius: 999px;
+    border:1px solid var(--hair-strong);
+    background: transparent; color: var(--muted);
+    cursor:pointer; margin-top:auto;
+  }
+  .fs-slot .swap:hover{ color: var(--fg); border-color: var(--hair-strong); }
+  .fs-slot.swapped .swap{ color: var(--danger); border-color: var(--danger-edge); }
+  .fs-stamp{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    margin-top: 14px;
+    padding: 12px 14px;
+    border:1px solid var(--hair); border-radius:12px;
+    background: var(--card-2);
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.84rem;
+  }
+  .fs-stamp.broken{
+    border-color: var(--danger-edge);
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+  .fs-stamp .vec{
+    font-size:.78rem; color: var(--muted);
+  }
+  .fs-stamp.broken .vec{ color: var(--danger); }
+
+  /* ===== §6 Replay ===== */
+  .replay-grid{
+    display:grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    margin-top: clamp(28px, 3.4vw, 40px);
+  }
+  @media (max-width: 900px){ .replay-grid{ grid-template-columns: 1fr; } }
+  .replay-card{
+    border:1px solid var(--hair); border-radius:16px;
+    background: var(--card);
+    padding: 20px 22px;
+    display:flex; flex-direction:column; gap: 14px;
+  }
+  .replay-card .tag{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.7rem; letter-spacing:.1em; text-transform:uppercase;
+    color: var(--wire);
+  }
+  .replay-card .tag.danger{ color: var(--danger); }
+  .replay-card h3{ margin:0; font-size:1.05rem; font-weight:700; letter-spacing:-0.018em; }
+  .proof-anim{ width:100%; height:auto; display:block; }
+  .proof-anim text{ font-family:"SF Mono",ui-monospace,Menlo,monospace; }
+
+  /* ===== §7 LCA Merkle ===== */
+  .lca-card{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px;
+    background: var(--card);
+    padding: clamp(18px, 2.8vw, 28px);
+    display:flex; flex-direction:column; gap: 14px;
+  }
+  .lca-controls{
+    display:flex; flex-wrap:wrap; gap: 16px; align-items:center;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.82rem;
+    color: var(--muted);
+  }
+  .lca-controls .info{
+    display:flex; gap: 16px; flex-wrap:wrap;
+  }
+  .lca-controls .info .k{ color: var(--muted); }
+  .lca-controls .info .v{ color: var(--fg); }
+  .lca-svg{ width:100%; height:auto; display:block; max-height: 520px; }
+  .lca-svg text{ font-family:"SF Mono",ui-monospace,Menlo,monospace; }
+  .lca-legend{
+    display:flex; gap: 18px; flex-wrap:wrap;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.74rem; color: var(--muted);
+  }
+  .lca-legend .sw{ display:inline-block; width:14px; height:3px; vertical-align:middle; margin-right:6px; border-radius:2px; }
+  .stamp-broken{
+    margin-top: 14px;
+    border:1px solid var(--danger-edge);
+    background: var(--danger-soft);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--danger);
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.82rem;
+  }
+
+  /* ===== §8 TTL timeline ===== */
+  .ttl-card{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px;
+    background: var(--card);
+    padding: 20px 24px;
+    display:flex; flex-direction:column; gap: 14px;
+  }
+  .ttl-svg{ width:100%; height:auto; display:block; }
+  .ttl-svg text{ font-family:"SF Mono",ui-monospace,Menlo,monospace; }
+
+  /* ===== §9 Immutability ===== */
+  .imm-grid{
+    display:grid; grid-template-columns: 1fr auto 1fr;
+    gap: 18px; align-items:center;
+    margin-top: clamp(28px, 3.4vw, 40px);
+  }
+  @media (max-width: 820px){ .imm-grid{ grid-template-columns: 1fr; } .imm-grid .arrow{ transform:rotate(90deg); justify-self:center; } }
+  .imm-tag{
+    border:1px solid var(--hair); border-radius:14px;
+    background: var(--card);
+    padding: 18px 20px;
+    display:flex; flex-direction:column; gap: 10px;
+  }
+  .imm-tag .tag-name{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.9rem; color: var(--fg);
+    padding-bottom: 8px; border-bottom: 1px solid var(--hair);
+  }
+  .imm-tag .lock{
+    display:flex; align-items:center; gap: 8px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.74rem; color: var(--wire); letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .imm-tag dl{ margin:0; display:grid; gap:6px; }
+  .imm-tag dl > div{ display:grid; grid-template-columns: 110px 1fr; gap:10px; }
+  .imm-tag dt{ font-size:.72rem; color: var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+  .imm-tag dd{ margin:0; font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.82rem; color: var(--fg); }
+  .imm-tag.migrate dl dd .from{ color: var(--muted); }
+  .imm-tag.migrate dl dd .arr{ color: var(--amber); padding: 0 6px; }
+  .arrow{ font-family:"SF Mono",ui-monospace,Menlo,monospace; color: var(--muted); font-size:1.4rem; text-align:center; }
+
+  /* ===== §10 Soundness scope (venn) ===== */
+  .venn-grid{
+    display:grid; grid-template-columns: 1.4fr 1fr; gap: 18px;
+    margin-top: clamp(28px, 3.4vw, 40px);
+  }
+  @media (max-width: 900px){ .venn-grid{ grid-template-columns: 1fr; } }
+  .venn-card{
+    border:1px solid var(--hair); border-radius:16px;
+    background: var(--card);
+    padding: 18px 20px;
+    display:flex; flex-direction:column; gap: 12px;
+  }
+  .venn-svg{ width:100%; height:auto; display:block; }
+  .venn-svg text{ font-family:"SF Mono",ui-monospace,Menlo,monospace; }
+  .pred-list{ display:flex; flex-direction:column; gap: 4px; }
+  .pred-list .row{
+    display:grid; grid-template-columns: 1fr auto;
+    gap: 10px; align-items:center;
+    padding: 8px 10px; border-radius: 8px;
+    border: 1px solid var(--hair); background: var(--card-2);
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.82rem;
+  }
+  .pred-list .row.inner{ border-color: var(--ok-edge); background: var(--ok-soft); }
+  .pred-list .row .pill{
+    font-size:.66rem; padding: 2px 8px; border-radius: 999px;
+    border:1px solid var(--hair-strong); color: var(--muted); letter-spacing:.06em; text-transform:uppercase;
+  }
+  .pred-list .row.inner .pill{ color: var(--ok); border-color: var(--ok-edge); }
+
+  /* ===== §11 Crypto foundations ===== */
+  .crypt-grid{
+    display:grid; grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: clamp(28px, 3.4vw, 40px);
+  }
+  @media (max-width: 900px){ .crypt-grid{ grid-template-columns: 1fr; } }
+  .crypt-card{
+    border:1px solid var(--hair); border-radius:14px;
+    background: var(--card);
+    padding: 16px 18px;
+    display:flex; flex-direction:column; gap: 10px;
+  }
+  .crypt-card h4{ margin:0; font-size:1rem; font-weight:700; letter-spacing:-0.018em; }
+  .crypt-card .lbl{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.66rem; color: var(--muted); letter-spacing:.1em; text-transform:uppercase;
+  }
+  .crypt-card dl{ margin:0; display:grid; gap:4px; }
+  .crypt-card dl > div{ display:grid; grid-template-columns: 110px 1fr; gap:10px; align-items:start; }
+  .crypt-card dt{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.76rem; color: var(--muted); }
+  .crypt-card dd{ margin:0; font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.82rem; color: var(--fg); }
+  .tag-table{
+    margin-top: 4px;
+    border:1px solid var(--hair); border-radius:10px; overflow:hidden;
+    background: var(--card-2);
+  }
+  .tag-table table{ width:100%; border-collapse:collapse; }
+  .tag-table th, .tag-table td{
+    text-align:left; padding: 8px 12px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.78rem; border-bottom:1px solid var(--hair);
+  }
+  .tag-table th{ color: var(--muted); font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; font-weight:500; }
+  .tag-table tr:last-child td{ border-bottom:none; }
+  .tag-table .pin{ color: var(--amber); font-size:.7rem; }
+
+  /* ===== §12 Iteration timeline ===== */
+  .iter{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px;
+    background: var(--card);
+    padding: 18px 22px;
+  }
+  .iter-track{
+    display:grid; grid-template-columns: repeat(7, 1fr);
+    gap: 0;
+    position: relative;
+    padding-top: 18px;
+  }
+  @media (max-width: 820px){ .iter-track{ grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 540px){ .iter-track{ grid-template-columns: repeat(2, 1fr); } }
+  .iter-step{
+    position: relative;
+    padding: 26px 8px 8px 0;
+    border-top: 1px solid var(--hair);
+    margin-top: -1px;
+  }
+  .iter-step::before{
+    content:'';
+    position:absolute; top:-4px; left:0;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--wire);
+  }
+  .iter-step.head::before{ background: var(--amber); }
+  .iter-step .v{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.78rem; color: var(--fg);
+  }
+  .iter-step .d{
+    font-size:.78rem; color: var(--muted); line-height:1.4;
+    margin-top: 4px;
+  }
+
+  /* ===== Footer ===== */
+  footer{
+    padding: 40px clamp(20px, 5vw, 56px) 80px;
+    color: var(--muted); font-size:.88rem; max-width:1080px; margin:0 auto;
+    display:flex; flex-direction:column; gap: 16px;
+  }
+  footer a{ color: var(--fg); text-decoration: underline; text-decoration-color: var(--hair); text-underline-offset:3px; }
+  footer a:hover{ text-decoration-color: var(--fg); }
+  .links{
+    display:flex; gap: 18px; flex-wrap:wrap;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    *{ scroll-behavior:auto !important; transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body x-data="page()">
+
+<!-- ============== Nav ============== -->
+<nav class="nav" aria-label="Site">
+  <div style="max-width:1080px;margin:0 auto;padding:14px clamp(20px, 5vw, 56px);display:flex;align-items:center;justify-content:space-between;gap:18px;">
+    <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+      <span class="nav-mark mono" aria-hidden="true">SEP</span>
+      <span style="font-weight:600;letter-spacing:-0.01em;" class="mono">agmk</span>
+      <span class="nav-crumb">/ keystone contract · SEP draft v0.4.2</span>
+    </div>
+    <a href="/" class="text-[12.5px] muted hover:text-[var(--fg)] focus-ring" style="white-space:nowrap;">&larr; Back</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============== §0 Hero ============== -->
+<section data-screen-label="00 Hero" aria-labelledby="hero-h">
+  <p class="eyebrow">Stellar Ecosystem Proposal · Anonymous Group-Membership Keystone</p>
+  <h1 class="hero" id="hero-h">One contract. Any update relation. No admin.</h1>
+  <p class="lede">A Soroban-hosted keystone that verifies one PLONK proof per state-transition step and stays neutral about what the transition means. Admission, removal, key rotation, liveness-tick — all share <span class="mono">apply(tag, new_root, expected_epoch, proof, extras)</span>.</p>
+  <p class="body muted">The SEP is normative for the contract interface only. Each tag points to an immutable <span class="mono">(vk, vk_digest, pi_schema_hash, bootstrap_root, registrant)</span> and a mutable <span class="mono">(current_root, epoch)</span>. Concrete governance predicates are deferred to downstream proposals — this is the host, not the policy.</p>
+
+  <div class="bom" aria-label="Contract surface">
+    <span class="b">register_relation</span><span class="sep">·</span>
+    <span class="b">apply</span><span class="sep">·</span>
+    <span class="b">bump_ttl</span><span class="sep">▲</span>
+    <span class="cap mono">9 read-only views · 0 admin methods</span>
+  </div>
+
+  <div class="stat-strip" aria-label="AGMK at a glance">
+    <div><div class="val">0</div><div class="label">privileged methods</div></div>
+    <div><div class="val">3</div><div class="label">mutating methods</div></div>
+    <div><div class="val">5</div><div class="label">PLONK public inputs</div></div>
+    <div><div class="val">8</div><div class="label">FS transcript slots</div></div>
+    <div><div class="val">0</div><div class="label">contract-tracked nullifiers</div></div>
+    <div><div class="val">1</div><div class="label">immutable registration per tag</div></div>
+  </div>
+</section>
+
+<!-- ============== §1 Contract surface ============== -->
+<section data-screen-label="01 Contract surface" aria-labelledby="surface-h" x-data="methods()">
+  <p class="eyebrow">§1 · the contract surface</p>
+  <h2 class="heading" id="surface-h">Three mutating methods. Nine read-only views. Nothing else.</h2>
+  <p class="lede">Click any method to expand it. The contract has no <span class="mono">init</span>, no <span class="mono">revoke_admin</span>, no <span class="mono">set_paused</span>. The set below is closed.</p>
+
+  <div class="no-admin-pill" aria-label="No admin">
+    <span class="dot" aria-hidden="true"></span>
+    NO ADMIN · no init · no pause · no upgrade · no privileged caller
+  </div>
+
+  <div class="wall-card" style="padding:0; background:transparent; border:none; margin-top:18px;">
+    <div class="methods">
+      <template x-for="m in methods" :key="m.id">
+        <div class="method" :data-open="open===m.id" :data-mut="m.mut">
+          <div class="method-head" role="button" tabindex="0"
+               :aria-expanded="open===m.id"
+               @click="toggle(m.id)"
+               @keydown.enter.prevent="toggle(m.id)"
+               @keydown.space.prevent="toggle(m.id)">
+            <div class="method-num" x-text="m.num"></div>
+            <div class="method-sig">
+              <div class="sig" x-html="m.sig"></div>
+              <div class="gist" x-text="m.gist"></div>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <span class="method-pill" :class="m.mut ? 'mut' : 'ro'" x-text="m.mut ? 'mutating' : 'read-only'"></span>
+              <span class="muted mono" style="font-size:.7rem;" x-text="open===m.id ? '−' : '+'"></span>
+            </div>
+          </div>
+          <div class="method-body" x-show="open===m.id" x-transition>
+            <div>
+              <div class="lbl">inputs</div>
+              <ul>
+                <template x-for="i in m.inputs" :key="i.n">
+                  <li><span class="ty" x-text="i.t"></span> <span x-text="i.n"></span></li>
+                </template>
+              </ul>
+            </div>
+            <div>
+              <div class="lbl">does</div>
+              <ul>
+                <template x-for="d in m.does" :key="d">
+                  <li x-text="d"></li>
+                </template>
+              </ul>
+            </div>
+            <div>
+              <div class="lbl">emits / returns</div>
+              <ul>
+                <template x-for="e in m.out" :key="e">
+                  <li x-text="e"></li>
+                </template>
+              </ul>
+              <div class="secref" x-text="m.secref"></div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <h3 class="sub" style="margin-top: 28px;">Nine read-only views</h3>
+  <p class="caption" style="margin-top:6px;">Per <span class="mono">tag</span>, plus one global. None of these mutates state. None requires authentication.</p>
+  <div class="views" aria-label="Read-only views">
+    <div><span class="nm">current_root(tag)</span><span class="rt">Field · advances with each apply</span></div>
+    <div><span class="nm">current_epoch(tag)</span><span class="rt">u64 · monotone counter</span></div>
+    <div><span class="nm">vk_digest(tag)</span><span class="rt">BytesN&lt;32&gt; · immutable</span></div>
+    <div><span class="nm">bootstrap_root(tag)</span><span class="rt">Field · immutable</span></div>
+    <div><span class="nm">pi_schema_hash(tag)</span><span class="rt">BytesN&lt;32&gt; · immutable</span></div>
+    <div><span class="nm">extras_arity(tag)</span><span class="rt">u32 · immutable</span></div>
+    <div><span class="nm">registrant(tag)</span><span class="rt">Address · audit only</span></div>
+    <div><span class="nm">is_registered(tag)</span><span class="rt">bool · existence probe</span></div>
+    <div><span class="nm">protocol_version()</span><span class="rt">u32 · contract-wide</span></div>
+  </div>
+</section>
+
+<!-- ============== §2 Relation registry ============== -->
+<section data-screen-label="02 Relation registry" aria-labelledby="reg-h" x-data="registry()">
+  <p class="eyebrow">§2 · the relation registry</p>
+  <h2 class="heading" id="reg-h">One contract address. Many tags. Each tag is its own state machine.</h2>
+  <p class="lede">A relation is registered once, permissionlessly, under a <span class="mono">Symbol</span> tag. After that, only <span class="mono">apply(tag, …)</span> can advance its state. The immutable half of the record (vk, schemas, bootstrap) is locked at registration; the mutable half (root, epoch) advances on every apply.</p>
+
+  <div class="registry">
+    <div class="registry-head">
+      <span>contract <span class="addr">C&hellip;AGMK</span> · soroban / wasm</span>
+      <span>4 sample tags · illustrative</span>
+    </div>
+    <div class="registry-rows">
+      <template x-for="(r, i) in rels" :key="r.tag">
+        <div class="relrow" :data-open="openTag===r.tag">
+          <div class="relrow-head" role="button" tabindex="0"
+               :aria-expanded="openTag===r.tag"
+               @click="toggle(r.tag)"
+               @keydown.enter.prevent="toggle(r.tag)"
+               @keydown.space.prevent="toggle(r.tag)">
+            <span class="ix" x-text="String(i).padStart(2,'0')"></span>
+            <span class="tag" x-text="r.tag"></span>
+            <span class="pill" x-text="r.kind"></span>
+            <span class="chev mono" aria-hidden="true">›</span>
+          </div>
+          <div class="relrow-body" x-show="openTag===r.tag" x-transition>
+            <div class="reltab">
+              <div>
+                <div class="sect immut"><span class="lk">▣</span> immutable · set at register_relation</div>
+                <dl>
+                  <div><dt>vk_digest</dt><dd x-text="r.vk_digest"></dd></div>
+                  <div><dt>pi_schema_hash</dt><dd x-text="r.pi_schema_hash"></dd></div>
+                  <div><dt>extras_arity</dt><dd x-text="r.extras_arity"></dd></div>
+                  <div><dt>bootstrap_root</dt><dd x-text="r.bootstrap"></dd></div>
+                  <div><dt>registrant</dt><dd x-text="r.registrant"></dd></div>
+                </dl>
+              </div>
+              <div>
+                <div class="sect mut"><span class="lk">↻</span> mutable · advanced by apply</div>
+                <dl>
+                  <div><dt>current_root</dt><dd x-text="r.root"></dd></div>
+                  <div><dt>epoch</dt><dd x-text="r.epoch"></dd></div>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <div class="callout">
+    <span class="lbl">caveat</span>
+    Tag presence on chain ≠ trust attestation. Registration is permissionless; anyone can register any tag. Users verify <span class="mono">(vk_digest, pi_schema_hash, bootstrap_root)</span> against the relation author's published artifacts out of band before trusting any tag. The contract is an interface, not a registry of approved governance.
+  </div>
+</section>
+
+<!-- ============== §3 Apply pipeline ============== -->
+<section data-screen-label="03 Apply pipeline" aria-labelledby="pipe-h" x-data="pipeline()">
+  <p class="eyebrow">§3 · the apply pipeline</p>
+  <h2 class="heading" id="pipe-h">Eleven ordered checks. Three of them are cheap. One is expensive.</h2>
+  <p class="lede">The body of <span class="mono">apply(tag, new_root, expected_epoch, proof, extras)</span> in order. Cheap pre-verifier checks fail fast so that a bad transaction does not pay for the BLS12-381 pairing call at step 8. Click any step to toggle its <em>fail</em> mode and see the corresponding revert code.</p>
+
+  <div class="pipe-grid">
+    <div class="pipe-list" role="list" aria-label="Apply pipeline steps">
+      <div class="pipe-controls">
+        <div class="ix">step <span x-text="String(step+1).padStart(2,'0')"></span> / 11 · <span x-text="failed!==null ? 'HALTED' : (step===10 ? 'COMMITTED' : 'in flight')"></span></div>
+        <div class="right">
+          <button class="btn primary" type="button" @click="reset(); play()">▶ Run</button>
+          <button class="btn" type="button" @click="prev()" :disabled="step===0">◂</button>
+          <button class="btn" type="button" @click="next()" :disabled="step===steps.length-1">▸</button>
+          <button class="btn" type="button" @click="reset()">Reset</button>
+        </div>
+      </div>
+      <template x-for="(s, i) in steps" :key="i">
+        <button class="pipe-step"
+                role="listitem"
+                :class="{
+                  cheap: s.cheap,
+                  expensive: s.expensive,
+                  active: step===i && failed===null,
+                  passed: failed===null && step>i,
+                  failed: failed===i
+                }"
+                @click="toggleFail(i)">
+          <span class="n">
+            <span class="marker"></span>
+            <span x-text="String(i+1).padStart(2,'0')"></span>
+          </span>
+          <span class="name">
+            <span x-text="s.title"></span>
+            <span class="sub" x-text="s.sub"></span>
+          </span>
+          <span class="err" x-text="s.err"></span>
+        </button>
+      </template>
+      <div class="pipe-legend">
+        <span><span class="dot cheap"></span>cheap (steps 1, 3, 4)</span>
+        <span><span class="dot expensive"></span>expensive · 1 pairing (step 8)</span>
+      </div>
+    </div>
+
+    <div class="state-panel" aria-live="polite">
+      <div style="display:flex; justify-content:space-between; align-items:baseline; gap:10px;">
+        <h3 style="margin:0; font-size:1.05rem; font-weight:700; letter-spacing:-0.018em;">RelationState(tag)</h3>
+        <span class="mono" style="font-size:.7rem; color: var(--muted); letter-spacing:.06em; text-transform:uppercase;" x-text="failed!==null ? 'REVERTED · NO WRITE' : (step>=8 ? 'WRITTEN' : 'unchanged')"></span>
+      </div>
+      <div class="state-row">
+        <div class="state-cell before">
+          <span class="nm">before · current_root</span>
+          <span class="v" x-text="rootBefore"></span>
+        </div>
+        <div class="state-cell" :class="failed!==null ? 'fail' : (step>=8 ? 'after' : 'before')">
+          <span class="nm">after · current_root</span>
+          <span class="v" x-text="failed!==null ? rootBefore : (step>=8 ? rootAfter : rootBefore)"></span>
+        </div>
+      </div>
+      <div class="state-row">
+        <div class="state-cell before">
+          <span class="nm">before · epoch</span>
+          <span class="v" x-text="epochBefore"></span>
+        </div>
+        <div class="state-cell" :class="failed!==null ? 'fail' : (step>=8 ? 'after' : 'before')">
+          <span class="nm">after · epoch</span>
+          <span class="v" x-text="failed!==null ? epochBefore : (step>=8 ? (epochBefore+1) : epochBefore)"></span>
+        </div>
+      </div>
+
+      <div class="state-pi" aria-label="PI vector being assembled">
+        <div class="pi-lbl">public-input vector · assembled at step 7</div>
+        <div class="slot"><span class="ix">[0]</span><span class="nm">C_g</span><span class="v" x-text="step>=7 ? rootBefore : '—'"></span></div>
+        <div class="slot"><span class="ix">[1]</span><span class="nm">C_g'</span><span class="v" x-text="step>=7 ? rootAfter : '—'"></span></div>
+        <div class="slot"><span class="ix">[2]</span><span class="nm">e_Fr</span><span class="v" x-text="step>=7 ? '0x'+String(epochBefore).padStart(2,'0')+'..00' : '—'"></span></div>
+        <div class="slot"><span class="ix">[3]</span><span class="nm">t_Fr</span><span class="v" x-text="step>=6 ? '0x4a..af' : '—'"></span></div>
+        <div class="slot"><span class="ix">[4]</span><span class="nm">r_ext</span><span class="v" x-text="step>=5 ? '0xc1..7d' : '—'"></span></div>
+      </div>
+
+      <template x-if="failed!==null">
+        <div class="revert-bar">
+          <span class="nm">REVERT</span>
+          <span x-text="steps[failed].revert"></span>
+        </div>
+      </template>
+      <template x-if="failed===null && step===10">
+        <div class="emit-bar">
+          <span class="nm">EMITTED</span>
+          <span x-text="`applied { tag, prev_root: ${rootBefore}, new_root: ${rootAfter}, new_epoch: ${epochBefore+1} }`"></span>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <p class="caption">Order matters. Steps 1, 3, 4 are constant-time bound/lookup checks — Soroban refunds nothing, but a bad caller never pays for the pairing. Steps 9–11 are unconditional once step 8 returns true: the contract never decides whether to advance — it advances iff the proof is valid for <span class="mono">(tag, expected_epoch, extras)</span>.</p>
+</section>
+
+<!-- ============== §4 PI folding ============== -->
+<section data-screen-label="04 PI folding" aria-labelledby="pi-h" x-data="piFold()">
+  <p class="eyebrow">§4 · the fixed-5 public-input vector</p>
+  <h2 class="heading" id="pi-h">Per-relation extras of any arity collapse into one field element.</h2>
+  <p class="lede">The verifier sees the same five-element PI vector for every relation registered under this SEP. Only the verifying key differs. Per-call extras of arbitrary arity fold into <span class="mono">r_ext</span> through a Poseidon2 absorption tagged with <span class="mono">EXTRAS_TAG_FR</span>.</p>
+
+  <div class="pi-grid">
+    <div class="pi-col">
+      <div class="h">left · extras vector · arity N</div>
+      <div class="pi-slider-row">
+        <span>N =</span>
+        <input type="range" min="0" max="8" step="1" x-model.number="n" aria-label="Extras arity N (0 to 8)" />
+        <span x-text="n"></span>
+        <span class="muted" x-text="n===0 ? '(no per-call data)' : (n===1 ? 'e.g. nullifier' : 'e.g. nullifier + acc-root + …')"></span>
+      </div>
+      <div class="extras">
+        <template x-for="i in extrasIdx" :key="i">
+          <div class="e">
+            <span class="ix" x-text="'['+i+']'"></span>
+            <span x-text="extrasLabel(i)"></span>
+          </div>
+        </template>
+        <template x-if="n===0">
+          <div class="empty">— extras empty —</div>
+        </template>
+      </div>
+      <p class="muted mono" style="font-size:.72rem; line-height:1.5; margin:0;">max arity at the contract boundary: 32 (1024 bytes). Above realistic needs; below the gas-cost knee.</p>
+    </div>
+
+    <div class="pi-col">
+      <div class="h">center · Poseidon2 sponge · r=2 · c=1</div>
+      <svg class="sponge" viewBox="0 0 340 240" role="img" aria-label="Poseidon2 sponge absorbing EXTRAS_TAG_FR, N, extras">
+        <!-- Inputs streaming in -->
+        <g fill="var(--muted)" font-size="9">
+          <text x="6" y="30">absorb →</text>
+        </g>
+        <g font-size="11">
+          <!-- Tag -->
+          <rect x="6" y="40" width="84" height="24" rx="4"
+            fill="var(--amber-soft)" stroke="var(--amber-edge)"/>
+          <text x="48" y="56" text-anchor="middle" fill="var(--amber)">EXTRAS_TAG_FR</text>
+          <!-- N -->
+          <rect x="6" y="70" width="84" height="24" rx="4"
+            fill="var(--wire-soft)" stroke="var(--wire-edge)"/>
+          <text x="48" y="86" text-anchor="middle" fill="var(--wire)" x-text="'N = '+n"></text>
+          <!-- extras tokens (stacked, up to 8) -->
+          <g x-show="n>=1"><rect x="6" y="100" width="84" height="14" rx="3" fill="var(--wire-soft)" stroke="var(--wire-edge)"/><text x="48" y="111" text-anchor="middle" fill="var(--fg)">extras[0]</text></g>
+          <g x-show="n>=2"><rect x="6" y="116" width="84" height="14" rx="3" fill="var(--wire-soft)" stroke="var(--wire-edge)"/><text x="48" y="127" text-anchor="middle" fill="var(--fg)">extras[1]</text></g>
+          <g x-show="n>=3"><rect x="6" y="132" width="84" height="14" rx="3" fill="var(--wire-soft)" stroke="var(--wire-edge)"/><text x="48" y="143" text-anchor="middle" fill="var(--fg)">extras[2]</text></g>
+          <g x-show="n>=4"><rect x="6" y="148" width="84" height="14" rx="3" fill="var(--wire-soft)" stroke="var(--wire-edge)"/><text x="48" y="159" text-anchor="middle" fill="var(--fg)">extras[3]</text></g>
+          <g x-show="n>=5"><rect x="6" y="164" width="84" height="14" rx="3" fill="var(--wire-soft)" stroke="var(--wire-edge)"/><text x="48" y="175" text-anchor="middle" fill="var(--fg)">extras[4]</text></g>
+          <g x-show="n>=6"><rect x="6" y="180" width="84" height="14" rx="3" fill="var(--wire-soft)" stroke="var(--wire-edge)"/><text x="48" y="191" text-anchor="middle" fill="var(--fg)">extras[5]</text></g>
+          <g x-show="n>=7"><rect x="6" y="196" width="84" height="14" rx="3" fill="var(--wire-soft)" stroke="var(--wire-edge)"/><text x="48" y="207" text-anchor="middle" fill="var(--fg)">extras[6]</text></g>
+          <g x-show="n>=8"><rect x="6" y="212" width="84" height="14" rx="3" fill="var(--wire-soft)" stroke="var(--wire-edge)"/><text x="48" y="223" text-anchor="middle" fill="var(--fg)">extras[7]</text></g>
+        </g>
+
+        <!-- Sponge body -->
+        <g>
+          <rect x="120" y="40" width="120" height="160" rx="14"
+            fill="var(--card-2)" stroke="var(--hair-strong)"/>
+          <text x="180" y="60" text-anchor="middle" font-size="10" fill="var(--muted)">Poseidon2</text>
+          <text x="180" y="74" text-anchor="middle" font-size="10" fill="var(--muted)">t=3 · α=5 · R_F=8 · R_P=56</text>
+          <!-- state cells -->
+          <g font-size="10">
+            <rect x="132" y="92" width="96" height="24" rx="4" fill="var(--wire-soft)" stroke="var(--wire-edge)"/>
+            <text x="180" y="108" text-anchor="middle" fill="var(--wire)">s₀ (rate)</text>
+            <rect x="132" y="120" width="96" height="24" rx="4" fill="var(--wire-soft)" stroke="var(--wire-edge)"/>
+            <text x="180" y="136" text-anchor="middle" fill="var(--wire)">s₁ (rate)</text>
+            <rect x="132" y="148" width="96" height="24" rx="4" fill="var(--card)" stroke="var(--hair)"/>
+            <text x="180" y="164" text-anchor="middle" fill="var(--muted)">s₂ (cap)</text>
+          </g>
+          <text x="180" y="190" text-anchor="middle" font-size="9" fill="var(--muted)">IV = 0 · additive · pad-1</text>
+        </g>
+
+        <!-- Output arrow -->
+        <g>
+          <path d="M240,120 L300,120" stroke="var(--amber)" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+          <text x="270" y="112" text-anchor="middle" font-size="9" fill="var(--muted)">squeeze s₀</text>
+          <rect x="248" y="130" width="84" height="24" rx="4" fill="var(--amber-soft)" stroke="var(--amber-edge)"/>
+          <text x="290" y="146" text-anchor="middle" font-size="11" fill="var(--amber)">r_ext</text>
+        </g>
+
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L6,3 L0,6 Z" fill="var(--amber)"/>
+          </marker>
+        </defs>
+      </svg>
+      <p class="muted mono" style="font-size:.72rem; line-height:1.5; margin:0;">absorb [EXTRAS_TAG_FR, N, extras…] → squeeze s₀ → r_ext</p>
+    </div>
+
+    <div class="pi-col">
+      <div class="h">right · public-input vector · fixed 5 slots</div>
+      <div class="pi-out">
+        <div class="pi-slot"><span class="ix">[0]</span><span class="nm">C_g</span><span class="v">current_root</span></div>
+        <div class="pi-slot"><span class="ix">[1]</span><span class="nm">C_g'</span><span class="v">new_root</span></div>
+        <div class="pi-slot"><span class="ix">[2]</span><span class="nm">e_Fr</span><span class="v">expected_epoch</span></div>
+        <div class="pi-slot"><span class="ix">[3]</span><span class="nm">t_Fr</span><span class="v">H(TAG_TAG_FR, tag)</span></div>
+        <div class="pi-slot r"><span class="ix">[4]</span><span class="nm">r_ext</span><span class="v" x-text="n===0 ? 'H(EXTRAS_TAG_FR, [])' : 'H(EXTRAS_TAG_FR, '+n+' fields)'"></span></div>
+      </div>
+      <p class="muted mono" style="font-size:.72rem; line-height:1.5; margin:0;">Every relation. Same 5 slots. Only the vk differs.</p>
+    </div>
+  </div>
+
+  <p class="caption">The fold has one job: keep the verifier's public-input shape constant across every relation registered under this SEP, so that the on-chain pairing is a single, schema-fixed call. Per-relation discipline (witness, predicate, replay) lives <em>inside</em> the circuit, not in the contract.</p>
+</section>
+
+<!-- ============== §5 Fiat-Shamir transcript ============== -->
+<section data-screen-label="05 Fiat-Shamir transcript" aria-labelledby="fs-h" x-data="fs()">
+  <p class="eyebrow">§5 · the Fiat–Shamir transcript</p>
+  <h2 class="heading" id="fs-h">Eight slots. Order is normative.</h2>
+  <p class="lede">The transcript pre-binds the verifying key, the schema, the tag, the public-input vector, and the per-call extras digest <em>before</em> the prover's first commitment is absorbed. Any permutation of slots breaks soundness; click <span class="mono">swap →</span> next to any slot to swap with its right neighbour and trip the corresponding conformance vector.</p>
+
+  <div class="fs-strip" role="list" aria-label="Fiat-Shamir transcript slots">
+    <template x-for="(s, i) in slots" :key="s.id">
+      <div class="fs-slot" :class="swapPair===i ? 'swapped' : (swapPair===(i-1+8)%8 ? 'swapped' : '')" role="listitem">
+        <span class="ix" x-text="'slot '+i"></span>
+        <span class="nm" x-html="display(i)"></span>
+        <button class="swap" type="button" @click="setSwap(i)" :aria-label="`Swap slot ${i} with slot ${(i+1)%8}`">swap →</button>
+      </div>
+    </template>
+  </div>
+
+  <div class="fs-stamp" :class="swapPair!==null ? 'broken' : ''">
+    <template x-if="swapPair===null">
+      <span>order intact · soundness preserved</span>
+    </template>
+    <template x-if="swapPair!==null">
+      <span>SOUNDNESS BROKEN · slots <span x-text="swapPair"></span> and <span x-text="(swapPair+1)%8"></span> transposed</span>
+    </template>
+    <span class="vec" x-text="swapPair!==null ? ('conformance vector: tx_swap_'+swapPair+'_'+((swapPair+1)%8)) : '8 transposition vectors define the KAT set'"></span>
+    <template x-if="swapPair!==null">
+      <button class="btn" type="button" @click="setSwap(null)" style="padding:3px 10px;">clear</button>
+    </template>
+  </div>
+
+  <p class="caption">The eight transposition vectors <span class="mono">tx_swap_0_1</span> … <span class="mono">tx_swap_7_0</span> are the SEP's transcript-discipline KAT set. A conformant verifier rejects all eight. A verifier that accepts any of them is, by definition, off-spec.</p>
+</section>
+
+<!-- ============== §6 Replay ============== -->
+<section data-screen-label="06 Replay protection" aria-labelledby="rep-h">
+  <p class="eyebrow">§6 · replay protection · two layers</p>
+  <h2 class="heading" id="rep-h">Proof-bytes replay is the contract's problem. Witness-level replay is the predicate's.</h2>
+  <p class="lede">Bisecting the replay surface is the architectural choice. The contract enforces the cheap, universal layer; the relation circuit enforces the expensive, relation-specific one. The contract does not track nullifiers.</p>
+
+  <div class="replay-grid">
+    <div class="replay-card" x-data="replayLayer1()">
+      <span class="tag">layer 1 · contract-enforced</span>
+      <h3>Proof-bytes replay → fails at step 4 (EpochMismatch).</h3>
+      <p class="muted" style="margin:0; font-size:.92rem; line-height:1.55;">The same proof bytes resubmitted after a successful apply bind to a stale <span class="mono">expected_epoch</span>. State has already advanced; the pre-verifier check rejects before the pairing.</p>
+
+      <svg class="proof-anim" viewBox="0 0 460 200" role="img" aria-label="Proof bytes replay attempt failing at epoch check">
+        <!-- Submission 1: success -->
+        <g>
+          <text x="10" y="22" font-size="10" fill="var(--muted)">submission 1</text>
+          <rect x="10" y="30" width="180" height="42" rx="6" fill="var(--wire-soft)" stroke="var(--wire-edge)"/>
+          <text x="100" y="48" text-anchor="middle" font-size="11" fill="var(--wire)">proof π · epoch = 7</text>
+          <text x="100" y="62" text-anchor="middle" font-size="9" fill="var(--muted)">verify · advance · epoch→8</text>
+          <path d="M195,51 L255,51" stroke="var(--ok)" stroke-width="2" marker-end="url(#ok)"/>
+          <rect x="260" y="30" width="180" height="42" rx="6" fill="var(--ok-soft)" stroke="var(--ok-edge)"/>
+          <text x="350" y="48" text-anchor="middle" font-size="11" fill="var(--ok)">applied · state.epoch = 8</text>
+          <text x="350" y="62" text-anchor="middle" font-size="9" fill="var(--muted)">root advanced</text>
+        </g>
+        <!-- Submission 2: failure -->
+        <g>
+          <text x="10" y="112" font-size="10" fill="var(--muted)">submission 2 · same bytes</text>
+          <rect x="10" y="120" width="180" height="42" rx="6" fill="var(--danger-soft)" stroke="var(--danger-edge)"/>
+          <text x="100" y="138" text-anchor="middle" font-size="11" fill="var(--danger)">proof π · epoch = 7</text>
+          <text x="100" y="152" text-anchor="middle" font-size="9" fill="var(--danger)">stale · still binds epoch 7</text>
+          <path d="M195,141 L255,141" stroke="var(--danger)" stroke-width="2" marker-end="url(#bad)"/>
+          <rect x="260" y="120" width="180" height="42" rx="6" fill="var(--danger-soft)" stroke="var(--danger-edge)"/>
+          <text x="350" y="138" text-anchor="middle" font-size="11" fill="var(--danger)">REVERT · EpochMismatch</text>
+          <text x="350" y="152" text-anchor="middle" font-size="9" fill="var(--muted)">step 4 · expected 7 ≠ state 8</text>
+        </g>
+        <defs>
+          <marker id="ok" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--ok)"/></marker>
+          <marker id="bad" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--danger)"/></marker>
+        </defs>
+      </svg>
+
+      <p class="muted" style="margin:0; font-size:.86rem; line-height:1.55;"><span class="mono">expected_epoch</span> is in the PI vector. Fiat–Shamir binds the entire transcript, including the epoch field element, into every challenge. A proof for epoch 7 is cryptographically distinct from a proof for epoch 8 — the contract just has to read the epoch out and compare.</p>
+    </div>
+
+    <div class="replay-card">
+      <span class="tag">layer 2 · predicate-enforced</span>
+      <h3>Witness-level replay → two patterns. Pick one inside R_Upd.</h3>
+
+      <div style="display:flex; flex-direction:column; gap: 10px;">
+        <div style="border:1px solid var(--ok-edge); border-radius:10px; padding:14px; background: var(--ok-soft);">
+          <div style="font-family: var(--mono); font-size:.72rem; color: var(--ok); letter-spacing:.08em; text-transform:uppercase; margin-bottom:6px;">pattern (a) · preferred · in-tree spent-slot</div>
+          <svg viewBox="0 0 380 110" class="proof-anim" role="img" aria-label="Same-step LIVE to SPENT leaf transition">
+            <!-- before -->
+            <text x="10" y="14" font-size="9" fill="var(--muted)">before apply</text>
+            <g>
+              <rect x="10" y="22" width="46" height="32" rx="4" fill="var(--ok-soft)" stroke="var(--ok-edge)"/>
+              <text x="33" y="42" text-anchor="middle" font-size="10" fill="var(--ok)">LIVE</text>
+              <text x="33" y="68" text-anchor="middle" font-size="8" fill="var(--muted)">admitter</text>
+            </g>
+            <g opacity="0.5">
+              <rect x="64" y="22" width="46" height="32" rx="4" fill="var(--card-2)" stroke="var(--hair)"/>
+              <text x="87" y="42" text-anchor="middle" font-size="10" fill="var(--muted)">empty</text>
+              <text x="87" y="68" text-anchor="middle" font-size="8" fill="var(--muted)">slot</text>
+            </g>
+            <!-- arrow -->
+            <path d="M140,38 L190,38" stroke="var(--amber)" stroke-width="2" marker-end="url(#go)"/>
+            <text x="165" y="30" text-anchor="middle" font-size="9" fill="var(--muted)">apply</text>
+            <!-- after -->
+            <text x="210" y="14" font-size="9" fill="var(--muted)">after apply · single step</text>
+            <g>
+              <rect x="210" y="22" width="46" height="32" rx="4" fill="var(--danger-soft)" stroke="var(--danger-edge)"/>
+              <text x="233" y="42" text-anchor="middle" font-size="10" fill="var(--danger)">SPENT</text>
+              <text x="233" y="68" text-anchor="middle" font-size="8" fill="var(--muted)">admitter</text>
+            </g>
+            <g>
+              <rect x="264" y="22" width="46" height="32" rx="4" fill="var(--wire-soft)" stroke="var(--wire-edge)"/>
+              <text x="287" y="42" text-anchor="middle" font-size="10" fill="var(--wire)">NEW</text>
+              <text x="287" y="68" text-anchor="middle" font-size="8" fill="var(--muted)">new member</text>
+            </g>
+            <text x="170" y="100" text-anchor="middle" font-size="9" fill="var(--muted)">second attempt: slot already SPENT · R_Upd rejects</text>
+            <defs>
+              <marker id="go" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--amber)"/></marker>
+            </defs>
+          </svg>
+        </div>
+
+        <div style="border:1px solid var(--hair); border-radius:10px; padding:14px;">
+          <div style="font-family: var(--mono); font-size:.72rem; color: var(--muted); letter-spacing:.08em; text-transform:uppercase; margin-bottom:6px;">pattern (b) · external accumulator</div>
+          <p class="muted mono" style="font-size:.78rem; line-height:1.5; margin:0;">acc_root_new = insert(acc_root_old, nullifier(witness))<br/>carry acc_root_old, acc_root_new in <span style="color: var(--amber);">r_ext</span>; circuit proves the insertion alongside the membership update.</p>
+        </div>
+      </div>
+
+      <p class="muted" style="margin:0; font-size:.86rem; line-height:1.55;">The contract does NOT track nullifiers. Soroban archival semantics make a contract-side nullifier set unsound under operational drift — an archived nullifier entry would silently widen the spent-set during a restore window. Pushing witness-level replay into the predicate is the architectural choice.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============== §7 Two-leaf-update with LCA ============== -->
+<section data-screen-label="07 LCA constraint" aria-labelledby="lca-h" x-data="lca()">
+  <p class="eyebrow">§7 · two-leaf-update · the LCA constraint</p>
+  <h2 class="heading" id="lca-h">Two Merkle paths must agree on every level strictly above their LCA.</h2>
+  <p class="lede">For relations using the in-tree spent-slot pattern, a single step updates two leaves: the admitter's (LIVE → SPENT) and an empty slot (∅ → NEW). Each leaf carries its own sibling path. The two paths must be <em>witness-compatible</em>: identical above the lowest common ancestor (LCA), independent below. Drag either marker.</p>
+
+  <div class="lca-card">
+    <div class="lca-controls">
+      <div class="info">
+        <span><span class="k">D =</span> <span class="v">4</span> · <span class="muted">16 leaves (illustrative; spec is parametric)</span></span>
+        <span><span class="k">idx_a =</span> <span class="v" x-text="ia"></span></span>
+        <span><span class="k">idx_e =</span> <span class="v" x-text="ie"></span></span>
+        <span><span class="k">h_LCA =</span> <span class="v" x-text="hLCA"></span></span>
+      </div>
+      <div style="margin-left:auto; display:flex; gap:8px;">
+        <button class="btn" type="button" @click="rand()">Randomize</button>
+        <button class="btn" :class="broken ? 'danger' : ''" type="button" @click="broken=!broken" :aria-pressed="broken" x-text="broken ? '× constraint OFF' : '✓ constraint ON'"></button>
+      </div>
+    </div>
+
+    <svg class="lca-svg" viewBox="0 0 1040 460" role="img" aria-label="Depth-4 Merkle tree with two leaf paths and LCA constraint" x-init="mount($el)">
+      <!-- Depth gutter labels (static) -->
+      <g font-size="9" fill="var(--muted)" opacity="0.55">
+        <text x="14" y="48"  text-anchor="start">root (h=4)</text>
+        <text x="14" y="138" text-anchor="start">h=3</text>
+        <text x="14" y="228" text-anchor="start">h=2</text>
+        <text x="14" y="318" text-anchor="start">h=1</text>
+        <text x="14" y="380" text-anchor="start">leaves (h=0)</text>
+      </g>
+      <!-- Dynamic content mounts into this g -->
+      <g data-lca-mount></g>
+    </svg>
+
+    <div class="lca-legend" aria-label="LCA diagram legend">
+      <span><span class="sw" style="background: var(--wire);"></span>path_a · admitter (idx_a, LIVE→SPENT)</span>
+      <span><span class="sw" style="background: var(--gold);"></span>path_e · empty slot (idx_e, ∅→NEW)</span>
+      <span><span class="sw" style="background: var(--ok); height:2px;"></span>must-be-equal · siblings strictly above LCA</span>
+      <span><span class="sw" style="background: var(--plum);"></span>LCA · lowest common ancestor</span>
+    </div>
+
+    <template x-if="broken">
+      <div class="stamp-broken">
+        <strong>SOUNDNESS BROKEN.</strong> With <span class="mono">path_a[D-1] ≠ path_e[D-1]</span>, the two leaf-paths reconstruct <em>two different values</em> of <span class="mono">C_g'</span>. The PI vector pins exactly one new root — but two distinct subtree roots above the LCA would have to coexist. The predicate is satisfied vacuously: anything can be admitted.
+      </div>
+    </template>
+  </div>
+
+  <p class="caption" id="lca-caption">For two distinct leaves at <span class="mono">idx_a, idx_e</span> in a depth-<span class="mono">D</span> tree, let <span class="mono">h_LCA</span> be the height of their lowest common ancestor. The two-witness compatibility constraint is <span id="lca-constraint" data-tex="\mathsf{path}_a[\ell] = \mathsf{path}_e[\ell]\ \text{for every}\ \ell\ \text{with}\ h_{\text{LCA}} < \ell \le D - 1"></span>. Below the LCA the paths are independent; at the LCA the two sibling values are <em>recomputed subtree roots, not equal in general</em>; above the LCA they must be bit-identical.</p>
+</section>
+
+<!-- ============== §8 TTL ============== -->
+<section data-screen-label="08 TTL discipline" aria-labelledby="ttl-h" x-data="ttl()">
+  <p class="eyebrow">§8 · TTL discipline · archival</p>
+  <h2 class="heading" id="ttl-h">Every apply bumps both entries to network-max. Unconditionally.</h2>
+  <p class="lede">The contract does not decide whether a relation is "active enough" to stay alive. Each <span class="mono">apply</span> extends <em>both</em> persistent entries (Relation + RelationState) to <span class="mono">network_max</span>. For relations that go quiet, <span class="mono">bump_ttl(tag)</span> is permissionless: anyone pays gas to keep them alive.</p>
+
+  <div class="ttl-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+      <div class="mono muted" style="font-size:.78rem; letter-spacing:.04em;">timeline · single relation life</div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn primary" type="button" @click="reset(); play()">▶ Replay</button>
+        <button class="btn" type="button" @click="reset()">Reset</button>
+      </div>
+    </div>
+
+    <svg class="ttl-svg" viewBox="0 0 1040 220" role="img" aria-label="TTL timeline" x-init="mount($el)">
+      <!-- axis -->
+      <line x1="50" y1="170" x2="1010" y2="170" stroke="var(--hair-strong)" stroke-width="1"/>
+      <!-- labels left -->
+      <text x="46" y="65" text-anchor="end" font-size="9" fill="var(--muted)">TTL · network_max</text>
+      <text x="46" y="120" text-anchor="end" font-size="9" fill="var(--muted)">0</text>
+      <!-- Dynamic content mounts here -->
+      <g data-ttl-mount></g>
+    </svg>
+
+    <p class="caption" style="margin-top: 4px;">Archived entries block all future <span class="mono">apply</span>s until <span class="mono">restoreFootprint</span> is included in the calling transaction. The contract bumps TTL <em>before</em> emitting the <span class="mono">applied</span> event, so a successful apply also pays the rent for the next quiet stretch.</p>
+  </div>
+</section>
+
+<!-- ============== §9 Immutability ============== -->
+<section data-screen-label="09 Immutability" aria-labelledby="imm-h">
+  <p class="eyebrow">§9 · immutability · version-locality</p>
+  <h2 class="heading" id="imm-h">There is no rotate_vk. Upgrades produce a new tag.</h2>
+  <p class="lede">Once a tag is registered, its <span class="mono">(vk, vk_digest, pi_schema_hash, bootstrap_root)</span> is locked. The contract surface admits no method that mutates them. An upgrade — bug fix, predicate refinement, new field — is a new registration under a new tag. The whitepaper's soundness theorem is version-local across them.</p>
+
+  <div class="imm-grid">
+    <div class="imm-tag">
+      <div class="tag-name">onym_admit_anarchy_v1</div>
+      <div class="lock">▣ locked at registration</div>
+      <dl>
+        <div><dt>vk</dt><dd>VK_anarchy@v1</dd></div>
+        <div><dt>vk_digest</dt><dd>0x4a..cf</dd></div>
+        <div><dt>bootstrap_root</dt><dd>0xfe..00</dd></div>
+        <div><dt>current_root</dt><dd>0x9c..b1 <span class="muted">· at epoch 4032</span></dd></div>
+      </dl>
+    </div>
+    <div class="arrow" aria-hidden="true">→<div style="font-size:.7rem; color: var(--muted); letter-spacing:.08em;">register_relation</div></div>
+    <div class="imm-tag migrate">
+      <div class="tag-name" style="color: var(--amber);">onym_admit_anarchy_v2</div>
+      <div class="lock" style="color: var(--amber);">▣ locked at registration</div>
+      <dl>
+        <div><dt>vk</dt><dd>VK_anarchy@v2 <span class="muted">· new circuit</span></dd></div>
+        <div><dt>vk_digest</dt><dd>0xc1..7d</dd></div>
+        <div><dt>bootstrap_root</dt><dd><span class="from">0x9c..b1</span><span class="arr">→</span>migrated</dd></div>
+        <div><dt>current_root</dt><dd>0x9c..b1 <span class="muted">· epoch 0</span></dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <p class="caption">The prior <span class="mono">current_root</span> is migrated in as the new <span class="mono">bootstrap_root</span>. State is preserved; semantics are not — v2 is a distinct relation, with its own soundness argument. Old proofs do not verify against v2; new proofs do not verify against v1. Version-locality of the soundness theorem is made explicit at the contract surface.</p>
+</section>
+
+<!-- ============== §10 Scope of soundness ============== -->
+<section data-screen-label="10 Soundness scope" aria-labelledby="scope-h" x-data="predScope()">
+  <p class="eyebrow">§10 · scope of the soundness theorem</p>
+  <h2 class="heading" id="scope-h">The SEP specifies a host. The whitepaper proves one predicate.</h2>
+  <p class="lede">Every relation registered under this SEP is a member of the <em>outer</em> set — the contract surface accepts it. Exactly one relation, so far, sits in the <em>inner</em> set — its soundness is proven end-to-end in the companion whitepaper. Hover any outer-only predicate to see what stands between it and the inner set.</p>
+
+  <div class="venn-grid">
+    <div class="venn-card">
+      <svg class="venn-svg" viewBox="0 0 540 360" role="img" aria-label="Venn diagram of predicate scope">
+        <!-- Outer circle -->
+        <circle cx="270" cy="180" r="170" fill="var(--wire-soft)" stroke="var(--wire-edge)" stroke-width="1.5"/>
+        <!-- Inner circle -->
+        <circle cx="220" cy="180" r="80" fill="var(--ok-soft)" stroke="var(--ok-edge)" stroke-width="1.5"/>
+
+        <!-- Labels -->
+        <text x="270" y="36" text-anchor="middle" font-size="11" fill="var(--wire)" letter-spacing="2">PREDICATES THE CONTRACT ACCEPTS</text>
+        <text x="270" y="54" text-anchor="middle" font-size="10" fill="var(--muted)">any R_Upd-shape · fixed 5-slot PI</text>
+
+        <text x="220" y="156" text-anchor="middle" font-size="11" fill="var(--ok)" letter-spacing="2">WHITEPAPER PROVES</text>
+        <text x="220" y="172" text-anchor="middle" font-size="14" font-weight="700" fill="var(--fg)">admission</text>
+        <text x="220" y="188" text-anchor="middle" font-size="10" fill="var(--muted)">Theorem 1 · §4</text>
+
+        <!-- Outer-only predicate dots -->
+        <g>
+          <circle cx="380" cy="120" r="6" fill="var(--wire)"
+            @mouseenter="hover='removal'" @mouseleave="hover=''" style="cursor:pointer;"
+            tabindex="0" @focus="hover='removal'" @blur="hover=''"/>
+          <text x="392" y="124" font-size="11" fill="var(--fg)" pointer-events="none">removal</text>
+          <text x="392" y="138" font-size="9" fill="var(--muted)" pointer-events="none">e.g. onym_remove_quorum_v1</text>
+        </g>
+        <g>
+          <circle cx="390" cy="200" r="6" fill="var(--wire)"
+            @mouseenter="hover='rotate'" @mouseleave="hover=''" style="cursor:pointer;"
+            tabindex="0" @focus="hover='rotate'" @blur="hover=''"/>
+          <text x="402" y="204" font-size="11" fill="var(--fg)" pointer-events="none">key rotation</text>
+          <text x="402" y="218" font-size="9" fill="var(--muted)" pointer-events="none">e.g. onym_rotate_key_v1</text>
+        </g>
+        <g>
+          <circle cx="370" cy="270" r="6" fill="var(--wire)"
+            @mouseenter="hover='live'" @mouseleave="hover=''" style="cursor:pointer;"
+            tabindex="0" @focus="hover='live'" @blur="hover=''"/>
+          <text x="382" y="274" font-size="11" fill="var(--fg)" pointer-events="none">liveness-tick</text>
+          <text x="382" y="288" font-size="9" fill="var(--muted)" pointer-events="none">e.g. onym_liveness_v1</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="venn-card">
+      <div class="mono" style="font-size:.7rem; color: var(--muted); letter-spacing:.1em; text-transform:uppercase;">predicate frontier</div>
+      <div class="pred-list">
+        <div class="row inner"><span>admission</span><span class="pill">proven</span></div>
+        <div class="row"><span>removal</span><span class="pill">requires argument</span></div>
+        <div class="row"><span>key rotation</span><span class="pill">requires argument</span></div>
+        <div class="row"><span>liveness-tick</span><span class="pill">requires argument</span></div>
+      </div>
+      <template x-if="hover">
+        <div class="callout" style="margin-top: 6px;">
+          <span class="lbl">tooltip</span>
+          <span x-text="tip"></span>
+        </div>
+      </template>
+      <p class="muted" style="font-size:.86rem; line-height:1.55; margin:0;">Every non-admission relation registered under this SEP requires its own soundness argument under the same compositional chain (whitepaper §§3–7) before being relied on in production.</p>
+    </div>
+  </div>
+
+  <p class="caption">Whitepaper coverage is admission only. The SEP says nothing about whether removal, key rotation, or liveness-tick are sound — only that <em>if</em> a relation circuit binds to the fixed PI vector and the contract verifies one proof per step, replay and proof-bytes discipline come for free. Predicate-level discipline does not.</p>
+</section>
+
+<!-- ============== §11 Crypto foundations ============== -->
+<section data-screen-label="11 Crypto foundations" aria-labelledby="crypt-h">
+  <p class="eyebrow">§11 · cryptographic foundations</p>
+  <h2 class="heading" id="crypt-h">Pinned conventions. No room for interpretation.</h2>
+  <p class="lede">A conformant implementation matches these byte for byte. Conformance vectors in the SEP's KAT set cover every parameter pin below.</p>
+
+  <div class="crypt-grid">
+    <div class="crypt-card">
+      <span class="lbl">poseidon2</span>
+      <h4>Algebraic hash · over F_r of BLS12-381</h4>
+      <dl>
+        <div><dt>t</dt><dd>3</dd></div>
+        <div><dt>α</dt><dd>5 (x↦x⁵)</dd></div>
+        <div><dt>R_F</dt><dd>8 (full rounds)</dd></div>
+        <div><dt>R_P</dt><dd>56 (partial rounds)</dd></div>
+        <div><dt>rate r</dt><dd>2</dd></div>
+        <div><dt>capacity c</dt><dd>1</dd></div>
+        <div><dt>IV</dt><dd>all-zero</dd></div>
+        <div><dt>absorb</dt><dd>additive</dd></div>
+        <div><dt>padding</dt><dd>zero-pad odd inputs</dd></div>
+        <div><dt>squeeze</dt><dd>s₀ (single field element)</dd></div>
+      </dl>
+    </div>
+
+    <div class="crypt-card">
+      <span class="lbl">byte → Fr / Fr serialisation</span>
+      <h4>Big-endian. No reduction.</h4>
+      <dl>
+        <div><dt>byte→Fr</dt><dd>31-byte BE chunks</dd></div>
+        <div><dt>final chunk</dt><dd>right-zero-pad to 31 bytes</dd></div>
+        <div><dt>reduction</dt><dd><span style="color: var(--danger);">none</span> · chunks are &lt; 2²⁴⁸ &lt; r</dd></div>
+        <div><dt>Fr serialise</dt><dd>32 bytes big-endian (CAP-0059)</dd></div>
+        <div><dt>MAX_EXTRAS_ARITY</dt><dd>32 field elements (1024 bytes)</dd></div>
+        <div><dt>extras encoding</dt><dd>Vec&lt;Fr&gt; on the wire</dd></div>
+      </dl>
+    </div>
+
+    <div class="crypt-card" style="grid-column: 1 / -1;">
+      <span class="lbl">tag-Fr constants · prevent cross-context collisions</span>
+      <h4>Five domain separators, pinned in v0.5.0 (Appendix A).</h4>
+      <div class="tag-table">
+        <table>
+          <thead>
+            <tr><th>constant</th><th>used by</th><th>shape</th><th>value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>TRANSCRIPT_TAG_FR</td><td>FS slot 0 · domain-separate the AGMK transcript</td><td>1 Fr</td><td class="pin">v0.5.0 · 32B BE</td></tr>
+            <tr><td>VK_DIGEST_TAG_FR</td><td>FS slot 1 · H(VK_DIGEST_TAG_FR, vk_digest)</td><td>1 Fr</td><td class="pin">v0.5.0 · 32B BE</td></tr>
+            <tr><td>TAG_TAG_FR</td><td>PI slot 3 · t_Fr = H(TAG_TAG_FR, tag)</td><td>1 Fr</td><td class="pin">v0.5.0 · 32B BE</td></tr>
+            <tr><td>EXTRAS_TAG_FR</td><td>PI slot 4 · r_ext = H(EXTRAS_TAG_FR, extras)</td><td>1 Fr</td><td class="pin">v0.5.0 · 32B BE</td></tr>
+            <tr><td>SCHEMA_TAG_FR</td><td>pi_schema_hash construction · binds schema to vk</td><td>1 Fr</td><td class="pin">v0.5.0 · 32B BE</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted" style="font-size:.84rem; line-height:1.55; margin:0;">Until v0.5.0 the constants are deferred — Appendix A reserves the slots and the construction is normative; the byte-level pinning lands with the freeze.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============== §12 Iteration timeline ============== -->
+<section data-screen-label="12 Iteration timeline" aria-labelledby="iter-h">
+  <p class="eyebrow">§12 · revisions</p>
+  <h2 class="heading" id="iter-h">Five iterations. The interface has been pressure-tested.</h2>
+  <p class="lede">Reviewers can see the design has moved. Each line summarises one revision; the contract surface is the same shape now as in v0.3.0, but the discipline around it (TTL, replay split, two-leaf LCA) has tightened.</p>
+
+  <div class="iter">
+    <div class="iter-track">
+      <div class="iter-step">
+        <span class="v">v0.1.0</span>
+        <span class="d">first sketch · single registry · admission only · contract-tracked nullifier set</span>
+      </div>
+      <div class="iter-step">
+        <span class="v">v0.2.0</span>
+        <span class="d">generalised to R_Upd · removed contract-side nullifiers · pushed witness replay into predicate</span>
+      </div>
+      <div class="iter-step">
+        <span class="v">v0.3.0</span>
+        <span class="d">fixed-5 PI vector · per-relation extras fold into r_ext via Poseidon2</span>
+      </div>
+      <div class="iter-step">
+        <span class="v">v0.4.0</span>
+        <span class="d">FS 8-slot transcript order normative · 8 transposition KATs added</span>
+      </div>
+      <div class="iter-step">
+        <span class="v">v0.4.1</span>
+        <span class="d">TTL discipline · unconditional bump-to-max on every apply · bump_ttl permissionless</span>
+      </div>
+      <div class="iter-step head">
+        <span class="v">v0.4.2</span>
+        <span class="d">two-leaf-update LCA constraint made explicit · matches in-tree spent-slot pattern</span>
+      </div>
+      <div class="iter-step">
+        <span class="v">v0.5.0</span>
+        <span class="d">deferred · Appendix A tag-Fr constants pinned · KAT set frozen</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="links">
+    <a href="https://github.com/onymchat/onym-papers/blob/main/sep/sep-keystone.md">SEP source · sep-keystone.md</a>
+    <a href="How.html">companion whitepaper</a>
+    <a href="Sep Anarchy.html">sep-anarchy synthesis sheet</a>
+    <a href="#" aria-disabled="true">open PR</a>
+  </div>
+  <p style="margin-top:8px; max-width:64ch;">AGMK · Anonymous Group-Membership Keystone · SEP draft v0.4.2. One contract, any update relation, no admin. Normative for the interface only; concrete governance predicates are deferred to downstream proposals. No tracking · no analytics · CDNs: Tailwind, Alpine, KaTeX.</p>
+</footer>
+
+<!-- Theme toggle -->
+<div class="toggle" role="group" aria-label="Theme">
+  <button id="t-dark"  aria-pressed="true"  onclick="setTheme('dark')">Dark</button>
+  <button id="t-light" aria-pressed="false" onclick="setTheme('light')">Light</button>
+</div>
+
+<script>
+  function setTheme(mode){
+    if(mode==='light') document.documentElement.setAttribute('data-theme','light');
+    else document.documentElement.removeAttribute('data-theme');
+    document.getElementById('t-dark').setAttribute('aria-pressed', mode==='dark');
+    document.getElementById('t-light').setAttribute('aria-pressed', mode==='light');
+    try{ localStorage.setItem('onym.theme', mode); }catch(e){}
+  }
+  (function(){
+    var t='dark';
+    try{ t = localStorage.getItem('onym.theme') || 'dark'; }catch(e){}
+    setTheme(t);
+  })();
+</script>
+
+<script>
+  /* ============================================================
+     Page-wide init + helpers
+     ============================================================ */
+  function page(){
+    return {
+      init(){
+        const tryRender = () => {
+          if(!window.katex){ setTimeout(tryRender, 60); return; }
+          document.querySelectorAll('[data-tex]').forEach(el => {
+            try{
+              el.innerHTML = window.katex.renderToString(el.dataset.tex, {throwOnError:false, displayMode:false});
+            }catch(e){}
+          });
+        };
+        tryRender();
+      }
+    };
+  }
+
+  /* ============================================================
+     §1 Method anatomy
+     ============================================================ */
+  function methods(){
+    return {
+      open: 'apply',
+      toggle(id){ this.open = this.open === id ? '' : id; },
+      methods: [
+        {
+          id:'register', num:'m01',
+          sig:`<span class="ret">→ ()</span> <span class="fn" style="color:var(--fg);font-weight:600;">register_relation</span>(<span class="arg">registrant</span>, <span class="arg">tag</span>, <span class="arg">vk</span>, <span class="arg">pi_schema_hash</span>, <span class="arg">extras_arity</span>, <span class="arg">bootstrap_root</span>)`,
+          gist:'permissionless · once per tag · writes immutable record and mutable state',
+          mut:true,
+          inputs:[
+            {n:'registrant', t:'Address'},
+            {n:'tag', t:'Symbol'},
+            {n:'vk', t:'Bytes (PLONK VK)'},
+            {n:'pi_schema_hash', t:'BytesN<32>'},
+            {n:'extras_arity', t:'u32 (≤ 32)'},
+            {n:'bootstrap_root', t:'Field'}
+          ],
+          does:[
+            'asserts tag not present',
+            'computes vk_digest = SHA-256(vk)',
+            'writes RelationRecord(tag) — immutable',
+            'writes RelationState(tag) = (bootstrap_root, 0)',
+            'extends TTL on both to network_max'
+          ],
+          out:[
+            'emits relation_registered { tag, vk_digest, pi_schema_hash, registrant }',
+            'returns ()'
+          ],
+          secref:'§3.2 · table 3'
+        },
+        {
+          id:'apply', num:'m02',
+          sig:`<span class="ret">→ ()</span> <span class="fn" style="color:var(--fg);font-weight:600;">apply</span>(<span class="arg">tag</span>, <span class="arg">new_root</span>, <span class="arg">expected_epoch</span>, <span class="arg">proof</span>, <span class="arg">extras</span>)`,
+          gist:'verify one PLONK proof · advance state by one · bump TTL · emit',
+          mut:true,
+          inputs:[
+            {n:'tag', t:'Symbol'},
+            {n:'new_root', t:'Field'},
+            {n:'expected_epoch', t:'u64'},
+            {n:'proof', t:'Bytes (PLONK π)'},
+            {n:'extras', t:'Vec<Fr> · len ≤ extras_arity'}
+          ],
+          does:[
+            'runs 11 ordered checks (§3, this page)',
+            'assembles fixed-5 PI vector',
+            'calls bls12_381_pairing host fn once',
+            'writes (new_root, epoch+1) on success',
+            'extends TTL on both entries to network_max'
+          ],
+          out:[
+            'emits applied { tag, prev_root, new_root, new_epoch }',
+            'returns () · reverts on any check failure'
+          ],
+          secref:'§4 · §4.6 step list'
+        },
+        {
+          id:'bump', num:'m03',
+          sig:`<span class="ret">→ ()</span> <span class="fn" style="color:var(--fg);font-weight:600;">bump_ttl</span>(<span class="arg">tag</span>)`,
+          gist:'permissionless · pay gas to keep a quiet relation alive',
+          mut:true,
+          inputs:[ {n:'tag', t:'Symbol'} ],
+          does:[
+            'asserts tag is_registered',
+            'extends RelationRecord and RelationState TTL to network_max',
+            'does not read or write state values'
+          ],
+          out:[
+            'emits ttl_bumped { tag, by_height }',
+            'returns ()'
+          ],
+          secref:'§5.3'
+        }
+      ]
+    };
+  }
+
+  /* ============================================================
+     §2 Registry
+     ============================================================ */
+  function registry(){
+    return {
+      openTag: 'onym_admit_anarchy_v1',
+      toggle(t){ this.openTag = this.openTag === t ? '' : t; },
+      rels: [
+        {
+          tag:'onym_admit_anarchy_v1', kind:'admission',
+          vk_digest:'0x4a72…cf1d', pi_schema_hash:'0x91…be',
+          extras_arity:'1 · spent-slot index (in-tree)',
+          bootstrap:'0xfe00…0000 · empty depth-32 tree',
+          registrant:'GA…ANYC',
+          root:'0x9c2f…b178 · advances every apply',
+          epoch:'4032 · monotone'
+        },
+        {
+          tag:'onym_admit_oneonone_v1', kind:'admission',
+          vk_digest:'0xb1a3…7e90', pi_schema_hash:'0x91…be',
+          extras_arity:'2 · two co-signing members',
+          bootstrap:'0xfe00…0000 · empty depth-32 tree',
+          registrant:'GA…ONE1',
+          root:'0x44d1…0298',
+          epoch:'112'
+        },
+        {
+          tag:'onym_remove_quorum_v1', kind:'removal',
+          vk_digest:'0x2e44…aa12', pi_schema_hash:'0xb2…d4',
+          extras_arity:'5 · quorum members + LIVE→REVOKED slot',
+          bootstrap:'0x9c2f…b178 · forked from anarchy_v1@epoch=4000',
+          registrant:'GA…QUOR',
+          root:'0x9c30…1180',
+          epoch:'18'
+        },
+        {
+          tag:'onym_rotate_key_v1', kind:'rotation',
+          vk_digest:'0xff09…3c01', pi_schema_hash:'0xc7…8a',
+          extras_arity:'3 · old_pk_commit + new_pk_commit + nullifier',
+          bootstrap:'0x9c2f…b178 · forked from anarchy_v1@epoch=4000',
+          registrant:'GA…ROTK',
+          root:'0x9c2f…b178',
+          epoch:'0 · never applied'
+        }
+      ]
+    };
+  }
+
+  /* ============================================================
+     §3 Apply pipeline
+     ============================================================ */
+  function pipeline(){
+    return {
+      step: 0,
+      failed: null,   // index of step toggled to fail, or null
+      timer: null,
+      rootBefore: '0x9c2f…b178',
+      rootAfter:  '0x9c30…11c4',
+      epochBefore: 4032,
+      steps: [
+        { title:'Bound check',                sub:'extras.len() ≤ MAX_EXTRAS_ARITY',          err:'MaxExtrasArityExceeded',  revert:'revert · MaxExtrasArityExceeded · arity > 32', cheap:true },
+        { title:'Relation lookup',            sub:'RelationRecord & RelationState present',   err:'RelationUnregistered',    revert:'revert · RelationUnregistered · tag has no record', cheap:false },
+        { title:'Arity check',                sub:'extras.len() == record.extras_arity',      err:'InvalidExtrasArity',      revert:'revert · InvalidExtrasArity · expected N, got M', cheap:true },
+        { title:'Epoch check',                sub:'expected_epoch == state.epoch',            err:'EpochMismatch',           revert:'revert · EpochMismatch · stale or future proof', cheap:true },
+        { title:'Extras digest',              sub:'r_ext = H(EXTRAS_TAG_FR, extras)',         err:'(infallible)',            revert:'(step does not revert; pure compute)', cheap:false },
+        { title:'Tag digest',                 sub:'t_Fr = H(TAG_TAG_FR, tag)',                err:'(infallible)',            revert:'(step does not revert; pure compute)', cheap:false },
+        { title:'PI assembly',                sub:'(C_g, C_g\', e_Fr, t_Fr, r_ext)',          err:'(infallible)',            revert:'(step does not revert; pure compute)', cheap:false },
+        { title:'PLONK verify',               sub:'plonk_verify(vk, π, pi) · 1 pairing',      err:'InvalidProof',            revert:'revert · InvalidProof · pairing identity false', expensive:true },
+        { title:'State update',               sub:'current_root ← new_root · epoch++',        err:'(host-write)',            revert:'(unconditional after step 8)', cheap:false },
+        { title:'TTL extension',              sub:'both entries → network_max',               err:'(host-write)',            revert:'(unconditional after step 8)', cheap:false },
+        { title:'Emit',                       sub:"applied { tag, prev_root, new_root, new_epoch }", err:'(host-emit)',     revert:'(unconditional after step 8)', cheap:false }
+      ],
+      next(){ if(this.step < this.steps.length-1){ this.step++; } this.stop(); },
+      prev(){ if(this.step > 0){ this.step--; } this.stop(); },
+      reset(){ this.step = 0; this.failed = null; this.stop(); },
+      stop(){ if(this.timer){ clearInterval(this.timer); this.timer = null; } },
+      play(){
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if(reduced){ this.step = this.steps.length - 1; return; }
+        this.failed = null;
+        this.stop();
+        this.timer = setInterval(() => {
+          if(this.failed !== null){ this.stop(); return; }
+          if(this.step < this.steps.length - 1){ this.step++; }
+          else this.stop();
+        }, 520);
+      },
+      toggleFail(i){
+        // Click toggles fail at step i; cannot fail steps that don't revert (≥8)
+        if(i >= 8){ this.step = i; this.stop(); return; }
+        if(this.failed === i){ this.failed = null; this.step = i; }
+        else { this.failed = i; this.step = i; this.stop(); }
+      }
+    };
+  }
+
+  /* ============================================================
+     §4 PI fold
+     ============================================================ */
+  function piFold(){
+    return {
+      n: 3,
+      labels: ['nullifier(witness)', 'acc_root_old', 'acc_root_new', 'lca_height', 'spent_slot_index', 'pk_commit_old', 'pk_commit_new', 'context_aux'],
+      get extrasIdx(){ const a=[]; for(let i=0;i<this.n;i++) a.push(i); return a; },
+      extrasLabel(i){ return this.labels[i] || ('extras['+i+']'); }
+    };
+  }
+
+  /* ============================================================
+     §5 FS transcript
+     ============================================================ */
+  function fs(){
+    return {
+      swapPair: null,
+      slots: [
+        { id:0, raw:'TRANSCRIPT_TAG_FR' },
+        { id:1, raw:'H(VK_DIGEST_TAG_FR, vk_digest)' },
+        { id:2, raw:'pi_schema_hash' },
+        { id:3, raw:'t_Fr' },
+        { id:4, raw:'C_g' },
+        { id:5, raw:"C_g'" },
+        { id:6, raw:'e_Fr' },
+        { id:7, raw:'r_ext' }
+      ],
+      setSwap(i){ this.swapPair = (this.swapPair === i ? null : i); },
+      display(i){
+        // If a swap is active at index k, slots k and (k+1)%8 are visually transposed
+        if(this.swapPair === null) return this.slots[i].raw;
+        const k = this.swapPair;
+        const j = (k + 1) % 8;
+        if(i === k) return this.slots[j].raw + ' <span class="muted">← out of order</span>';
+        if(i === j) return this.slots[k].raw + ' <span class="muted">← out of order</span>';
+        return this.slots[i].raw;
+      }
+    };
+  }
+
+  /* ============================================================
+     §6 Replay (no extra state needed for the static SVGs)
+     ============================================================ */
+  function replayLayer1(){ return {}; }
+
+  /* ============================================================
+     §7 LCA Merkle (D=4, 16 leaves)
+     ============================================================ */
+  function lca(){
+    return {
+      D: 4,
+      ia: 5,
+      ie: 12,
+      broken: false,
+      _svg: null,
+      _mount: null,
+      // Geometry
+      leftPad: 60, rightPad: 30, topPad: 50, leafY: 380, width: 1040,
+      get span(){ return this.width - this.leftPad - this.rightPad; },
+      leafX(i){ const n = (1 << this.D); return this.leftPad + (this.span/(n-1))*i; },
+      nodeX(d, idx){
+        const w = 1 << (this.D - d);
+        const start = idx * w;
+        const end = start + w - 1;
+        return (this.leafX(start) + this.leafX(end)) / 2;
+      },
+      nodeY(d){
+        const rowH = (this.leafY - this.topPad) / this.D;
+        return this.topPad + d * rowH;
+      },
+      get hLCA(){
+        let a = this.ia, b = this.ie, h = 0;
+        while(a !== b){ a >>= 1; b >>= 1; h++; }
+        return h;
+      },
+      get lcaIdx(){
+        let a = this.ia, b = this.ie, h = 0;
+        while(a !== b){ a >>= 1; b >>= 1; h++; }
+        return { depth: this.D - h, idx: a };
+      },
+      get lcaNode(){
+        const { depth, idx } = this.lcaIdx;
+        return { x: this.nodeX(depth, idx), y: this.nodeY(depth) };
+      },
+      pathNodes(leafIdx){
+        const out = [];
+        let idx = leafIdx;
+        for(let d = this.D; d >= 0; d--){
+          out.unshift({ depth: d, idx, x: this.nodeX(d, idx), y: this.nodeY(d), height: this.D - d });
+          idx >>= 1;
+        }
+        return out;
+      },
+      mount(svg){
+        this._svg = svg;
+        this._mount = svg.querySelector('[data-lca-mount]');
+        this.render();
+        this.$watch('ia', () => this.render());
+        this.$watch('ie', () => this.render());
+        this.$watch('broken', () => this.render());
+      },
+      _mk(tag, attrs){
+        const n = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        for(const k in attrs){ if(attrs[k] != null) n.setAttribute(k, attrs[k]); }
+        return n;
+      },
+      render(){
+        if(!this._mount) return;
+        const g = this._mount;
+        while(g.firstChild) g.removeChild(g.firstChild);
+        const mono = '"SF Mono",ui-monospace,Menlo,monospace';
+
+        // backdrop: lines + circles for all 31 nodes
+        for(let d = 0; d <= this.D; d++){
+          const count = 1 << d;
+          for(let i = 0; i < count; i++){
+            const x = this.nodeX(d, i), y = this.nodeY(d);
+            if(d > 0){
+              const px = this.nodeX(d-1, i >> 1), py = this.nodeY(d-1);
+              g.appendChild(this._mk('line', { x1:px, y1:py, x2:x, y2:y, stroke:'var(--hair)', 'stroke-width':1 }));
+            }
+            g.appendChild(this._mk('circle', { cx:x, cy:y, r:(d===this.D?8:6), fill:'var(--card-2)', stroke:'var(--hair)', 'stroke-width':1 }));
+          }
+        }
+
+        const drawPath = (nodes, color, fillSoft) => {
+          for(let i = 1; i < nodes.length; i++){
+            const a = nodes[i-1], b = nodes[i];
+            const above = b.height > this.hLCA;
+            g.appendChild(this._mk('line', {
+              x1:a.x, y1:a.y, x2:b.x, y2:b.y, stroke: color,
+              'stroke-width': above ? 1 : 2.4,
+              'stroke-dasharray': above ? '4 4' : '0'
+            }));
+          }
+          for(const n of nodes){
+            g.appendChild(this._mk('circle', { cx:n.x, cy:n.y, r:7, fill:fillSoft, stroke:color, 'stroke-width':2 }));
+          }
+        };
+        drawPath(this.pathNodes(this.ia), 'var(--wire)', 'var(--wire-soft)');
+        drawPath(this.pathNodes(this.ie), 'var(--gold)', 'var(--amber-soft)');
+
+        // equal-level tethers (heights hLCA+1 .. D-1 inclusive)
+        for(let h = this.hLCA + 1; h <= this.D - 1; h++){
+          const d = this.D - h;
+          const xa = this.nodeX(d, this.ia >> (this.D - d));
+          const xe = this.nodeX(d, this.ie >> (this.D - d));
+          const y  = this.nodeY(d);
+          const isBroken = this.broken && h === this.D - 1;
+          const color = isBroken ? 'var(--danger)' : 'var(--ok)';
+          g.appendChild(this._mk('line', { x1:xa, y1:y, x2:xe, y2:y, stroke:color, 'stroke-width':2, 'stroke-dasharray':'3 4' }));
+          const t = this._mk('text', { x:(xa+xe)/2, y:y-10, 'text-anchor':'middle', 'font-size':9, fill:color, 'font-family': mono });
+          t.textContent = isBroken ? 'forced unequal · soundness broken' : 'must-be-equal';
+          g.appendChild(t);
+        }
+
+        // LCA highlight
+        const ln = this.lcaNode;
+        g.appendChild(this._mk('circle', { cx:ln.x, cy:ln.y, r:13, fill:'none', stroke:'var(--plum)', 'stroke-width':2, 'stroke-dasharray':'2 4' }));
+        const lcaLabel = this._mk('text', { x:ln.x, y:ln.y-22, 'text-anchor':'middle', 'font-size':10, fill:'var(--plum)', 'font-family': mono });
+        lcaLabel.textContent = 'LCA · h=' + this.hLCA;
+        g.appendChild(lcaLabel);
+
+        // leaf index labels
+        for(let i = 0; i < 16; i++){
+          const t = this._mk('text', { x:this.leafX(i), y:395, 'text-anchor':'middle', 'font-size':9, fill:'var(--muted)', 'font-family': mono });
+          t.textContent = String(i);
+          g.appendChild(t);
+        }
+
+        // Markers (idx_a, idx_e) — also serve as drag handles
+        const markerA = this._mk('rect', { x:this.leafX(this.ia)-12, y:406, width:24, height:20, rx:4, fill:'var(--wire)', 'data-handle':'a', tabindex:0, role:'slider', 'aria-valuemin':0, 'aria-valuemax':15, 'aria-valuenow':this.ia, 'aria-label':'admitter leaf index', style:'cursor:ew-resize;' });
+        g.appendChild(markerA);
+        const matLabel = this._mk('text', { x:this.leafX(this.ia), y:421, 'text-anchor':'middle', 'font-size':10, fill:'#fff', 'font-family': mono, 'pointer-events':'none' });
+        matLabel.textContent = 'idx_a';
+        g.appendChild(matLabel);
+        const markerE = this._mk('rect', { x:this.leafX(this.ie)-12, y:430, width:24, height:20, rx:4, fill:'var(--gold)', 'data-handle':'e', tabindex:0, role:'slider', 'aria-valuemin':0, 'aria-valuemax':15, 'aria-valuenow':this.ie, 'aria-label':'empty-slot leaf index', style:'cursor:ew-resize;' });
+        g.appendChild(markerE);
+        const metLabel = this._mk('text', { x:this.leafX(this.ie), y:445, 'text-anchor':'middle', 'font-size':10, fill:'#0a0a0a', 'font-family': mono, 'pointer-events':'none' });
+        metLabel.textContent = 'idx_e';
+        g.appendChild(metLabel);
+
+        // Wire pointer + keyboard on handles
+        const self = this;
+        [markerA, markerE].forEach(h => {
+          h.addEventListener('pointerdown', (ev) => self.startDrag(h.getAttribute('data-handle'), ev));
+          h.addEventListener('keydown', (ev) => {
+            const which = h.getAttribute('data-handle');
+            if(ev.key === 'ArrowLeft'){ ev.preventDefault(); self.bump(which, -1); }
+            else if(ev.key === 'ArrowRight'){ ev.preventDefault(); self.bump(which, +1); }
+          });
+        });
+      },
+      bump(which, d){
+        let v = (which === 'a' ? this.ia : this.ie) + d;
+        v = Math.max(0, Math.min(15, v));
+        if(which === 'a'){ if(v === this.ie){ v = v + d || v + (d>0?1:-1); v = Math.max(0, Math.min(15, v)); } this.ia = v; }
+        else { if(v === this.ia){ v = v + d || v + (d>0?1:-1); v = Math.max(0, Math.min(15, v)); } this.ie = v; }
+      },
+      startDrag(which, ev){
+        ev.preventDefault();
+        const svg = this._svg;
+        if(!svg) return;
+        const move = (e) => {
+          const rect = svg.getBoundingClientRect();
+          const xCSS = (e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX)) - rect.left;
+          const vbW = 1040;
+          const xVB = (xCSS / rect.width) * vbW;
+          const n = (1 << this.D);
+          const step = this.span / (n-1);
+          let idx = Math.round((xVB - this.leftPad) / step);
+          idx = Math.max(0, Math.min(n-1, idx));
+          if(which === 'a'){
+            if(idx === this.ie){ idx = (idx === 0) ? idx + 1 : idx - 1; }
+            this.ia = idx;
+          } else {
+            if(idx === this.ia){ idx = (idx === 0) ? idx + 1 : idx - 1; }
+            this.ie = idx;
+          }
+        };
+        const up = () => {
+          window.removeEventListener('pointermove', move);
+          window.removeEventListener('pointerup', up);
+        };
+        window.addEventListener('pointermove', move);
+        window.addEventListener('pointerup', up);
+      },
+      rand(){
+        let a, b;
+        do { a = Math.floor(Math.random()*16); b = Math.floor(Math.random()*16); } while(a===b);
+        this.ia = a; this.ie = b;
+      }
+    };
+  }
+
+  /* ============================================================
+     §8 TTL timeline
+     ============================================================ */
+  function ttl(){
+    return {
+      t: 5,
+      timer: null,
+      _mount: null,
+      events: [
+        { x: 90,  label:'register',           sub:'epoch 0' },
+        { x: 230, label:'apply',              sub:'epoch 1' },
+        { x: 370, label:'apply',              sub:'epoch 2' },
+        { x: 510, label:'(quiet)',            sub:'TTL drains' },
+        { x: 650, label:'bump_ttl',           sub:'permissionless' },
+        { x: 790, label:'(quiet)',            sub:'TTL drains' },
+        { x: 920, label:'archived',           sub:'next apply needs restoreFootprint' }
+      ],
+      segments: [
+        { atStep:0, x: 90,  w:140, drainX:230, drainW:0,   archived:false, label:'TTL = network_max', drain:false },
+        { atStep:1, x: 230, w:140, drainX:370, drainW:0,   archived:false, label:'snapped back · max', drain:false },
+        { atStep:2, x: 370, w:140, drainX:445, drainW:65,  archived:false, label:'snapped back · max', drain:true },
+        { atStep:3, x: 370, w:140, drainX:430, drainW:80,  archived:false, label:'draining', drain:true },
+        { atStep:4, x: 510, w:140, drainX:650, drainW:0,   archived:false, label:'bump_ttl · back to max', drain:false },
+        { atStep:5, x: 650, w:140, drainX:720, drainW:70,  archived:false, label:'draining', drain:true },
+        { atStep:6, x: 790, w:140, drainX:790, drainW:140, archived:true,  label:'ARCHIVED', drain:false }
+      ],
+      mount(svg){
+        this._mount = svg.querySelector('[data-ttl-mount]');
+        this.render();
+        this.$watch('t', () => this.render());
+      },
+      _mk(tag, attrs){
+        const n = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        for(const k in attrs){ if(attrs[k] != null) n.setAttribute(k, attrs[k]); }
+        return n;
+      },
+      render(){
+        if(!this._mount) return;
+        const g = this._mount;
+        while(g.firstChild) g.removeChild(g.firstChild);
+        const mono = '"SF Mono",ui-monospace,Menlo,monospace';
+        // segments first (drawn below ticks)
+        this.segments.forEach(seg => {
+          if(this.t < seg.atStep) return;
+          g.appendChild(this._mk('rect', {
+            x: seg.x, y: 60, width: seg.w, height: 60,
+            fill: seg.archived ? 'var(--danger-soft)' : 'var(--wire-soft)',
+            stroke: seg.archived ? 'var(--danger-edge)' : 'var(--wire-edge)',
+            'stroke-width': 1
+          }));
+          if(seg.drain){
+            g.appendChild(this._mk('rect', {
+              x: seg.drainX, y: 60, width: seg.drainW, height: 60,
+              fill: 'var(--card-2)', opacity: 0.6
+            }));
+          }
+          const t = this._mk('text', {
+            x: seg.x + seg.w/2, y: 95, 'text-anchor':'middle', 'font-size':11,
+            fill: seg.archived ? 'var(--danger)' : 'var(--wire)', 'font-family': mono
+          });
+          t.textContent = seg.label;
+          g.appendChild(t);
+        });
+        // event ticks
+        this.events.forEach((ev, i) => {
+          g.appendChild(this._mk('line', { x1:ev.x, y1:160, x2:ev.x, y2:180, stroke:'var(--hair-strong)', 'stroke-width':1 }));
+          const lab = this._mk('text', { x:ev.x, y:200, 'text-anchor':'middle', 'font-size':10, fill: (i<=this.t ? 'var(--fg)' : 'var(--muted)'), 'font-family': mono });
+          lab.textContent = ev.label;
+          g.appendChild(lab);
+          const sub = this._mk('text', { x:ev.x, y:215, 'text-anchor':'middle', 'font-size':9, fill:'var(--muted)', 'font-family': mono });
+          sub.textContent = ev.sub;
+          g.appendChild(sub);
+        });
+      },
+      reset(){ this.t = 0; this.stop(); },
+      stop(){ if(this.timer){ clearInterval(this.timer); this.timer = null; } },
+      play(){
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if(reduced){ this.t = this.events.length - 1; return; }
+        this.stop();
+        this.timer = setInterval(() => {
+          if(this.t < this.events.length - 1) this.t++;
+          else this.stop();
+        }, 800);
+      }
+    };
+  }
+
+  /* ============================================================
+     §10 Scope tooltips
+     ============================================================ */
+  function predScope(){
+    return {
+      hover: '',
+      tips: {
+        removal: 'A leaf transitions LIVE → REVOKED. Quorum, predicate-discipline, and post-removal anonymity constraints all need their own argument — none are entailed by the SEP host.',
+        rotate:  'A member proves knowledge of pk_old, commits to pk_new, and inserts a nullifier on the old key. The unlinkability of pk_old and pk_new in the post-rotate group is a circuit-level property — not a contract one.',
+        live:    'A relation that only updates auxiliary data (counters, accumulators) without changing membership. Needs an argument that liveness-tick proofs cannot be repurposed to admit or remove members.'
+      },
+      get tip(){ return this.tips[this.hover] || ''; }
+    };
+  }
+</script>
+
+</body>
+</html>
