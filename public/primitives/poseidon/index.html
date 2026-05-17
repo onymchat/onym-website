@@ -1,0 +1,1093 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Poseidon &amp; Poseidon2 — algebraic hash for ZK circuits, ~50–300 constraints per call</title>
+<meta name="description" content="What Poseidon and Poseidon2 are, why they are two orders of magnitude cheaper than SHA-256 inside a SNARK, and how Poseidon2 wires into a PLONK-on-Stellar deployment." />
+<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+<link rel="icon" type="image/png" href="/assets/icon-dark.png" />
+<link rel="apple-touch-icon" href="/assets/icon-dark.png" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Poseidon &amp; Poseidon2 — primitive sheet" />
+<meta property="og:description" content="Algebraic hash designed to be cheap inside a SNARK: ~50–300 constraints per call vs ~25,000 for SHA-256. Conjectured PQ-secure — but the surrounding KZG/PLONK stack still falls under Shor." />
+<meta property="og:image" content="https://onym.app/assets/og-card.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Poseidon &amp; Poseidon2 — primitive sheet" />
+<meta name="twitter:description" content="Sponge construction, SPN round function, interactive constraint comparator vs SHA-256, security stance — on one page." />
+<meta name="twitter:image" content="https://onym.app/assets/og-card.jpg" />
+<link rel="alternate" hreflang="en" href="https://onym.app/primitives/poseidon/" />
+<link rel="alternate" hreflang="x-default" href="https://onym.app/primitives/poseidon/" />
+<script>(function(){try{var p=(navigator.language||'').toLowerCase();if(p==='ru'||p.startsWith('ru-')){var pa=location.pathname;location.replace('/ru'+(pa==='/'?'/':pa));return;}}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});"></script>
+
+<style>
+  :root{
+    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
+    --hair:rgba(245,245,247,.10);
+    --hair-strong:rgba(245,245,247,.18);
+    --card:#101013;
+    --card-2:#16161b;
+    --nav-bg: rgba(8,8,10,.72);
+
+    --lane-off:   rgba(120,150,255,.06);
+    --lane-off-edge: rgba(120,150,255,.22);
+    --lane-on:    rgba(255,170,90,.06);
+    --lane-on-edge: rgba(255,170,90,.22);
+    --wire:       #6a8bff;
+    --amber:      #f0b35e;
+    --ok:         #4ade80;
+    --warn:       #f0b35e;
+    --danger:     #ef5350;
+    --danger-soft:rgba(239,83,80,.10);
+    --ok-soft:    rgba(74,222,128,.10);
+    --ok-soft-2:  rgba(74,222,128,.04);
+    --highlight-edge: rgba(120,150,255,.55);
+    --highlight-bg: rgba(120,150,255,.08);
+    --grey-bar:   #2a2a2f;
+    --grey-bar-edge: rgba(245,245,247,.18);
+  }
+  html[data-theme="light"]{
+    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
+    --hair:rgba(10,10,10,.10);
+    --hair-strong:rgba(10,10,10,.22);
+    --card:#ffffff;
+    --card-2:#fbfbfd;
+    --nav-bg: rgba(245,245,247,.72);
+
+    --lane-off:    rgba(40,80,200,.05);
+    --lane-off-edge: rgba(40,80,200,.22);
+    --lane-on:     rgba(200,110,30,.05);
+    --lane-on-edge: rgba(200,110,30,.22);
+    --wire:        #1d4ed8;
+    --amber:       #b45309;
+    --ok:          #16803c;
+    --warn:        #a05a00;
+    --danger:      #b91c1c;
+    --danger-soft: rgba(185,28,28,.08);
+    --ok-soft:     rgba(22,128,60,.10);
+    --ok-soft-2:   rgba(22,128,60,.04);
+    --highlight-edge: rgba(40,80,200,.55);
+    --highlight-bg: rgba(40,80,200,.06);
+    --grey-bar:    #d0d0d6;
+    --grey-bar-edge: rgba(10,10,10,.18);
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); color:var(--fg); }
+  body{
+    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+    font-feature-settings: "ss01","ss02","cv11";
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+    line-height:1.55;
+    transition: background-color .35s ease, color .35s ease;
+  }
+  .mono{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-feature-settings:"zero","ss01"; }
+  .muted{ color:var(--muted); }
+  .katex{ font-size:1em; color:inherit; }
+  .focus-ring:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--wire); border-radius:4px; }
+
+  /* ---------- Nav ---------- */
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:var(--nav-bg);
+    backdrop-filter:saturate(160%) blur(14px);
+    -webkit-backdrop-filter:saturate(160%) blur(14px);
+    border-bottom:1px solid var(--hair);
+  }
+  .nav-mark{
+    display:inline-grid; place-items:center; width:22px; height:22px;
+    border:1px solid var(--hair-strong); border-radius:6px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:11px;
+    color:var(--fg);
+  }
+
+  main{ max-width: 1080px; margin:0 auto; padding: 0 clamp(20px, 5vw, 56px); }
+  section{
+    padding-top: clamp(56px, 8vw, 112px);
+    padding-bottom: clamp(56px, 8vw, 112px);
+    border-bottom: 1px solid var(--hair);
+  }
+  section:last-of-type{ border-bottom:none; }
+
+  .eyebrow{
+    font-size:.74rem; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--muted); font-weight:500;
+    margin: 0 0 clamp(20px, 3vw, 28px) 0;
+  }
+  h1.hero{
+    font-weight:700; letter-spacing:-0.035em; line-height:1.05; margin:0;
+    text-wrap:balance;
+    font-size: clamp(2.2rem, 5.5vw, 3.6rem);
+  }
+  h2.heading{
+    font-weight:700; letter-spacing:-0.028em; line-height:1.12; margin:0;
+    text-wrap:balance;
+    font-size: clamp(1.6rem, 3.6vw, 2.3rem);
+  }
+  h3.sub{
+    font-weight:600; letter-spacing:-0.018em; line-height:1.2; margin:0;
+    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+  }
+  .lede{
+    font-size: clamp(1.05rem, 1.35vw, 1.18rem);
+    color:var(--muted); margin: clamp(20px, 2.6vw, 28px) 0 0 0;
+    line-height:1.6; max-width: 62ch;
+  }
+  p.body{ font-size: 1.02rem; color:var(--fg); margin: clamp(16px, 2vw, 22px) 0 0 0; line-height:1.65; max-width: 64ch; }
+  p.body.muted{ color:var(--muted); }
+  p.caption{ font-size:.94rem; color:var(--muted); line-height:1.6; margin: 20px 0 0 0; max-width: 64ch; }
+
+  .anchor-line{
+    margin-top: clamp(20px, 2.6vw, 28px);
+    border:1px solid var(--hair); border-radius:10px;
+    padding: 12px 16px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.86rem; color:var(--fg); line-height:1.6;
+    background:var(--card);
+    max-width: 64ch;
+  }
+  .anchor-line .lbl{
+    color:var(--muted); letter-spacing:.08em; text-transform:uppercase; font-size:.7rem;
+    display:block; margin-bottom:4px;
+  }
+
+  /* ---------- Theme toggle ---------- */
+  .toggle{
+    position:fixed; bottom:18px; right:18px; z-index:60;
+    background:var(--nav-bg);
+    border:1px solid var(--hair); border-radius:999px;
+    padding:4px; display:flex; gap:2px;
+    backdrop-filter:saturate(180%) blur(14px);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    box-shadow:0 8px 24px -10px rgba(10,10,10,.18);
+  }
+  .toggle button{
+    font-size:12px; letter-spacing:.04em; padding:7px 12px; border-radius:999px;
+    color:var(--muted); border:0; background:transparent; cursor:pointer;
+  }
+  .toggle button[aria-pressed="true"]{ background:var(--fg); color:var(--bg); }
+
+  /* ---------- Stat strip ---------- */
+  .stat-strip{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    display:grid; grid-template-columns: repeat(5, minmax(0,1fr));
+    gap: 1px; background: var(--hair);
+    border: 1px solid var(--hair); border-radius: 10px; overflow:hidden;
+  }
+  .stat-strip > div{ background: var(--bg); padding: 14px 16px; display:flex; flex-direction:column; gap:4px; }
+  .stat-strip .val{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.98rem; font-weight:600; letter-spacing:-0.01em; }
+  .stat-strip .label{ font-size:.72rem; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; }
+  @media (max-width:780px){ .stat-strip{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+
+  /* ---------- §2 Shape diagram ---------- */
+  .shape-wrap{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px; background:var(--card);
+    padding: clamp(20px, 3vw, 32px);
+    display:flex; flex-direction:column; gap: 28px;
+  }
+  .shape-svg{ width:100%; height:auto; display:block; }
+  .shape-svg text{ font-family:"SF Mono",ui-monospace,Menlo,monospace; }
+  .obj-grid{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+  @media (max-width: 820px){ .obj-grid{ grid-template-columns: 1fr; } }
+  .obj-card{
+    border:1px solid var(--hair); border-radius:12px; padding:14px 16px;
+    background: var(--card-2); display:flex; flex-direction:column; gap:6px;
+  }
+  .obj-card .name{ font-weight:600; font-size:1rem; letter-spacing:-0.01em; }
+  .obj-card .size{ font-size:.78rem; color:var(--muted); font-family:"SF Mono",ui-monospace,Menlo,monospace; }
+  .obj-card .use{ font-size:.9rem; color:var(--muted); line-height:1.5; margin-top:2px; }
+
+  /* ---------- §3 Comparator ---------- */
+  .comp{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px; background:var(--card);
+    padding: clamp(22px, 3vw, 30px);
+    display:flex; flex-direction:column; gap: 22px;
+  }
+  .comp-head{
+    display:flex; justify-content:space-between; align-items:center; gap:18px; flex-wrap:wrap;
+    border-bottom: 1px solid var(--hair); padding-bottom: 18px;
+  }
+  .comp-head .lhs{ display:flex; flex-direction:column; gap:6px; }
+  .comp-head .lhs .ix{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.74rem; color:var(--muted); letter-spacing:.08em; text-transform:uppercase;
+  }
+  .comp-head .depth-val{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:1.4rem; font-weight:600; letter-spacing:-0.01em;
+  }
+  .comp-head .depth-val .unit{ color:var(--muted); font-weight:500; font-size:.92rem; letter-spacing:.04em; margin-left:6px; }
+
+  .slider-row{
+    display:grid; grid-template-columns: 84px 1fr 84px; align-items:center; gap:14px;
+  }
+  .slider-row .end{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.74rem; color:var(--muted); letter-spacing:.06em; text-align:center;
+  }
+  input[type=range].slider{
+    -webkit-appearance:none; appearance:none;
+    width:100%; height:4px; border-radius:999px;
+    background: linear-gradient(to right, var(--wire) 0%, var(--wire) var(--p, 50%), var(--hair-strong) var(--p, 50%), var(--hair-strong) 100%);
+    outline:none; cursor:pointer;
+  }
+  input[type=range].slider::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none;
+    width:18px; height:18px; border-radius:50%;
+    background: var(--fg); border:2px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--hair-strong);
+    cursor:pointer;
+  }
+  input[type=range].slider::-moz-range-thumb{
+    width:18px; height:18px; border-radius:50%;
+    background: var(--fg); border:2px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--hair-strong);
+    cursor:pointer;
+  }
+  input[type=range].slider:focus-visible{ outline:2px solid var(--wire); outline-offset:6px; border-radius:6px; }
+
+  .seg{
+    display:inline-flex; gap:0;
+    border:1px solid var(--hair-strong); border-radius:999px; padding:3px;
+    background: var(--bg);
+  }
+  .seg button{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.78rem;
+    padding:6px 12px; border-radius:999px;
+    border:0; background:transparent; color:var(--muted); cursor:pointer; letter-spacing:.04em;
+  }
+  .seg button[aria-pressed="true"]{ background: var(--fg); color: var(--bg); }
+  .seg button:focus-visible{ outline:2px solid var(--wire); outline-offset:2px; }
+
+  .bars{
+    display:grid; grid-template-columns: 1fr 1fr; gap: 22px;
+    margin-top:6px;
+  }
+  @media (max-width: 720px){ .bars{ grid-template-columns: 1fr; } }
+  .bar-card{
+    border:1px solid var(--hair); border-radius:12px; background: var(--bg);
+    padding: 18px 20px; display:flex; flex-direction:column; gap:14px;
+    min-height: 220px;
+  }
+  .bar-card.poseidon{
+    border-color: var(--lane-off-edge);
+    background: linear-gradient(180deg, var(--lane-off) 0%, var(--bg) 70%);
+  }
+  .bar-card.sha{
+    border-color: var(--hair-strong);
+    background: var(--bg);
+  }
+  .bar-head{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .bar-name{ font-weight:700; letter-spacing:-0.01em; font-size:1.05rem; display:flex; align-items:center; gap:8px; }
+  .bar-name .pip{ width:8px; height:8px; border-radius:50%; }
+  .bar-name .pip.fr{ background:var(--wire); }
+  .bar-name .pip.neutral{ background:var(--muted); }
+  .bar-sub{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.72rem; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; }
+  .bar-num{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-weight:600; letter-spacing:-0.02em; line-height:1;
+    font-size: clamp(1.4rem, 3.4vw, 2rem);
+  }
+  .bar-num .range{ color:var(--muted); font-weight:500; }
+  .bar-detail{ font-size:.86rem; color:var(--muted); line-height:1.5; }
+  .bar-track{
+    height: 10px; border-radius: 999px; overflow:hidden;
+    background: var(--card-2);
+    border: 1px solid var(--hair);
+    position:relative;
+  }
+  .bar-fill{
+    position:absolute; left:0; top:0; bottom:0;
+    border-radius: 999px;
+    transition: width .25s ease;
+  }
+  .bar-fill.fr{ background: linear-gradient(90deg, var(--wire), color-mix(in oklch, var(--wire) 65%, white)); }
+  .bar-fill.neutral{ background: var(--grey-bar); }
+
+  .ratio-row{
+    margin-top: 4px;
+    border:1px dashed var(--hair-strong);
+    border-radius: 12px; background: var(--card-2);
+    padding: 16px 18px;
+    display:flex; gap:18px; align-items:baseline; flex-wrap:wrap; justify-content:space-between;
+  }
+  .ratio-row .big{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-weight:700; letter-spacing:-0.02em;
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+  }
+  .ratio-row .lbl{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.72rem;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--muted);
+  }
+  .ratio-row .why{ font-size:.92rem; color:var(--muted); max-width: 48ch; line-height:1.5; }
+
+  /* ---------- Params table ---------- */
+  .params{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px; background:var(--card); overflow:hidden;
+  }
+  .params .row{
+    display:grid; grid-template-columns: 320px 1fr;
+    border-bottom: 1px solid var(--hair);
+    padding: 14px 20px;
+    gap: 20px;
+  }
+  .params .row:last-child{ border-bottom:none; }
+  .params .k{ color:var(--muted); font-size:.92rem; }
+  .params .v{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.96rem; }
+  @media (max-width:680px){
+    .params .row{ grid-template-columns: 1fr; gap:4px; padding:12px 16px; }
+  }
+
+  /* ---------- §5 Swim-lane ---------- */
+  .swimlane{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px; background:var(--card); overflow:hidden;
+  }
+  .lane-head{
+    display:grid; grid-template-columns: 1fr 1fr 1fr;
+    border-bottom:1px solid var(--hair);
+    font-size:.76rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+  }
+  .lane-head > div{ padding:14px 20px; display:flex; align-items:center; gap:10px; border-right:1px solid var(--hair); }
+  .lane-head > div:last-child{ border-right:none; }
+  .lane-head .dot{ width:8px; height:8px; border-radius:50%; }
+  .lane-head .dot.off{ background:var(--wire); }
+  .lane-head .dot.prov{ background:var(--wire); }
+  .lane-head .dot.on{ background:var(--amber); }
+  .lane-body{
+    display:grid; grid-template-columns: 1fr 1fr 1fr;
+    min-height: 460px;
+  }
+  .lane{
+    padding: 18px;
+    display:flex; flex-direction:column; gap:12px;
+    border-right:1px solid var(--hair);
+  }
+  .lane:last-child{ border-right:none; }
+  .lane.merkle{ background: var(--lane-off); }
+  .lane.transcript{ background: var(--lane-off); }
+  .lane.host{ background: var(--lane-on); }
+  .lane-card{
+    border:1px solid var(--hair); border-radius:12px;
+    background: var(--bg);
+    padding: 12px 14px;
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .lane-card .title{ font-weight:600; font-size:.96rem; letter-spacing:-0.01em; }
+  .lane-card .detail{ font-size:.84rem; color:var(--muted); line-height:1.5; }
+  .lane-card .tag{
+    align-self:flex-start;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.7rem; color:var(--muted);
+    padding:2px 7px; border-radius:999px;
+    border:1px solid var(--hair); background: var(--card-2);
+  }
+  .hostfn{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.78rem;
+    padding:6px 10px; border-radius:8px;
+    border:1px solid var(--lane-on-edge); background: var(--card-2); color: var(--fg);
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .hostfn::before{
+    content:""; width:6px; height:6px; border-radius:50%;
+    background: var(--amber); flex:none;
+  }
+  .lane-card.host-card{ border-color: var(--lane-on-edge); }
+  .annot-note{
+    margin-top: auto;
+    border:1px dashed var(--lane-off-edge);
+    border-radius:10px;
+    padding:10px 12px;
+    font-size:.84rem; color: var(--fg); line-height:1.5;
+  }
+  .annot-note.amber{ border-color: var(--lane-on-edge); }
+  .annot-note.red{ border-color: rgba(239,83,80,.45); background: var(--danger-soft); }
+  .annot-note .lbl{ display:block; font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; margin-bottom:4px; color:var(--muted); }
+  .annot-note.red .lbl{ color: var(--danger); }
+  @media (max-width: 900px){
+    .lane-head, .lane-body{ grid-template-columns: 1fr; }
+    .lane-head > div, .lane{ border-right:none; border-bottom:1px solid var(--hair); }
+    .lane:last-child, .lane-head > div:last-child{ border-bottom:none; }
+    .lane-body{ min-height: auto; }
+  }
+
+  /* ---------- §6 Security cards ---------- */
+  .sec-grid{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    display:grid; grid-template-columns: 1fr 1fr; gap: 18px;
+  }
+  @media (max-width: 820px){ .sec-grid{ grid-template-columns: 1fr; } }
+  .sec-card{
+    border:1px solid var(--hair); border-radius:16px;
+    background: var(--card); padding: 22px 24px;
+    display:flex; flex-direction:column; gap:14px;
+    position:relative;
+  }
+  .sec-card.classical{
+    border-color: rgba(74,222,128,.30);
+    background: linear-gradient(180deg, var(--ok-soft) 0%, var(--card) 60%);
+  }
+  .sec-card.pq{
+    border-color: rgba(74,222,128,.30);
+    background: linear-gradient(180deg, var(--ok-soft-2) 0%, var(--card) 60%);
+  }
+  html[data-theme="light"] .sec-card.classical{ background: linear-gradient(180deg, var(--ok-soft) 0%, var(--card) 70%); }
+  html[data-theme="light"] .sec-card.pq{ background: linear-gradient(180deg, var(--ok-soft-2) 0%, var(--card) 70%); }
+  /* dashed border for PQ "conjectured" qualifier */
+  .sec-card.pq{
+    border-style: dashed;
+  }
+  .sec-badge{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.74rem; letter-spacing:.08em; text-transform:uppercase;
+    padding: 4px 10px; border-radius:999px;
+    border:1px solid var(--hair); background: var(--bg);
+  }
+  .sec-badge.ok{ color: var(--ok); border-color: rgba(74,222,128,.45); }
+  .sec-badge.ok-dashed{ color: var(--ok); border-color: rgba(74,222,128,.45); border-style: dashed; }
+  .sec-badge .pip{ width:8px; height:8px; border-radius:50%; background: var(--ok); }
+  .sec-card h3{ margin:0; font-weight:700; font-size:1.3rem; letter-spacing:-0.02em; }
+  .sec-card p{ margin:0; font-size:.96rem; line-height:1.6; }
+  .sec-card .num{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-weight:600; font-size:2rem; letter-spacing:-0.02em; line-height:1; }
+  .sec-card .num.ok-num{ color: var(--ok); }
+  .sec-card ul{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:8px; font-size:.92rem; }
+  .sec-card ul li{ display:flex; gap:10px; align-items:flex-start; line-height:1.5; }
+  .sec-card ul li::before{ content:"·"; color: var(--muted); flex:none; padding-top:2px; }
+
+  /* ---------- §7 Compare ---------- */
+  .compare{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    display:grid; grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 14px;
+  }
+  @media (max-width: 900px){ .compare{ grid-template-columns: 1fr; } }
+  .cmp{
+    border:1px solid var(--hair); border-radius:16px;
+    background: var(--card);
+    padding: 22px 22px 18px;
+    display:flex; flex-direction:column; gap:14px;
+    position:relative;
+  }
+  .cmp .crown{
+    position:absolute; top:-1px; right:18px;
+    background: var(--wire); color: var(--bg);
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
+    padding: 4px 10px; border-radius:0 0 8px 8px;
+  }
+  .cmp.subject{
+    border-color: var(--highlight-edge);
+    background: linear-gradient(180deg, var(--highlight-bg) 0%, var(--card) 65%);
+    box-shadow: 0 0 0 1px var(--highlight-edge) inset, 0 12px 32px -18px rgba(106,139,255,.4);
+  }
+  .cmp h3{ margin:0; font-size:1.3rem; font-weight:700; letter-spacing:-0.02em; }
+  .cmp .meta{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.74rem; color:var(--muted); letter-spacing:.06em;
+  }
+  .cmp dl{ margin:0; display:grid; grid-template-columns: 1fr; gap:10px; }
+  .cmp dl > div{
+    display:grid; grid-template-columns: 1fr; gap:2px;
+    border-top: 1px solid var(--hair); padding-top: 10px;
+  }
+  .cmp dl dt{
+    font-size:.72rem; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--muted);
+  }
+  .cmp dl dd{
+    margin:0;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.9rem; color:var(--fg); line-height:1.45;
+  }
+  .cmp .pq-line.maybe{ color: var(--ok); }
+
+  .disc-callout{
+    margin-top: 18px;
+    border:1px solid var(--hair-strong);
+    border-radius:12px;
+    background: var(--card);
+    padding: 14px 18px;
+    display:flex; gap:14px; align-items:flex-start;
+    line-height:1.55; font-size:.95rem;
+  }
+  .disc-callout .lbl{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.7rem; letter-spacing:.1em; text-transform:uppercase;
+    color: var(--muted);
+    flex:none; padding-top:2px;
+  }
+  .disc-callout strong{ color:var(--fg); }
+
+  /* ---------- References ---------- */
+  .refs{ margin-top: clamp(24px, 3vw, 32px); display:grid; grid-template-columns: 1fr; gap: 16px; }
+  .refs li{ font-size:.96rem; line-height:1.55; list-style:none; padding: 14px 0; border-bottom:1px solid var(--hair); }
+  .refs li:first-child{ border-top:1px solid var(--hair); }
+  .refs ul{ margin:0; padding:0; }
+  .refs a{ color:var(--fg); text-decoration:underline; text-decoration-color:var(--hair); text-underline-offset:3px; word-break:break-word; }
+  .refs a:hover{ text-decoration-color:var(--fg); }
+  .refs .authors{ color:var(--muted); }
+  .refs .venue{ color:var(--muted); font-style:italic; }
+
+  footer{
+    padding: 40px clamp(20px, 5vw, 56px) 80px;
+    color: var(--muted); font-size:.88rem; max-width:1080px; margin:0 auto;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ scroll-behavior:auto !important; transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body x-data="poseidon()">
+
+<!-- ============== Nav ============== -->
+<nav class="nav" aria-label="Site">
+  <div style="max-width:1080px;margin:0 auto;padding:14px clamp(20px, 5vw, 56px);display:flex;align-items:center;justify-content:space-between;gap:18px;">
+    <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+      <span class="nav-mark mono" aria-hidden="true">P2</span>
+      <span style="font-weight:600;letter-spacing:-0.01em;">Poseidon &amp; Poseidon2</span>
+      <span class="muted mono" style="font-size:.76rem;letter-spacing:.08em;">/ primitive sheet</span>
+    </div>
+    <a href="/" class="text-[12.5px] muted hover:text-[var(--fg)] focus-ring" style="white-space:nowrap;">&larr; Back</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============== §1 Hero ============== -->
+<section data-screen-label="01 Hero" aria-labelledby="hero-h">
+  <p class="eyebrow">algebraic hashing for SNARK circuits</p>
+  <h1 class="hero" id="hero-h">Poseidon and Poseidon2 — the algebraic hash that lives inside the SNARK.</h1>
+  <p class="lede">Sponge-mode hashes built from an SPN round function over a prime field: every operation is a field operation, not a bitwise one. A single call compiles to roughly <span class="mono">50–300</span> PLONK constraints versus roughly <span class="mono">25 000</span> for SHA-256 — two orders of magnitude cheaper in-circuit.</p>
+  <p class="body muted">Poseidon (2021) is the original construction. Poseidon2 (2023) is a faster revision with a streamlined linear layer and a different round schedule — drop-in compatible at the protocol level, not bit-identical.</p>
+
+  <div class="anchor-line" aria-label="Concrete instantiation">
+    <span class="lbl">concrete instantiation</span>
+    Poseidon2 over BLS12-381's scalar field $F_r$, exposed as a host function under <span class="mono">CAP-0075</span> on Stellar Protocol&nbsp;25, with $R_F = 8$, $R_P = 56$, $\alpha = 5$, state width $t = 3$.
+  </div>
+
+  <div class="stat-strip" aria-label="Poseidon at a glance">
+    <div><div class="val">~50–300</div><div class="label">constraints / call</div></div>
+    <div><div class="val">~500×</div><div class="label">cheaper than SHA-256 in-circuit</div></div>
+    <div><div class="val">α = 5</div><div class="label">S-box exponent</div></div>
+    <div><div class="val">t = 3</div><div class="label">state width</div></div>
+    <div><div class="val">CAP-0075</div><div class="label">host function</div></div>
+  </div>
+</section>
+
+<!-- ============== §2 Shape ============== -->
+<section data-screen-label="02 Shape" aria-labelledby="shape-h">
+  <p class="eyebrow">the shape</p>
+  <h2 class="heading" id="shape-h">Sponge on the outside, substitution-permutation network on the inside.</h2>
+  <p class="lede">A sponge construction absorbs input field elements into the rate portion of the state, runs the permutation, then squeezes a digest. The permutation is a fixed number of rounds, each consisting of <strong>add round constants → α-power S-box → MDS matrix</strong>. Full rounds apply the S-box to every state element; partial rounds apply it to one element only — the asymmetry that drops constraint count without weakening the algebraic-attack margin.</p>
+
+  <div class="shape-wrap">
+    <svg class="shape-svg" viewBox="0 0 1040 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Poseidon sponge construction and round function structure">
+      <text x="20" y="26" font-size="11" fill="var(--muted)" letter-spacing="2">SPONGE · ARITY-2 MERKLE NODE</text>
+
+      <g>
+        <rect x="20" y="60" width="120" height="42" rx="8" fill="var(--card-2)" stroke="var(--hair-strong)" stroke-width="1.1"/>
+        <text x="80" y="86" text-anchor="middle" font-size="13" font-weight="700" fill="var(--fg)">left ∈ F_r</text>
+      </g>
+      <g>
+        <rect x="20" y="112" width="120" height="42" rx="8" fill="var(--card-2)" stroke="var(--hair-strong)" stroke-width="1.1"/>
+        <text x="80" y="138" text-anchor="middle" font-size="13" font-weight="700" fill="var(--fg)">right ∈ F_r</text>
+      </g>
+
+      <path d="M 145 80 L 215 110" fill="none" stroke="var(--wire)" stroke-width="1.2"/>
+      <polygon points="213,106 222,112 211,114" fill="var(--wire)"/>
+      <path d="M 145 132 L 215 122" fill="none" stroke="var(--wire)" stroke-width="1.2"/>
+      <polygon points="213,118 222,122 213,126" fill="var(--wire)"/>
+      <text x="180" y="98" font-size="10" fill="var(--muted)">absorb</text>
+
+      <g>
+        <rect x="220" y="70" width="240" height="120" rx="10" fill="rgba(106,139,255,0.06)" stroke="var(--wire)" stroke-width="1.2"/>
+        <text x="340" y="90" text-anchor="middle" font-size="11" fill="var(--wire)" letter-spacing="2">STATE · t = 3</text>
+        <rect x="236" y="102" width="64" height="34" rx="6" fill="var(--bg)" stroke="var(--lane-off-edge)" stroke-width="1"/>
+        <text x="268" y="123" text-anchor="middle" font-size="11" fill="var(--fg)">s₀</text>
+        <text x="268" y="148" text-anchor="middle" font-size="9" fill="var(--muted)">rate</text>
+
+        <rect x="308" y="102" width="64" height="34" rx="6" fill="var(--bg)" stroke="var(--lane-off-edge)" stroke-width="1"/>
+        <text x="340" y="123" text-anchor="middle" font-size="11" fill="var(--fg)">s₁</text>
+        <text x="340" y="148" text-anchor="middle" font-size="9" fill="var(--muted)">rate</text>
+
+        <rect x="380" y="102" width="64" height="34" rx="6" fill="var(--card-2)" stroke="var(--hair-strong)" stroke-width="1"/>
+        <text x="412" y="123" text-anchor="middle" font-size="11" fill="var(--fg)">s₂</text>
+        <text x="412" y="148" text-anchor="middle" font-size="9" fill="var(--muted)">capacity</text>
+
+        <text x="340" y="175" text-anchor="middle" font-size="10" fill="var(--muted)">rate r = 2 · capacity c = 1</text>
+      </g>
+
+      <path d="M 465 130 L 525 130" fill="none" stroke="var(--hair-strong)" stroke-width="1.2"/>
+      <polygon points="523,126 533,130 523,134" fill="var(--hair-strong)"/>
+      <text x="495" y="120" text-anchor="middle" font-size="10" fill="var(--muted)">permute</text>
+
+      <g>
+        <rect x="535" y="70" width="320" height="120" rx="10" fill="rgba(106,139,255,0.06)" stroke="var(--wire)" stroke-width="1.2"/>
+        <text x="695" y="90" text-anchor="middle" font-size="11" fill="var(--wire)" letter-spacing="2">PERMUTATION · 64 ROUNDS</text>
+        <text x="695" y="118" text-anchor="middle" font-size="13" font-weight="700" fill="var(--fg)">R_F = 8 full · R_P = 56 partial</text>
+        <text x="695" y="138" text-anchor="middle" font-size="10" fill="var(--muted)">4 full → 56 partial → 4 full</text>
+        <text x="695" y="158" text-anchor="middle" font-size="10" fill="var(--muted)">over F_r of BLS12-381 (255-bit)</text>
+        <text x="695" y="178" text-anchor="middle" font-size="10" font-style="italic" font-family="Charter,Georgia,serif" fill="var(--muted)">Horizen Labs canonical parameter set</text>
+      </g>
+
+      <path d="M 860 130 L 920 130" fill="none" stroke="var(--amber)" stroke-width="1.2"/>
+      <polygon points="918,126 928,130 918,134" fill="var(--amber)"/>
+      <text x="890" y="120" text-anchor="middle" font-size="10" fill="var(--muted)">squeeze</text>
+
+      <g>
+        <rect x="930" y="90" width="92" height="80" rx="8" fill="var(--card-2)" stroke="var(--hair-strong)" stroke-width="1.1"/>
+        <text x="976" y="125" text-anchor="middle" font-size="13" font-weight="700" fill="var(--fg)">digest</text>
+        <text x="976" y="146" text-anchor="middle" font-size="11" fill="var(--muted)">∈ F_r</text>
+      </g>
+
+      <text x="20" y="246" font-size="11" fill="var(--muted)" letter-spacing="2">ONE ROUND · SPN STRUCTURE</text>
+
+      <path d="M 20 320 L 60 320" fill="none" stroke="var(--hair-strong)" stroke-width="1.1"/>
+      <polygon points="58,316 68,320 58,324" fill="var(--hair-strong)"/>
+
+      <g>
+        <rect x="70" y="290" width="160" height="60" rx="8" fill="var(--card-2)" stroke="var(--hair-strong)" stroke-width="1.1"/>
+        <text x="150" y="316" text-anchor="middle" font-size="12" font-weight="700" fill="var(--fg)">+ round constants</text>
+        <text x="150" y="334" text-anchor="middle" font-size="10" fill="var(--muted)">s ← s + c_r</text>
+      </g>
+      <path d="M 232 320 L 268 320" fill="none" stroke="var(--hair-strong)" stroke-width="1.1"/>
+      <polygon points="266,316 276,320 266,324" fill="var(--hair-strong)"/>
+
+      <g>
+        <rect x="280" y="262" width="260" height="56" rx="8" fill="rgba(106,139,255,0.06)" stroke="var(--wire)" stroke-width="1.1"/>
+        <text x="410" y="282" text-anchor="middle" font-size="10" fill="var(--wire)" letter-spacing="1.5">FULL ROUND · R_F = 8</text>
+        <rect x="296" y="294" width="36" height="18" rx="4" fill="var(--wire)" opacity=".75"/>
+        <rect x="338" y="294" width="36" height="18" rx="4" fill="var(--wire)" opacity=".75"/>
+        <rect x="380" y="294" width="36" height="18" rx="4" fill="var(--wire)" opacity=".75"/>
+        <text x="480" y="307" text-anchor="middle" font-size="11" fill="var(--fg)">x → x⁵</text>
+
+        <rect x="280" y="324" width="260" height="56" rx="8" fill="var(--card-2)" stroke="var(--hair-strong)" stroke-width="1.1"/>
+        <text x="410" y="344" text-anchor="middle" font-size="10" fill="var(--muted)" letter-spacing="1.5">PARTIAL ROUND · R_P = 56</text>
+        <rect x="296" y="356" width="36" height="18" rx="4" fill="var(--wire)" opacity=".75"/>
+        <rect x="338" y="356" width="36" height="18" rx="4" fill="none" stroke="var(--hair-strong)" stroke-width="1"/>
+        <rect x="380" y="356" width="36" height="18" rx="4" fill="none" stroke="var(--hair-strong)" stroke-width="1"/>
+        <text x="480" y="369" text-anchor="middle" font-size="11" fill="var(--muted)">one element only</text>
+      </g>
+
+      <path d="M 542 320 L 580 320" fill="none" stroke="var(--hair-strong)" stroke-width="1.1"/>
+      <polygon points="578,316 588,320 578,324" fill="var(--hair-strong)"/>
+
+      <g>
+        <rect x="590" y="290" width="200" height="60" rx="8" fill="var(--card-2)" stroke="var(--hair-strong)" stroke-width="1.1"/>
+        <text x="690" y="316" text-anchor="middle" font-size="12" font-weight="700" fill="var(--fg)">MDS matrix</text>
+        <text x="690" y="334" text-anchor="middle" font-size="10" fill="var(--muted)">s ← M · s — diffusion</text>
+      </g>
+      <path d="M 792 320 L 828 320" fill="none" stroke="var(--hair-strong)" stroke-width="1.1"/>
+      <polygon points="826,316 836,320 826,324" fill="var(--hair-strong)"/>
+
+      <g>
+        <rect x="840" y="290" width="180" height="60" rx="8" fill="rgba(106,139,255,0.06)" stroke="var(--wire)" stroke-width="1.1"/>
+        <text x="930" y="316" text-anchor="middle" font-size="12" font-weight="700" fill="var(--fg)">next state</text>
+        <text x="930" y="334" text-anchor="middle" font-size="10" fill="var(--muted)">→ next round</text>
+      </g>
+
+      <g>
+        <text x="20" y="408" font-size="11" fill="var(--muted)" letter-spacing="2">ROUND SCHEDULE · 4 + 56 + 4</text>
+        <rect x="20" y="420" width="60" height="20" rx="4" fill="var(--wire)" opacity=".75"/>
+        <text x="50" y="434" text-anchor="middle" font-size="10" fill="var(--bg)" font-weight="700">4 full</text>
+        <line x1="82" y1="420" x2="82" y2="440" stroke="var(--hair)" stroke-width="1"/>
+        <rect x="84" y="420" width="836" height="20" rx="4" fill="none" stroke="var(--hair-strong)" stroke-width="1"/>
+        <text x="502" y="434" text-anchor="middle" font-size="10" fill="var(--muted)" font-weight="500">56 partial — S-box on one element only</text>
+        <line x1="922" y1="420" x2="922" y2="440" stroke="var(--hair)" stroke-width="1"/>
+        <rect x="924" y="420" width="60" height="20" rx="4" fill="var(--wire)" opacity=".75"/>
+        <text x="954" y="434" text-anchor="middle" font-size="10" fill="var(--bg)" font-weight="700">4 full</text>
+      </g>
+    </svg>
+
+    <div class="obj-grid">
+      <div class="obj-card">
+        <div class="name">State</div>
+        <div class="size">t = 3 field elements over $F_r$</div>
+        <div class="use">Rate 2, capacity 1 — the arity-2 shape used to compress two children into one Merkle parent in a single permutation call.</div>
+      </div>
+      <div class="obj-card">
+        <div class="name">S-box layer</div>
+        <div class="size">$x \mapsto x^{5}$ &nbsp;·&nbsp; α = 5</div>
+        <div class="use">The only nonlinear step. A degree-5 monomial — the smallest exponent coprime to $|F_r^\times|$ — keeps multiplicative depth low while leaving algebraic attacks expensive.</div>
+      </div>
+      <div class="obj-card">
+        <div class="name">MDS matrix</div>
+        <div class="size">linear · diffusion across the state</div>
+        <div class="use">A maximum-distance-separable matrix mixes the state every round. Poseidon2 replaces Poseidon's dense MDS with a streamlined version that costs fewer field multiplications natively while preserving diffusion.</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="caption">The cheap part is that every box in this diagram is a field operation. The expensive part — for SHA-256, in a circuit — is that every box is a bitwise operation, which a PLONK arithmetization has to simulate from scratch.</p>
+</section>
+
+<!-- ============== §3 Comparator ============== -->
+<section data-screen-label="03 Comparator" aria-labelledby="comp-h">
+  <p class="eyebrow">why it's cheap — interactive comparator</p>
+  <h2 class="heading" id="comp-h">In-circuit constraint count: Merkle path of depth&nbsp;<span x-text="depth" class="mono"></span>.</h2>
+  <p class="lede">A Merkle-membership proof hashes one node per tree level. Pick a depth; see what a PLONK circuit has to spend on the path for each hash family. Order-of-magnitude figures only — the headline ratio is what matters.</p>
+
+  <div class="comp" role="region" aria-label="In-circuit constraint comparator">
+    <div class="comp-head">
+      <div class="lhs">
+        <div class="ix">Merkle depth</div>
+        <div class="depth-val"><span x-text="depth"></span><span class="unit">levels</span></div>
+      </div>
+      <div class="seg" role="group" aria-label="Hash family">
+        <button type="button" :aria-pressed="variant==='p2'" @click="variant='p2'">Poseidon2</button>
+        <button type="button" :aria-pressed="variant==='p1'" @click="variant='p1'">Poseidon</button>
+      </div>
+    </div>
+
+    <div class="slider-row">
+      <div class="end">depth&nbsp;1</div>
+      <input class="slider" type="range" min="1" max="32" step="1"
+             x-model.number="depth"
+             :style="`--p: ${((depth-1)/31)*100}%`"
+             aria-label="Merkle depth, 1 to 32" />
+      <div class="end">depth&nbsp;32</div>
+    </div>
+
+    <div class="bars">
+      <div class="bar-card poseidon" :aria-label="variant==='p2' ? 'Poseidon2 path cost' : 'Poseidon path cost'">
+        <div class="bar-head">
+          <div class="bar-name">
+            <span class="pip fr" aria-hidden="true"></span>
+            <span x-text="variant==='p2' ? 'Poseidon2 path' : 'Poseidon path'"></span>
+          </div>
+          <div class="bar-sub" x-text="variant==='p2' ? '~50–200 / hash' : '~75–300 / hash'"></div>
+        </div>
+        <div class="bar-num">
+          <span x-text="poseidonRange().lo.toLocaleString()"></span>
+          <span class="range">–</span>
+          <span x-text="poseidonRange().hi.toLocaleString()"></span>
+          <span class="range" style="font-size:.78em;">&nbsp;constraints</span>
+        </div>
+        <div class="bar-track" aria-hidden="true">
+          <div class="bar-fill fr" :style="`width: ${barWidthPoseidon()}%;`"></div>
+        </div>
+        <div class="bar-detail">Algebraic / SPN over $F_r$. Each Merkle level is one permutation call; the constraint count scales linearly with depth.</div>
+      </div>
+
+      <div class="bar-card sha" aria-label="SHA-256 path cost">
+        <div class="bar-head">
+          <div class="bar-name">
+            <span class="pip neutral" aria-hidden="true"></span>
+            SHA-256 path
+          </div>
+          <div class="bar-sub">~25 000 / hash</div>
+        </div>
+        <div class="bar-num">
+          <span x-text="shaTotal().toLocaleString()"></span>
+          <span class="range" style="font-size:.78em;">&nbsp;constraints</span>
+        </div>
+        <div class="bar-track" aria-hidden="true">
+          <div class="bar-fill neutral" :style="`width: ${barWidthSha()}%;`"></div>
+        </div>
+        <div class="bar-detail">Merkle–Damgård / bitwise. Every AND, XOR, and rotation has to be re-expressed as field-arithmetic constraints inside the circuit.</div>
+      </div>
+    </div>
+
+    <div class="ratio-row" role="status" aria-live="polite">
+      <div>
+        <div class="lbl">ratio at this depth</div>
+        <div class="big">~<span x-text="ratioRange().lo.toLocaleString()"></span>–<span x-text="ratioRange().hi.toLocaleString()"></span>× cheaper</div>
+      </div>
+      <div class="why">Every operation in Poseidon is a field operation; every operation in SHA-256 is a bitwise operation. PLONK's gate model rewards the first and punishes the second.</div>
+    </div>
+  </div>
+
+  <p class="caption">Figures are the source's order-of-magnitude estimates — not measurements from a specific gadget. Poseidon2's roughly 20–30% improvement over Poseidon at the same $t = 3 / \alpha = 5$ parameters comes from a streamlined linear layer and a tighter round schedule, not from a different security target.</p>
+</section>
+
+<!-- ============== §4 Parameters ============== -->
+<section data-screen-label="04 Parameters" aria-labelledby="params-h">
+  <p class="eyebrow">parameters</p>
+  <h2 class="heading" id="params-h">Concrete numbers.</h2>
+  <p class="lede">Pinned by the deployment. Parameter discipline matters here — different field × state-width × round-count tuples produce <em>incompatible</em> hashes.</p>
+
+  <div class="params" aria-label="Poseidon2 parameters">
+    <div class="row"><div class="k">Variant</div><div class="v">Poseidon2 (verifier) + Poseidon (legacy)</div></div>
+    <div class="row"><div class="k">Field</div><div class="v">$F_r$ of BLS12-381 · 255-bit</div></div>
+    <div class="row"><div class="k">State width</div><div class="v">t = 3 · rate 2 / capacity 1 (Merkle arity-2)</div></div>
+    <div class="row"><div class="k">S-box exponent</div><div class="v">α = 5 · $x \mapsto x^5$</div></div>
+    <div class="row"><div class="k">Full rounds</div><div class="v">R_F = 8 · 4 first + 4 last</div></div>
+    <div class="row"><div class="k">Partial rounds</div><div class="v">R_P = 56 · parameter-dependent</div></div>
+    <div class="row"><div class="k">Parameter provenance</div><div class="v">Horizen Labs canonical set · round constants &amp; MDS</div></div>
+    <div class="row"><div class="k">Soroban host function</div><div class="v">Stellar CAP-0075 · Protocol 25</div></div>
+  </div>
+</section>
+
+<!-- ============== §5 Wiring ============== -->
+<section data-screen-label="05 Wiring" aria-labelledby="wire-h">
+  <p class="eyebrow">wiring — Merkle hash · transcript hash · host function</p>
+  <h2 class="heading" id="wire-h">Three places the same Poseidon2 instance shows up.</h2>
+  <p class="lede">Same permutation, same parameters, three distinct call sites. Two off-chain inside the prover's circuit; one on-chain inside the verifier's host environment. Anything else is a parameter-set bug.</p>
+
+  <div class="swimlane" role="group" aria-label="Poseidon2 wiring across a PLONK-on-Stellar deployment">
+    <div class="lane-head">
+      <div><span class="dot off"></span>In-circuit · Merkle compression</div>
+      <div><span class="dot prov"></span>In-circuit · Fiat-Shamir transcript</div>
+      <div><span class="dot on"></span>On-chain · CAP-0075 host function</div>
+    </div>
+    <div class="lane-body">
+      <div class="lane merkle">
+        <div class="lane-card">
+          <span class="tag">prover · off-chain</span>
+          <div class="title">Tree node = Poseidon2(left, right)</div>
+          <div class="detail">Every internal node of the membership tree is the arity-2 compression of its children. The prover walks the witness path from leaf to root.</div>
+        </div>
+        <div class="lane-card">
+          <span class="tag">F_r · arity-2</span>
+          <div class="title">Path → group commitment C_g</div>
+          <div class="detail">The chain of hashes reaches the public group commitment $C_g$ without revealing which leaf the prover knows. One permutation call per tree level.</div>
+        </div>
+        <div class="annot-note">
+          <span class="lbl">scaling</span>
+          Depth-20 Merkle path → 20 Poseidon2 calls → roughly $20 \times 50\text{–}200 \approx 1\,000\text{–}4\,000$ constraints. The same path in SHA-256 sits near half a million.
+        </div>
+      </div>
+
+      <div class="lane transcript">
+        <div class="lane-card">
+          <span class="tag">prover · off-chain</span>
+          <div class="title">Fiat-Shamir challenges</div>
+          <div class="detail">Every PLONK challenge — $\beta, \gamma, \alpha, \zeta$ — is drawn by hashing the transcript-so-far with Poseidon2. The verifier replays the same hashes.</div>
+        </div>
+        <div class="lane-card">
+          <span class="tag">F_r · transcript</span>
+          <div class="title">Public inputs ⊕ commitments</div>
+          <div class="detail">Each absorbed message is one or more $F_r$ elements: serialised commitments, evaluations, the public input. Native field absorption — no bit decomposition.</div>
+        </div>
+        <div class="annot-note red">
+          <span class="lbl">simulation-extractability</span>
+          Every public input must enter the transcript <strong>before</strong> the first challenge is drawn. Skipping this has caused real proof-malleability bugs.
+        </div>
+      </div>
+
+      <div class="lane host">
+        <div class="lane-card host-card">
+          <span class="tag">CAP-0075</span>
+          <div class="title">Same permutation, on-chain</div>
+          <div class="stack" style="display:flex;flex-direction:column;gap:6px;">
+            <span class="hostfn">stellar_poseidon2_hash</span>
+          </div>
+          <div class="detail">A Soroban host function exposes the same Poseidon2 instance to verifier contracts. Identical parameter set; bit-identical digests with the in-circuit hash.</div>
+        </div>
+        <div class="lane-card host-card">
+          <span class="tag">Protocol 25</span>
+          <div class="title">Verifier-side Fiat-Shamir replay</div>
+          <div class="detail">The on-chain verifier reconstructs the challenges from the proof bytes by calling the host function — never by computing Poseidon in guest WASM.</div>
+        </div>
+        <div class="annot-note amber">
+          <span class="lbl">why a host function</span>
+          Computing Poseidon in pure Soroban guest code costs an order of magnitude more in WASM bytecode than the host implementation. CAP-0075 makes Poseidon2 native to the runtime.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="caption">Cool/blue tint for the two in-circuit lanes — those run off-chain inside the prover. Amber for the on-chain lane — the only call site the chain pays for, on the verifier side. The red callout points at the cross-reference to PLONK's simulation-extractability requirement; the hash itself doesn't carry that risk, the way it's <em>used</em> does.</p>
+</section>
+
+<!-- ============== §6 Security ============== -->
+<section data-screen-label="06 Security" aria-labelledby="sec-h">
+  <p class="eyebrow">security</p>
+  <h2 class="heading" id="sec-h">A hash that survives the curve break around it.</h2>
+  <p class="lede">Two assumptions, two horizons — and unusually for this stack, both cards are green. The post-quantum card is the good news here: a Grover speedup halves the security level, it does not collapse it. The catch is that the system <em>around</em> the hash still falls.</p>
+
+  <div class="sec-grid">
+    <div class="sec-card classical">
+      <span class="sec-badge ok"><span class="pip" aria-hidden="true"></span>classical · holding</span>
+      <div class="num ok-num">128-bit</div>
+      <h3>Collision &amp; (second-)preimage resistance of the permutation.</h3>
+      <p class="muted">Instantiated with the Horizen Labs canonical round-constant and MDS matrix set. Published analysis covers the relevant algebraic-attack families with a safety margin against the best known cryptanalysis at $R_F = 8 / R_P = 56$.</p>
+      <ul>
+        <li><strong>Algebraic attack families covered:</strong> Gröbner-basis, interpolation, higher-order differential.</li>
+        <li>Safety margin chosen against the best known cryptanalysis — round counts have been adjusted twice since the 2021 publication.</li>
+        <li>Sponge mode reduces to permutation security via the standard indifferentiability argument.</li>
+      </ul>
+    </div>
+
+    <div class="sec-card pq">
+      <span class="sec-badge ok-dashed"><span class="pip" aria-hidden="true"></span>post-quantum · conjectured</span>
+      <div class="num ok-num">~64-bit</div>
+      <h3>Grover's $\sqrt{N}$ — and nothing worse — is the relevant quantum speedup.</h3>
+      <p class="muted">The hash is hash-based. A CRQC finds collisions at roughly half the classical bit-security level; 128-bit classical collision resistance becomes ~64-bit post-quantum collision resistance. The permutation itself <em>survives</em>.</p>
+      <ul>
+        <li>Grover is the only relevant quantum speedup; no Shor-style polynomial-time attack applies to a hash.</li>
+        <li><strong>But the system around it does not.</strong> KZG and PLONK on BLS12-381 fall under Shor regardless of which hash the Fiat-Shamir transcript uses.</li>
+        <li>Migration headroom is in the state width $t$ and the digest size — not in the hash family. A wider Poseidon recovers the bit-security margin without changing the construction.</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="caption">This is the opposite colour story from the BLS12-381 and PLONK sheets: there, the post-quantum card was the red one. Here both cards are green. The visual contrast — a dashed border on the post-quantum card — is between <em>well-studied</em> and <em>younger</em>: algebraic cryptanalysis of Poseidon is on a shorter timeline than half a century of analysis around SHA-256's design family.</p>
+</section>
+
+<!-- ============== §7 Compare ============== -->
+<section data-screen-label="07 Comparison" aria-labelledby="cmp-h">
+  <p class="eyebrow">poseidon vs poseidon2 vs sha-256</p>
+  <h2 class="heading" id="cmp-h">Where each hash is cheap, and where it isn't.</h2>
+  <p class="lede">Three hashes, three trades. Algebraic structure is what makes Poseidon and Poseidon2 cheap inside a SNARK and slow outside it. SHA-256 is the opposite — fast on hardware, prohibitively expensive in a circuit.</p>
+
+  <div class="compare">
+    <div class="cmp">
+      <h3>Poseidon</h3>
+      <div class="meta">algebraic · SPN over $F_r$</div>
+      <dl>
+        <div><dt>Family</dt><dd>algebraic · sponge + SPN</dd></div>
+        <div><dt>In-circuit cost</dt><dd>~50–300 constraints / call</dd></div>
+        <div><dt>Native CPU cost</dt><dd>slower than SHA-256 natively</dd></div>
+        <div><dt>PQ stance</dt><dd class="pq-line maybe">conjectured PQ-secure</dd></div>
+        <div><dt>Maturity</dt><dd>USENIX Security 2021 · round count adjusted twice since</dd></div>
+      </dl>
+    </div>
+
+    <div class="cmp subject" aria-current="true">
+      <span class="crown">this page</span>
+      <h3>Poseidon2</h3>
+      <div class="meta">streamlined linear layer · drop-in</div>
+      <dl>
+        <div><dt>Family</dt><dd>algebraic · sponge + SPN</dd></div>
+        <div><dt>In-circuit cost</dt><dd>~20–30% cheaper than Poseidon at the same parameters</dd></div>
+        <div><dt>Native CPU cost</dt><dd>faster than Poseidon natively</dd></div>
+        <div><dt>PQ stance</dt><dd class="pq-line maybe">conjectured PQ-secure</dd></div>
+        <div><dt>Maturity</dt><dd>IACR ePrint 2023 · drop-in compatible at the protocol level</dd></div>
+      </dl>
+    </div>
+
+    <div class="cmp">
+      <h3>SHA-256</h3>
+      <div class="meta">Merkle–Damgård · bitwise</div>
+      <dl>
+        <div><dt>Family</dt><dd>Merkle–Damgård · bitwise compression</dd></div>
+        <div><dt>In-circuit cost</dt><dd>~25 000 constraints / call</dd></div>
+        <div><dt>Native CPU cost</dt><dd>fastest natively · decades of hardware acceleration</dd></div>
+        <div><dt>PQ stance</dt><dd class="pq-line maybe">conjectured PQ-secure · ~64-bit Grover bound</dd></div>
+        <div><dt>Maturity</dt><dd>FIPS 180-2, 2002 · conservative default outside SNARKs</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <p class="caption">All three are conjectured PQ-secure under Grover; the difference is age. SHA-256's design family has decades of cryptanalysis behind it. Poseidon's algebraic-attack analysis is younger — treat it with proportional humility for protocols where the hash is the long-term bottleneck.</p>
+
+  <div class="disc-callout" role="note" aria-label="Parameter discipline">
+    <span class="lbl">parameter discipline</span>
+    <div>
+      Different field × state-width × round-count tuples produce <strong>incompatible</strong> hashes. A careful deployment pins the parameter set alongside the SRS provenance. <strong>Poseidon and Poseidon2 are not bit-identical</strong> — upgrading from one to the other rewrites every Merkle root in the registry. The current deployment standardises on Poseidon2 as the canonical hash.
+    </div>
+  </div>
+</section>
+
+<!-- ============== §8 References ============== -->
+<section data-screen-label="08 References" aria-labelledby="refs-h">
+  <p class="eyebrow">references</p>
+  <h2 class="heading" id="refs-h">Primary literature.</h2>
+  <p class="lede">Four sources. The two Poseidon papers, the Stellar CAP defining the host function, and the PLONK paper that consumes the hash on the transcript side.</p>
+
+  <div class="refs">
+    <ul>
+      <li>
+        <span class="authors">Grassi, L.; Khovratovich, D.; Rechberger, C.; Roy, A.; Schofnegger, M. 2021.</span>
+        <a href="https://www.usenix.org/conference/usenixsecurity21/presentation/grassi" target="_blank" rel="noopener">Poseidon: A New Hash Function for Zero-Knowledge Proof Systems.</a>
+        <span class="venue">USENIX Security 2021.</span>
+      </li>
+      <li>
+        <span class="authors">Grassi, L.; Khovratovich, D.; Schofnegger, M. 2023.</span>
+        <a href="https://eprint.iacr.org/2023/323" target="_blank" rel="noopener">Poseidon2: A Faster Version of the Poseidon Hash Function.</a>
+        <span class="venue">IACR ePrint 2023/323.</span>
+      </li>
+      <li>
+        <span class="authors">Stellar Development Foundation. 2025.</span>
+        <a href="https://github.com/stellar/stellar-protocol/blob/master/core/cap-0075.md" target="_blank" rel="noopener">CAP-0075: Cryptographic Primitives for Poseidon and Poseidon2 Hash Functions.</a>
+        <span class="venue">Stellar Protocol 25.</span>
+      </li>
+      <li>
+        <span class="authors">Gabizon, A.; Williamson, Z. J.; Ciobotaru, O. 2019.</span>
+        <a href="https://eprint.iacr.org/2019/953" target="_blank" rel="noopener">PLONK: Permutations over Lagrange-bases for Oecumenical Noninteractive arguments of Knowledge.</a>
+        <span class="venue">IACR ePrint 2019/953.</span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;">
+    <span class="mono">primitive sheet · Poseidon &amp; Poseidon2</span>
+    <span>·</span>
+    <span class="muted">no tracking · no analytics · no external requests beyond Tailwind, Alpine, and KaTeX CDNs</span>
+  </div>
+  <p style="margin-top:16px;max-width:64ch;">Two orders of magnitude cheaper than SHA-256 inside a SNARK, because every operation is a field operation rather than a bitwise one. Conjectured post-quantum secure — but the surrounding KZG/PLONK stack on BLS12-381 still falls under Shor.</p>
+</footer>
+
+<!-- Theme toggle -->
+<div class="toggle" role="group" aria-label="Theme">
+  <button id="t-dark"  aria-pressed="true"  onclick="setTheme('dark')">Dark</button>
+  <button id="t-light" aria-pressed="false" onclick="setTheme('light')">Light</button>
+</div>
+
+<script>
+  function setTheme(mode){
+    if(mode==='light') document.documentElement.setAttribute('data-theme','light');
+    else document.documentElement.removeAttribute('data-theme');
+    document.getElementById('t-dark').setAttribute('aria-pressed', mode==='dark');
+    document.getElementById('t-light').setAttribute('aria-pressed', mode==='light');
+    try{ localStorage.setItem('onym.theme', mode); }catch(e){}
+  }
+  (function(){
+    var t='dark';
+    try{ t = localStorage.getItem('onym.theme') || 'dark'; }catch(e){}
+    setTheme(t);
+  })();
+</script>
+
+<script>
+  function poseidon(){
+    return {
+      depth: 20,
+      variant: 'p2',
+      perCall(){
+        return this.variant === 'p2' ? {lo:50, hi:200} : {lo:75, hi:300};
+      },
+      poseidonRange(){
+        const p = this.perCall();
+        return { lo: p.lo * this.depth, hi: p.hi * this.depth };
+      },
+      shaTotal(){ return 25000 * this.depth; },
+      ratioRange(){
+        const sha = this.shaTotal();
+        const p   = this.poseidonRange();
+        const lo = Math.round(sha / p.hi);
+        const hi = Math.round(sha / p.lo);
+        return { lo, hi };
+      },
+      barWidthPoseidon(){
+        const sha = this.shaTotal();
+        const hi  = this.poseidonRange().hi;
+        return Math.max(0.4, (hi / sha) * 100);
+      },
+      barWidthSha(){ return 100; }
+    };
+  }
+</script>
+
+</body>
+</html>
