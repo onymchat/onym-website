@@ -662,6 +662,39 @@
   .spec:hover{ border-color: color-mix(in oklab, var(--fg) 30%, var(--hair)); }
   .spec.in{ opacity:1; transform:none; }
 
+  /* SEP capstone — контракт, который стоит сверху на блоках */
+  .capstone{
+    --amber: #f0b35e;
+    --amber-edge: rgba(240,179,94,.45);
+    --amber-soft: rgba(240,179,94,.10);
+    border-color: var(--amber-edge);
+    background:
+      linear-gradient(180deg, var(--amber-soft) 0%, var(--card) 70%),
+      var(--card);
+    display:flex; align-items:center; justify-content:space-between;
+    gap: 22px; flex-wrap: wrap;
+    padding: 22px 26px;
+  }
+  html[data-theme="light"] .capstone{ --amber: #b45309; --amber-edge: rgba(180,83,9,.45); --amber-soft: rgba(180,83,9,.08); }
+  .capstone .cap-left{ display:flex; flex-direction:column; gap:6px; min-width: 0; }
+  .capstone .cap-eyebrow{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:11px; color: var(--amber); letter-spacing:.04em; }
+  .capstone .cap-name{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:18px; letter-spacing:-0.01em; }
+  .capstone .cap-desc{ color: var(--muted); font-size: 13px; max-width: 62ch; line-height:1.55; }
+  .capstone .cap-go{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:13px; color: var(--amber); white-space: nowrap; }
+  a.capstone:hover{ border-color: var(--amber); }
+  .brick-rule{
+    display:flex; align-items:center; gap:10px;
+    margin: 18px 0 4px;
+    color: var(--muted);
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+    opacity: 0; transition: opacity .6s ease;
+  }
+  .brick-rule.in{ opacity: 1; }
+  .brick-rule::before, .brick-rule::after{
+    content:""; flex:1; height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--hair) 50%, transparent 100%);
+  }
+
   /* Terminal */
   .terminal{
     background:#0a0a0a; color:#e6e6e6; border-radius:18px; padding: 22px 24px;
@@ -1340,15 +1373,22 @@
         Onym построен на примитивах, которые криптографы развёртывают, атакуют и изучают десятилетиями. Никакой новой криптографии.
       </p>
     </div>
-    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mt-14" id="specGrid">
+    <a class="spec capstone mt-14" href="/policies/sep-anarchy/" id="specCapstone" aria-label="sep-anarchy — как блоки складываются в один контракт">
+      <div class="cap-left">
+        <p class="cap-eyebrow">Замковый камень · контракт поверх этих блоков</p>
+        <p class="cap-name">sep-anarchy</p>
+        <p class="cap-desc">Семь примитивов, один контракт, любой член группы принимает нового. Простейший из пяти политических контрактов — с полной цепочкой soundness по каждому блоку.</p>
+      </div>
+      <span class="cap-go">Посмотреть стену &rarr;</span>
+    </a>
+    <div class="brick-rule" id="brickRule" aria-hidden="true">блоки</div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4" id="specGrid">
       <a class="spec" href="/primitives/merkle/" aria-label="Merkle tree primitive sheet"><p class="mono text-[11px] muted">Членство</p><p class="mono text-[15px] mt-2">Merkle tree</p><p class="muted text-[13px] mt-3 leading-[1.55]">32-байтный корень коммитит ко всему множеству.</p></a>
       <a class="spec" href="/primitives/bls/" aria-label="BLS12-381 primitive sheet"><p class="mono text-[11px] muted">Групповые подписи</p><p class="mono text-[15px] mt-2">BLS12-381</p><p class="muted text-[13px] mt-3 leading-[1.55]">Кривая для агрегированных подписей.</p></a>
       <a class="spec" href="/primitives/plonk/" aria-label="PLONK primitive sheet"><p class="mono text-[11px] muted">Zero-knowledge</p><p class="mono text-[15px] mt-2">PLONK</p><p class="muted text-[13px] mt-3 leading-[1.55]">Универсальный SNARK для доказательств членства.</p></a>
       <a class="spec" href="/primitives/poseidon/" aria-label="Poseidon primitive sheet"><p class="mono text-[11px] muted">Хеширование</p><p class="mono text-[15px] mt-2">Poseidon</p><p class="muted text-[13px] mt-3 leading-[1.55]">Хеш для SNARK-схем.</p></a>
       <a class="spec" href="/primitives/fiat-shamir/" aria-label="Fiat-Shamir primitive sheet"><p class="mono text-[11px] muted">Преобразование NIZK</p><p class="mono text-[15px] mt-2">Fiat-Shamir</p><p class="muted text-[13px] mt-3 leading-[1.55]">Интерактивное доказательство → одна транзакция.</p></a>
       <a class="spec" href="/primitives/kzg/" aria-label="KZG primitive sheet"><p class="mono text-[11px] muted">Коммитмент полинома</p><p class="mono text-[15px] mt-2">KZG</p><p class="muted text-[13px] mt-3 leading-[1.55]">48-байтный коммитмент, одна спарка для проверки.</p></a>
-      <a class="spec" href="https://datatracker.ietf.org/doc/html/rfc8032" rel="noopener" aria-label="RFC 8032 — EdDSA / Ed25519"><p class="mono text-[11px] muted">Ключи Stellar</p><p class="mono text-[15px] mt-2">Ed25519</p><p class="muted text-[13px] mt-3 leading-[1.55]">Быстрые детерминированные подписи для якорей в блокчейне.</p></a>
-      <a class="spec" href="https://github.com/onymchat/onym-contracts" rel="noopener" aria-label="Onym Soroban contracts"><p class="mono text-[11px] muted">Якоря</p><p class="mono text-[15px] mt-2">Soroban</p><p class="muted text-[13px] mt-3 leading-[1.55]">Состояние группы живёт в смарт-контракте Stellar.</p></a>
     </div>
   </div>
 </section>
@@ -1567,7 +1607,7 @@
       if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
     });
   }, {rootMargin: '0px 0px -10% 0px', threshold: 0.1});
-  document.querySelectorAll('.reveal, .spec').forEach(el=>io.observe(el));
+  document.querySelectorAll('.reveal, .spec, .brick-rule').forEach(el=>io.observe(el));
 
   // Stagger specs
   document.querySelectorAll('#specGrid .spec').forEach((el, i)=>{

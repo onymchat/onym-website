@@ -1,0 +1,1461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>sep-anarchy — seven primitives, one contract, any member admits</title>
+<meta name="description" content="How the deployment's simplest membership-policy contract — sep-anarchy — rests on a stack of seven cryptographic primitives, and what the soundness conjunction actually is." />
+<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+<link rel="icon" type="image/png" href="/assets/icon-dark.png" />
+<link rel="apple-touch-icon" href="/assets/icon-dark.png" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="sep-anarchy — synthesis sheet" />
+<meta property="og:description" content="Seven primitives, one contract, any current member admits. The simplest of five policy contracts, with the full brick-by-brick soundness chain." />
+<meta property="og:image" content="https://onym.app/assets/og-card.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="sep-anarchy — synthesis sheet" />
+<meta name="twitter:description" content="The keystone on top of six cryptographic bricks. Interactive wall, animated admission flow, forward/reverse soundness." />
+<meta name="twitter:image" content="https://onym.app/assets/og-card.jpg" />
+<link rel="alternate" hreflang="en" href="https://onym.app/policies/sep-anarchy/" />
+<link rel="alternate" hreflang="x-default" href="https://onym.app/policies/sep-anarchy/" />
+<script>(function(){try{var p=(navigator.language||'').toLowerCase();if(p==='ru'||p.startsWith('ru-')){var pa=location.pathname;location.replace('/ru'+(pa==='/'?'/':pa));return;}}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});"></script>
+<script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
+
+<style>
+  :root{
+    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
+    --hair:rgba(245,245,247,.10);
+    --hair-strong:rgba(245,245,247,.18);
+    --card:#101013;
+    --card-2:#16161b;
+    --nav-bg: rgba(8,8,10,.72);
+
+    --wire:        #6a8bff;
+    --wire-soft:   rgba(106,139,255,.10);
+    --wire-edge:   rgba(106,139,255,.40);
+    --amber:       #f0b35e;
+    --amber-soft:  rgba(240,179,94,.10);
+    --amber-edge:  rgba(240,179,94,.45);
+    --ok:          #4ade80;
+    --danger:      #ef5350;
+    --danger-soft: rgba(239,83,80,.12);
+    --danger-edge: rgba(239,83,80,.55);
+
+    --brick-fill:        rgba(106,139,255,.07);
+    --brick-stroke:      rgba(106,139,255,.32);
+    --brick-fill-hot:    rgba(106,139,255,.18);
+    --brick-stroke-hot:  rgba(106,139,255,.85);
+    --brick-fill-fail:   rgba(239,83,80,.16);
+    --brick-stroke-fail: rgba(239,83,80,.85);
+    --cap-fill:          rgba(240,179,94,.10);
+    --cap-stroke:        rgba(240,179,94,.55);
+    --cap-fill-hot:      rgba(240,179,94,.22);
+    --cap-stroke-hot:    rgba(240,179,94,1);
+
+    --edge:        rgba(106,139,255,.22);
+    --edge-hot:    rgba(106,139,255,.95);
+    --edge-fail:   rgba(239,83,80,.95);
+    --mortar:      rgba(245,245,247,.04);
+  }
+  html[data-theme="light"]{
+    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
+    --hair:rgba(10,10,10,.10);
+    --hair-strong:rgba(10,10,10,.22);
+    --card:#ffffff;
+    --card-2:#fbfbfd;
+    --nav-bg: rgba(245,245,247,.72);
+
+    --wire:        #1d4ed8;
+    --wire-soft:   rgba(29,78,216,.08);
+    --wire-edge:   rgba(29,78,216,.45);
+    --amber:       #b45309;
+    --amber-soft:  rgba(180,83,9,.08);
+    --amber-edge:  rgba(180,83,9,.45);
+    --ok:          #16803c;
+    --danger:      #b91c1c;
+    --danger-soft: rgba(185,28,28,.10);
+    --danger-edge: rgba(185,28,28,.55);
+
+    --brick-fill:        rgba(29,78,216,.06);
+    --brick-stroke:      rgba(29,78,216,.40);
+    --brick-fill-hot:    rgba(29,78,216,.14);
+    --brick-stroke-hot:  rgba(29,78,216,1);
+    --brick-fill-fail:   rgba(185,28,28,.10);
+    --brick-stroke-fail: rgba(185,28,28,1);
+    --cap-fill:          rgba(180,83,9,.10);
+    --cap-stroke:        rgba(180,83,9,.55);
+    --cap-fill-hot:      rgba(180,83,9,.18);
+    --cap-stroke-hot:    rgba(180,83,9,1);
+
+    --edge:        rgba(29,78,216,.30);
+    --edge-hot:    rgba(29,78,216,1);
+    --edge-fail:   rgba(185,28,28,1);
+    --mortar:      rgba(10,10,10,.04);
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); color:var(--fg); }
+  body{
+    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+    font-feature-settings: "ss01","ss02","cv11";
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+    line-height:1.55;
+    transition: background-color .35s ease, color .35s ease;
+  }
+  .mono{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-feature-settings:"zero","ss01"; }
+  .muted{ color:var(--muted); }
+  .katex{ font-size:1em; color:inherit; }
+  .focus-ring:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--wire); border-radius:4px; }
+
+  /* ---------- Nav ---------- */
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:var(--nav-bg);
+    backdrop-filter:saturate(160%) blur(14px);
+    -webkit-backdrop-filter:saturate(160%) blur(14px);
+    border-bottom:1px solid var(--hair);
+  }
+  .nav-mark{
+    display:inline-grid; place-items:center; width:22px; height:22px;
+    border:1px solid var(--hair-strong); border-radius:6px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:11px;
+    color:var(--fg);
+  }
+  .nav-crumb{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.74rem; letter-spacing:.06em; color:var(--muted);
+  }
+
+  main{ max-width: 1080px; margin:0 auto; padding: 0 clamp(20px, 5vw, 56px); }
+  section{
+    padding-top: clamp(56px, 8vw, 112px);
+    padding-bottom: clamp(56px, 8vw, 112px);
+    border-bottom: 1px solid var(--hair);
+  }
+  section:last-of-type{ border-bottom:none; }
+
+  .eyebrow{
+    font-size:.74rem; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--muted); font-weight:500;
+    margin: 0 0 clamp(20px, 3vw, 28px) 0;
+  }
+  h1.hero{
+    font-weight:700; letter-spacing:-0.035em; line-height:1.05; margin:0;
+    text-wrap:balance;
+    font-size: clamp(2.2rem, 5.5vw, 3.6rem);
+  }
+  h2.heading{
+    font-weight:700; letter-spacing:-0.028em; line-height:1.12; margin:0;
+    text-wrap:balance;
+    font-size: clamp(1.6rem, 3.6vw, 2.3rem);
+  }
+  h3.sub{
+    font-weight:600; letter-spacing:-0.018em; line-height:1.2; margin:0;
+    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+  }
+  .lede{
+    font-size: clamp(1.05rem, 1.35vw, 1.18rem);
+    color:var(--muted); margin: clamp(20px, 2.6vw, 28px) 0 0 0;
+    line-height:1.6; max-width: 62ch;
+  }
+  p.body{ font-size: 1.02rem; color:var(--fg); margin: clamp(16px, 2vw, 22px) 0 0 0; line-height:1.65; max-width: 64ch; }
+  p.body.muted{ color:var(--muted); }
+  p.caption{ font-size:.94rem; color:var(--muted); line-height:1.6; margin: 20px 0 0 0; max-width: 64ch; }
+
+  .bom{
+    margin-top: clamp(22px, 2.6vw, 28px);
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.86rem; color:var(--muted); letter-spacing:.02em;
+    display:flex; flex-wrap:wrap; gap:6px 0;
+    line-height:1.9;
+  }
+  .bom .b{ color:var(--fg); }
+  .bom .sep{ color:var(--muted); padding:0 8px; }
+  .bom .cap{ color:var(--amber); }
+
+  /* ---------- Theme toggle ---------- */
+  .toggle{
+    position:fixed; bottom:18px; right:18px; z-index:60;
+    background:var(--nav-bg);
+    border:1px solid var(--hair); border-radius:999px;
+    padding:4px; display:flex; gap:2px;
+    backdrop-filter:saturate(180%) blur(14px);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    box-shadow:0 8px 24px -10px rgba(10,10,10,.18);
+  }
+  .toggle button{
+    font-size:12px; letter-spacing:.04em; padding:7px 12px; border-radius:999px;
+    color:var(--muted); border:0; background:transparent; cursor:pointer;
+  }
+  .toggle button[aria-pressed="true"]{ background:var(--fg); color:var(--bg); }
+
+  /* ---------- Stat strip ---------- */
+  .stat-strip{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    display:grid; grid-template-columns: repeat(5, minmax(0,1fr));
+    gap: 1px; background: var(--hair);
+    border: 1px solid var(--hair); border-radius: 10px; overflow:hidden;
+  }
+  .stat-strip > div{ background: var(--bg); padding: 14px 16px; display:flex; flex-direction:column; gap:4px; }
+  .stat-strip .val{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.98rem; font-weight:600; letter-spacing:-0.01em; }
+  .stat-strip .label{ font-size:.72rem; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; }
+  @media (max-width:780px){ .stat-strip{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.82rem;
+    padding:7px 14px; border-radius:999px;
+    border:1px solid var(--hair-strong); background: var(--bg); color:var(--fg);
+    cursor:pointer; letter-spacing:.04em;
+  }
+  .btn:hover{ background: var(--card-2); }
+  .btn:focus-visible{ outline:2px solid var(--wire); outline-offset:2px; }
+  .btn[disabled]{ opacity:.4; cursor:not-allowed; }
+  .btn.primary{ background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .btn.primary:hover{ filter: brightness(0.95); background: var(--fg); }
+
+  /* ---------- Wall ---------- */
+  .wall-card{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px; background:var(--card);
+    padding: clamp(18px, 2.8vw, 28px);
+    display:grid; gap: 22px;
+  }
+  .wall-card.split{ grid-template-columns: 1.35fr 1fr; }
+  @media (max-width: 920px){ .wall-card.split{ grid-template-columns: 1fr; } }
+  .wall-svg{ width:100%; height:auto; display:block; }
+  .wall-svg text{ font-family:"SF Mono",ui-monospace,Menlo,monospace; }
+
+  /* SVG brick base styles */
+  .brick rect, .brick path{ transition: fill .25s ease, stroke .25s ease, stroke-width .2s ease; }
+  .brick text{ transition: fill .25s ease; pointer-events:none; }
+  .brick:focus-visible{ outline:none; }
+  .brick:focus-visible rect, .brick:focus-visible path{
+    stroke: var(--fg); stroke-width: 2;
+  }
+  .brick{ cursor:pointer; }
+
+  .edge{ transition: stroke .25s ease, stroke-width .2s ease, opacity .25s ease; }
+
+  /* ---------- Side panel (§2) ---------- */
+  .panel{
+    border:1px solid var(--hair); border-radius:12px;
+    background: var(--card-2);
+    padding: 18px 20px;
+    display:flex; flex-direction:column; gap:12px;
+    min-height: 320px;
+  }
+  .panel .pnum{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.7rem; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--muted);
+  }
+  .panel h4{ margin:0; font-size:1.2rem; font-weight:700; letter-spacing:-0.02em; }
+  .panel .pdef{ font-size:.94rem; color:var(--muted); line-height:1.55; margin:0; }
+  .panel dl{ margin:0; display:grid; grid-template-columns:1fr; gap:10px; }
+  .panel dl > div{ display:grid; grid-template-columns:90px 1fr; gap:10px; align-items:start; }
+  .panel dl dt{ font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); padding-top:2px; }
+  .panel dl dd{ margin:0; font-size:.92rem; font-family:"SF Mono",ui-monospace,Menlo,monospace; line-height:1.5; }
+  .panel .sheet{
+    margin-top:auto;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.82rem;
+    border-top:1px solid var(--hair);
+    padding-top:12px;
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+  }
+  .panel .sheet a{ color:var(--fg); text-decoration:underline; text-decoration-color:var(--hair); text-underline-offset:3px; }
+  .panel .sheet a:hover{ text-decoration-color:var(--fg); }
+
+  .caption-row{
+    display:grid; grid-template-columns: 1fr; gap:8px;
+    color: var(--muted); font-size:.92rem; line-height:1.55;
+    padding-top: 6px; border-top:1px solid var(--hair); margin-top:4px;
+  }
+  .caption-row .lbl{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+  }
+
+  /* ---------- §3 Contract ---------- */
+  .two-col{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    display:grid; grid-template-columns: 1fr 1fr; gap: 18px;
+  }
+  @media (max-width: 900px){ .two-col{ grid-template-columns: 1fr; } }
+  .col-card{
+    border:1px solid var(--hair); border-radius:16px;
+    background: var(--card);
+    padding: 22px 24px;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .col-card .colhead{
+    display:flex; justify-content:space-between; align-items:baseline; gap:10px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+  }
+  .pred-box{
+    border:1px dashed var(--hair-strong); border-radius:12px;
+    padding: 18px 20px; background: var(--card-2);
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .pred-box .ptag{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.7rem; letter-spacing:.08em; color:var(--muted); text-transform:uppercase;
+  }
+  .pred-eq{ font-size:1.1rem; line-height:1.6; }
+  .pred-plain{ font-size:.95rem; color:var(--muted); line-height:1.5; }
+  .other-policies{ display:grid; gap:8px; margin-top:4px; }
+  .other-policies .op{
+    display:grid; grid-template-columns: 150px 1fr; gap:10px;
+    font-size:.86rem; line-height:1.5;
+    padding: 8px 0;
+    border-top: 1px solid var(--hair);
+  }
+  .other-policies .op:first-child{ border-top:none; }
+  .other-policies .op .tag{ font-family:"SF Mono",ui-monospace,Menlo,monospace; color:var(--fg); }
+  .other-policies .op .desc{ color:var(--muted); }
+
+  .codebox{
+    border:1px solid var(--hair); border-radius:12px;
+    background: var(--bg);
+    padding: 16px 18px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.86rem; line-height:1.65;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .codebox .k{ color: var(--wire); }
+  .codebox .t{ color: var(--amber); }
+  .codebox .s{ color: var(--ok); }
+  .codebox .c{ color: var(--muted); font-style: italic; }
+  .codebox .n{ color: var(--muted); }
+  .codebox .fn{ color: var(--fg); font-weight:600; }
+  .codebox .self{ color: var(--muted); }
+
+  /* ---------- §4 Admission flow ---------- */
+  .flow-controls{
+    display:flex; justify-content:space-between; align-items:center; gap:14px;
+    border-bottom: 1px solid var(--hair); padding-bottom: 14px;
+  }
+  .flow-controls .ix{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.86rem; color:var(--muted); letter-spacing:.04em;
+  }
+  .flow-controls .right{ display:flex; gap:8px; flex-wrap:wrap; }
+  .flow-track{
+    display:grid; grid-template-columns: repeat(6, minmax(0,1fr));
+    gap: 6px;
+  }
+  @media (max-width: 820px){ .flow-track{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
+  .flow-tick{
+    display:flex; flex-direction:column; gap:4px;
+    padding: 10px 8px; border-radius:8px;
+    border:1px solid transparent;
+    background: transparent;
+    text-align:left;
+    cursor:pointer;
+    color:var(--muted);
+    transition: background-color .25s ease, color .25s ease, border-color .25s ease;
+    font-family:inherit;
+  }
+  .flow-tick:hover{ background: var(--card-2); color: var(--fg); }
+  .flow-tick:focus-visible{ outline:2px solid var(--wire); outline-offset:2px; }
+  .flow-tick .n{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.74rem; letter-spacing:.06em; }
+  .flow-tick .t{ font-size:.86rem; font-weight:600; color:var(--fg); letter-spacing:-0.01em; line-height:1.25; }
+  .flow-tick.active{ background: var(--card-2); border-color: var(--hair-strong); }
+
+  .flow-body{
+    display:grid; grid-template-columns: 1.35fr 1fr; gap: 18px;
+    margin-top: 8px;
+  }
+  @media (max-width: 920px){ .flow-body{ grid-template-columns: 1fr; } }
+  .flow-caption{
+    border:1px solid var(--hair); border-radius:12px;
+    background: var(--card-2); padding: 18px 20px;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .flow-caption .num{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+  }
+  .flow-caption h4{ margin:0; font-size:1.15rem; font-weight:700; letter-spacing:-0.018em; }
+  .flow-caption .desc{ font-size:.96rem; color:var(--muted); line-height:1.6; margin:0; }
+  .flow-formula{
+    border:1px dashed var(--hair-strong); border-radius:10px;
+    padding: 12px 14px; background: var(--bg);
+    font-size:.98rem; overflow-x:auto;
+  }
+  .flow-formula .lbl{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.66rem;
+    letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:6px;
+  }
+
+  .chain{
+    border:1px solid var(--hair); border-radius:12px;
+    background: var(--bg); padding: 18px 20px;
+    display:flex; flex-direction:column; gap: 4px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.84rem; line-height:1.55;
+    align-self:start;
+  }
+  .chain .ch-head{
+    font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+    margin-bottom:10px;
+  }
+  .chain .ln{ color: var(--fg); transition: opacity .35s ease, color .35s ease; padding: 2px 0; }
+  .chain .ln.dim{ opacity: .22; }
+  .chain .ln.indent-1{ padding-left: 18px; }
+  .chain .ln.indent-2{ padding-left: 36px; }
+  .chain .ln.indent-3{ padding-left: 54px; }
+  .chain .ln .arr{ color: var(--muted); }
+  .chain .ln.top{ color: var(--amber); font-weight:600; }
+
+  /* ---------- §5 Soundness ---------- */
+  .mode-toggle{
+    display:inline-flex; align-items:center; gap:0;
+    border:1px solid var(--hair-strong); border-radius:999px;
+    padding: 3px; background: var(--card-2);
+  }
+  .mode-toggle button{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.78rem; letter-spacing:.04em;
+    padding: 6px 14px; border-radius:999px;
+    border:0; background: transparent; color: var(--muted); cursor: pointer;
+  }
+  .mode-toggle button[aria-pressed="true"]{ background: var(--fg); color: var(--bg); }
+  .mode-toggle button.fail[aria-pressed="true"]{ background: var(--danger); color: #fff; }
+  .fail-card{
+    border:1px solid var(--danger-edge);
+    background: linear-gradient(180deg, var(--danger-soft) 0%, var(--card-2) 80%);
+    border-radius:12px;
+    padding: 18px 20px;
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .fail-card .ftag{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color: var(--danger);
+  }
+  .fail-card h4{ margin:0; font-size:1.1rem; font-weight:700; letter-spacing:-0.018em; }
+  .fail-card .body{ font-size:.94rem; color: var(--fg); line-height:1.6; margin:0; }
+  .fail-card .red-set{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.78rem; color: var(--muted);
+    border-top: 1px solid var(--hair); padding-top: 10px; margin-top: 2px;
+  }
+  .fail-card .red-set b{ color: var(--danger); }
+  .hold-card{
+    border:1px solid var(--hair); border-radius:12px;
+    background: var(--card-2); padding: 18px 20px;
+    display:flex; flex-direction:column; gap: 10px;
+  }
+  .hold-card .htag{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color: var(--wire);
+  }
+  .hold-card h4{ margin:0; font-size:1.1rem; font-weight:700; letter-spacing:-0.018em; }
+  .hold-card .chain-mini{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.82rem; line-height:1.6; color: var(--fg);
+    border-top: 1px solid var(--hair); padding-top: 10px;
+    white-space: pre-wrap;
+  }
+  .hold-card .chain-mini .arr{ color: var(--muted); }
+
+  /* ---------- §6 Comparison ---------- */
+  .policy-table{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px;
+    background: var(--card); overflow:hidden;
+  }
+  .policy-table .ptable-scroll{ overflow-x:auto; }
+  .policy-table table{
+    width:100%; border-collapse:collapse; min-width: 880px;
+  }
+  .policy-table th, .policy-table td{
+    text-align:left; padding: 14px 16px; vertical-align: top;
+    border-bottom: 1px solid var(--hair);
+    font-size:.92rem; line-height:1.5;
+  }
+  .policy-table th{
+    font-weight:500; color: var(--muted);
+    font-size:.7rem; letter-spacing:.1em; text-transform:uppercase;
+    background: var(--card-2);
+  }
+  .policy-table tr:last-child td{ border-bottom: none; }
+  .policy-table tr.subject td{ background: var(--wire-soft); }
+  .policy-table tr.subject td:first-child::after{
+    content:" ← this page";
+    color: var(--wire); font-family:"SF Mono",ui-monospace,Menlo,monospace;
+    font-size:.7rem; letter-spacing:.06em;
+  }
+  .policy-table .tag{
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; color: var(--fg);
+  }
+  .policy-table .size-pill{
+    display:inline-block; padding: 2px 9px; border-radius:999px;
+    border:1px solid var(--hair-strong);
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.78rem;
+  }
+  .policy-table .size-pill.smallest{ color: var(--ok); border-color: rgba(74,222,128,.35); }
+  .policy-table .size-pill.small{ color: var(--wire); border-color: var(--wire-edge); }
+  .policy-table .size-pill.medium{ color: var(--amber); border-color: var(--amber-edge); }
+
+  /* ---------- References ---------- */
+  .refs{ margin-top: clamp(24px, 3vw, 32px); display:grid; grid-template-columns: 1fr; gap: 0; }
+  .refs ul{ margin:0; padding:0; list-style:none; }
+  .refs li{
+    font-size:.96rem; line-height:1.5;
+    padding: 16px 0; border-bottom:1px solid var(--hair);
+    display:grid; grid-template-columns: 140px 1fr; gap:18px; align-items: baseline;
+  }
+  @media (max-width:780px){ .refs li{ grid-template-columns: 1fr; gap:4px; } }
+  .refs li:first-child{ border-top:1px solid var(--hair); }
+  .refs .brick-name{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.86rem; color: var(--wire); letter-spacing:.02em; }
+  .refs .brick-name.cap{ color: var(--amber); }
+  .refs a{ color:var(--fg); text-decoration:underline; text-decoration-color:var(--hair); text-underline-offset:3px; }
+  .refs a:hover{ text-decoration-color:var(--fg); }
+  .refs .path{ color: var(--muted); font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.86rem; }
+  .refs .gist{ color: var(--muted); }
+
+  footer{
+    padding: 40px clamp(20px, 5vw, 56px) 80px;
+    color: var(--muted); font-size:.88rem; max-width:1080px; margin:0 auto;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    *{ scroll-behavior:auto !important; transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body x-data="page()">
+
+<!-- ============== Nav ============== -->
+<nav class="nav" aria-label="Site">
+  <div style="max-width:1080px;margin:0 auto;padding:14px clamp(20px, 5vw, 56px);display:flex;align-items:center;justify-content:space-between;gap:18px;">
+    <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+      <span class="nav-mark mono" aria-hidden="true">SEP</span>
+      <span style="font-weight:600;letter-spacing:-0.01em;" class="mono">sep-anarchy</span>
+      <span class="nav-crumb">/ policy contract · synthesis sheet</span>
+    </div>
+    <a href="/" class="text-[12.5px] muted hover:text-[var(--fg)] focus-ring" style="white-space:nowrap;">&larr; Back</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============== §1 Hero ============== -->
+<section data-screen-label="01 Hero" aria-labelledby="hero-h">
+  <p class="eyebrow">membership policy · simplest of five</p>
+  <h1 class="hero" id="hero-h">Seven primitives. One contract. Any current member admits.</h1>
+  <p class="lede"><span class="mono">sep-anarchy</span> is the simplest of the deployment's five membership-policy contracts: a single PLONK circuit whose policy predicate is &ldquo;the witness opens <em>some</em> leaf in the current group commitment&rdquo;. No quorum, no founder set, no admin. Any current member is sufficient to authorise an admission, and the R_Upd circuit is the smallest in the family.</p>
+  <p class="body muted">The contract is not a new cryptographic primitive. It rests on a stack of six existing ones — BLS12-381 at the base, KZG and Poseidon2 above it, Merkle and Fiat-Shamir above those, PLONK across the top, and the policy contract as a keystone. This page traces that stack, brick by brick.</p>
+
+  <div class="bom" aria-label="Bill of materials">
+    <span class="b">BLS12-381</span><span class="sep">·</span>
+    <span class="b">KZG</span><span class="sep">·</span>
+    <span class="b">Poseidon2</span><span class="sep">·</span>
+    <span class="b">Merkle</span><span class="sep">·</span>
+    <span class="b">Fiat-Shamir</span><span class="sep">·</span>
+    <span class="b">PLONK</span><span class="sep">▲</span>
+    <span class="cap mono">sep-anarchy</span>
+  </div>
+
+  <div class="stat-strip" aria-label="sep-anarchy at a glance">
+    <div><div class="val">sep-anarchy</div><div class="label">policy tag</div></div>
+    <div><div class="val">~700 B</div><div class="label">proof size</div></div>
+    <div><div class="val">1 pairing</div><div class="label">on-chain</div></div>
+    <div><div class="val">1 entry</div><div class="label">per admission</div></div>
+    <div><div class="val">~$0.005</div><div class="label">per admission</div></div>
+  </div>
+</section>
+
+<!-- ============== §2 The wall ============== -->
+<section data-screen-label="02 The wall" aria-labelledby="wall-h">
+  <p class="eyebrow">the wall</p>
+  <h2 class="heading" id="wall-h">Bricks are primitives. The keystone is the policy.</h2>
+  <p class="lede">Hover any brick to light up the dependencies it transitively requires. Hover the keystone — the <span class="mono">sep-anarchy</span> contract — to light up the entire closure. Click any brick for a tooltip card and a link to its primitive sheet.</p>
+
+  <div class="wall-card split" x-data="wall({hover:'', selected:'sep'})">
+    <svg class="wall-svg" viewBox="0 0 1040 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Brick-wall diagram of the sep-anarchy primitive stack">
+      <rect x="0" y="0" width="1040" height="620" fill="transparent"/>
+
+      <g class="edges">
+        <line class="edge" x1="297" y1="492" x2="297" y2="510" :stroke="edgeColor('kzg','bls')" :stroke-width="edgeWidth('kzg','bls')" stroke-linecap="round"/>
+        <line class="edge" x1="743" y1="492" x2="743" y2="510" :stroke="edgeColor('pos','bls')" :stroke-width="edgeWidth('pos','bls')" stroke-linecap="round"/>
+        <line class="edge" x1="743" y1="394" x2="743" y2="412" :stroke="edgeColor('fs','pos')" :stroke-width="edgeWidth('fs','pos')" stroke-linecap="round"/>
+        <path class="edge" d="M297,394 C 400,394 640,412 743,412" fill="none" :stroke="edgeColor('mrk','pos')" :stroke-width="edgeWidth('mrk','pos')" stroke-linecap="round"/>
+        <line class="edge" x1="297" y1="296" x2="297" y2="314" :stroke="edgeColor('plk','mrk')" :stroke-width="edgeWidth('plk','mrk')" stroke-linecap="round"/>
+        <line class="edge" x1="743" y1="296" x2="743" y2="314" :stroke="edgeColor('plk','fs')" :stroke-width="edgeWidth('plk','fs')" stroke-linecap="round"/>
+        <line class="edge" x1="200" y1="296" x2="200" y2="412" :stroke="edgeColor('plk','kzg')" :stroke-width="edgeWidth('plk','kzg')" stroke-linecap="round" stroke-dasharray="0"/>
+        <line class="edge" x1="840" y1="296" x2="840" y2="412" :stroke="edgeColor('plk','pos')" :stroke-width="edgeWidth('plk','pos')" stroke-linecap="round"/>
+        <line class="edge" x1="520" y1="198" x2="520" y2="216" :stroke="edgeColor('sep','plk')" :stroke-width="edgeWidth('sep','plk')" stroke-linecap="round"/>
+      </g>
+
+      <g class="brick" role="button" tabindex="0"
+         aria-label="BLS12-381 — pairing-friendly elliptic curve, foundation row"
+         @mouseenter="hover='bls'" @mouseleave="hover=''"
+         @focus="hover='bls'" @blur="hover=''"
+         @click="selected='bls'"
+         @keydown.enter.prevent="selected='bls'" @keydown.space.prevent="selected='bls'">
+        <rect x="80" y="510" width="880" height="80" rx="6"
+          :fill="brickFill('bls')" :stroke="brickStroke('bls')" :stroke-width="brickStrokeW('bls')"/>
+        <text x="520" y="546" text-anchor="middle" font-size="18" font-weight="700" fill="var(--fg)">BLS12-381</text>
+        <text x="520" y="568" text-anchor="middle" font-size="11" fill="var(--muted)">pairing-friendly curve · foundation · ~128-bit · broken under Shor</text>
+      </g>
+
+      <g class="brick" role="button" tabindex="0"
+         aria-label="KZG — polynomial commitments over BLS12-381"
+         @mouseenter="hover='kzg'" @mouseleave="hover=''"
+         @focus="hover='kzg'" @blur="hover=''"
+         @click="selected='kzg'"
+         @keydown.enter.prevent="selected='kzg'" @keydown.space.prevent="selected='kzg'">
+        <rect x="80" y="412" width="434" height="80" rx="6"
+          :fill="brickFill('kzg')" :stroke="brickStroke('kzg')" :stroke-width="brickStrokeW('kzg')"/>
+        <text x="297" y="448" text-anchor="middle" font-size="17" font-weight="700" fill="var(--fg)">KZG</text>
+        <text x="297" y="470" text-anchor="middle" font-size="11" fill="var(--muted)">polynomial commitments · 48 B · d-SBDH on BLS12-381</text>
+      </g>
+      <g class="brick" role="button" tabindex="0"
+         aria-label="Poseidon2 — algebraic hash over BLS12-381 scalar field"
+         @mouseenter="hover='pos'" @mouseleave="hover=''"
+         @focus="hover='pos'" @blur="hover=''"
+         @click="selected='pos'"
+         @keydown.enter.prevent="selected='pos'" @keydown.space.prevent="selected='pos'">
+        <rect x="526" y="412" width="434" height="80" rx="6"
+          :fill="brickFill('pos')" :stroke="brickStroke('pos')" :stroke-width="brickStrokeW('pos')"/>
+        <text x="743" y="448" text-anchor="middle" font-size="17" font-weight="700" fill="var(--fg)">Poseidon2</text>
+        <text x="743" y="470" text-anchor="middle" font-size="11" fill="var(--muted)">algebraic hash over F_r · ~50–300 constraints / call</text>
+      </g>
+
+      <g class="brick" role="button" tabindex="0"
+         aria-label="Merkle tree — binary tree of Poseidon2 hashes, group commitment root"
+         @mouseenter="hover='mrk'" @mouseleave="hover=''"
+         @focus="hover='mrk'" @blur="hover=''"
+         @click="selected='mrk'"
+         @keydown.enter.prevent="selected='mrk'" @keydown.space.prevent="selected='mrk'">
+        <rect x="80" y="314" width="434" height="80" rx="6"
+          :fill="brickFill('mrk')" :stroke="brickStroke('mrk')" :stroke-width="brickStrokeW('mrk')"/>
+        <text x="297" y="350" text-anchor="middle" font-size="17" font-weight="700" fill="var(--fg)">Merkle tree</text>
+        <text x="297" y="372" text-anchor="middle" font-size="11" fill="var(--muted)">group commitment C_g · O(log n) sibling path</text>
+      </g>
+      <g class="brick" role="button" tabindex="0"
+         aria-label="Fiat-Shamir transform — non-interactivity by hashing transcript with Poseidon2"
+         @mouseenter="hover='fs'" @mouseleave="hover=''"
+         @focus="hover='fs'" @blur="hover=''"
+         @click="selected='fs'"
+         @keydown.enter.prevent="selected='fs'" @keydown.space.prevent="selected='fs'">
+        <rect x="526" y="314" width="434" height="80" rx="6"
+          :fill="brickFill('fs')" :stroke="brickStroke('fs')" :stroke-width="brickStrokeW('fs')"/>
+        <text x="743" y="350" text-anchor="middle" font-size="17" font-weight="700" fill="var(--fg)">Fiat-Shamir</text>
+        <text x="743" y="372" text-anchor="middle" font-size="11" fill="var(--muted)">transcript hash via Poseidon2 · soundness in ROM</text>
+      </g>
+
+      <g class="brick" role="button" tabindex="0"
+         aria-label="PLONK — universal-updatable SNARK over BLS12-381"
+         @mouseenter="hover='plk'" @mouseleave="hover=''"
+         @focus="hover='plk'" @blur="hover=''"
+         @click="selected='plk'"
+         @keydown.enter.prevent="selected='plk'" @keydown.space.prevent="selected='plk'">
+        <rect x="80" y="216" width="880" height="80" rx="6"
+          :fill="brickFill('plk')" :stroke="brickStroke('plk')" :stroke-width="brickStrokeW('plk')"/>
+        <text x="520" y="252" text-anchor="middle" font-size="18" font-weight="700" fill="var(--fg)">PLONK</text>
+        <text x="520" y="274" text-anchor="middle" font-size="11" fill="var(--muted)">universal-updatable SNARK · ~700 B proof · single-pairing verifier</text>
+      </g>
+
+      <g class="brick" role="button" tabindex="0"
+         aria-label="sep-anarchy contract — the policy keystone, consumes PLONK"
+         @mouseenter="hover='sep'" @mouseleave="hover=''"
+         @focus="hover='sep'" @blur="hover=''"
+         @click="selected='sep'"
+         @keydown.enter.prevent="selected='sep'" @keydown.space.prevent="selected='sep'">
+        <path
+          d="M 210,198 L 290,118 L 750,118 L 830,198 Z"
+          :fill="brickFill('sep')" :stroke="brickStroke('sep')" :stroke-width="brickStrokeW('sep')"
+          stroke-linejoin="round"/>
+        <text x="520" y="152" text-anchor="middle" font-size="11" :fill="hover==='sep' || selected==='sep' ? 'var(--amber)' : 'var(--muted)'" letter-spacing="2">POLICY · KEYSTONE</text>
+        <text x="520" y="180" text-anchor="middle" font-size="18" font-weight="700" fill="var(--fg)">sep-anarchy</text>
+      </g>
+
+      <g font-size="9" fill="var(--muted)" opacity="0.55">
+        <text x="32" y="158" text-anchor="middle">R4</text>
+        <text x="32" y="256" text-anchor="middle">R3</text>
+        <text x="32" y="354" text-anchor="middle">R2</text>
+        <text x="32" y="452" text-anchor="middle">R1</text>
+        <text x="32" y="550" text-anchor="middle">R0</text>
+      </g>
+    </svg>
+
+    <aside class="panel" aria-live="polite">
+      <div style="display:flex;flex-direction:column;gap:12px;height:100%;">
+        <span class="pnum" x-text="info(selected).row + ' · ' + info(selected).kind"></span>
+        <h4 x-text="info(selected).name"></h4>
+        <p class="pdef" x-text="info(selected).def"></p>
+        <dl>
+          <div><dt>provides</dt><dd x-text="info(selected).provides"></dd></div>
+          <div><dt>depends</dt><dd x-text="info(selected).depends"></dd></div>
+          <div><dt>soundness</dt><dd x-text="info(selected).sound"></dd></div>
+        </dl>
+        <div class="sheet">
+          <span class="muted" x-text="info(selected).tag"></span>
+          <a :href="info(selected).href" x-text="info(selected).path"></a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <p class="caption">Bricks are primitives. The keystone is the policy. Every arrow is a dependency. Soundness of the keystone is the conjunction of soundness of every brick beneath it. SHA-256 sits beside the wall — it pins the SRS provenance into the verifying-key supply chain, not into any individual proof.</p>
+</section>
+
+<!-- ============== §3 Contract ============== -->
+<section data-screen-label="03 Contract" aria-labelledby="ctr-h">
+  <p class="eyebrow">the contract</p>
+  <h2 class="heading" id="ctr-h">The policy lives inside the circuit. The contract is a thin wrapper.</h2>
+  <p class="lede">What <span class="mono">sep-anarchy</span> actually does on chain: a Soroban contract that pulls the verifying key for the <span class="mono">sep-anarchy</span> R_Upd circuit, checks one PLONK proof, swaps the stored Merkle root, and increments the epoch. The policy semantics — <em>who can admit</em> — are baked into the R_Upd predicate, not into the contract body.</p>
+
+  <div class="two-col">
+    <div class="col-card">
+      <div class="colhead"><span>policy predicate</span><span>inside R_Upd</span></div>
+      <div class="pred-box">
+        <span class="ptag">sep-anarchy predicate</span>
+        <div class="pred-eq" id="pred-eq" data-tex="\exists\ \mathrm{leaf} \in C_g\ \text{ such that the prover knows the opening of }\mathrm{leaf}"></div>
+        <div class="pred-plain">In plain English: <em>any current member can authorise an admission.</em> The R_Upd witness need only carry one valid Merkle path to <em>some</em> leaf of the current group commitment.</div>
+      </div>
+      <h3 class="sub" style="margin-top:6px;">Contrast with the other four policies</h3>
+      <div class="other-policies">
+        <div class="op"><span class="tag">sep-democracy</span><span class="desc">a quorum-of-N members must co-sign the witness</span></div>
+        <div class="op"><span class="tag">sep-oligarchy</span><span class="desc">a fixed founder set, baked into the circuit, admits</span></div>
+        <div class="op"><span class="tag">sep-oneonone</span><span class="desc">exactly two members co-sign the witness</span></div>
+        <div class="op"><span class="tag">sep-tyranny</span><span class="desc">a single admin key, baked into the circuit, admits</span></div>
+      </div>
+    </div>
+
+    <div class="col-card">
+      <div class="colhead"><span>on-chain contract</span><span>Soroban · WASM</span></div>
+      <div class="codebox" aria-label="sep-anarchy Soroban contract pseudocode"><span class="c">// sep-anarchy / src/lib.rs · admit(C_g', π)</span>
+<span class="k">fn</span> <span class="fn">admit</span>(<span class="self">&amp;mut self</span>, c_new: <span class="t">Field</span>, proof: <span class="t">Bytes</span>) {
+    <span class="c">// 1. proof's c_old must match what we hold</span>
+    <span class="fn">assert</span>(<span class="self">self</span>.current_root == <span class="fn">public_input</span>(<span class="n">&amp;proof</span>, <span class="s">"c_old"</span>));
+
+    <span class="c">// 2. one BLS12-381 pairing host call</span>
+    <span class="fn">assert</span>(<span class="fn">plonk_verify</span>(
+        <span class="n">VK_anarchy</span>,
+        <span class="n">&amp;proof</span>,
+        [<span class="self">self</span>.current_root, c_new, <span class="self">self</span>.epoch, <span class="s">"sep-anarchy"</span>],
+    ));
+
+    <span class="c">// 3. advance state by exactly one</span>
+    <span class="self">self</span>.current_root = c_new;
+    <span class="self">self</span>.epoch       += <span class="n">1</span>;
+
+    <span class="fn">emit</span> <span class="t">AdmissionEvent</span> { c_old: <span class="self">self</span>.current_root, c_new, epoch: <span class="self">self</span>.epoch };
+}</div>
+      <p class="caption" style="margin-top:0;">The contract enforces four things: the proof's <span class="mono">c_old</span> matches the stored root, the PLONK proof verifies against <span class="mono">VK_anarchy</span>, the epoch advances by exactly one, and the new root replaces the old one. Everything else — the proof of membership — lives inside the circuit.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============== §4 Admission flow ============== -->
+<section data-screen-label="04 Admission flow" aria-labelledby="flow-h">
+  <p class="eyebrow">admission flow</p>
+  <h2 class="heading" id="flow-h">Run an admission. Watch the wall light up bottom to top.</h2>
+  <p class="lede">A current member, Alice, admits a new member, Carol. Six steps. As each step fires, the brick it engages glows on the wall and one line of the soundness chain becomes visible on the right. By step six, the full chain is assembled.</p>
+
+  <div class="wall-card" x-data="flow()">
+    <div class="flow-controls">
+      <div class="ix" aria-live="polite">
+        <span x-text="String(step+1).padStart(2,'0')"></span> / 06 ·
+        <span x-text="steps[step].domain"></span>
+      </div>
+      <div class="right">
+        <button class="btn primary" type="button" @click="reset(); play()" aria-label="Run admission from start">▶ Run admission</button>
+        <button class="btn" type="button" @click="prev()" :disabled="step===0" aria-label="Previous step">◂ Prev</button>
+        <button class="btn" type="button" @click="next()" :disabled="step===steps.length-1" aria-label="Next step">Next ▸</button>
+        <button class="btn" type="button" @click="reset()" aria-label="Reset to step 1">Reset</button>
+      </div>
+    </div>
+
+    <div class="flow-track" role="tablist" aria-label="Admission steps">
+      <template x-for="(s,i) in steps" :key="i">
+        <button class="flow-tick"
+                role="tab"
+                :aria-selected="step===i"
+                :class="step===i ? 'active' : ''"
+                @click="step=i; stop()"
+                :aria-label="`Step ${i+1}: ${s.title}`">
+          <span class="n" x-text="'0' + (i+1)"></span>
+          <span class="t" x-text="s.title"></span>
+        </button>
+      </template>
+    </div>
+
+    <div class="flow-body">
+      <svg class="wall-svg" viewBox="0 0 1040 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Brick wall, step-by-step glow">
+        <g class="edges">
+          <line class="edge" x1="297" y1="492" x2="297" y2="510" :stroke="stepEdge('kzg','bls')" :stroke-width="stepEdgeW('kzg','bls')" stroke-linecap="round"/>
+          <line class="edge" x1="743" y1="492" x2="743" y2="510" :stroke="stepEdge('pos','bls')" :stroke-width="stepEdgeW('pos','bls')" stroke-linecap="round"/>
+          <line class="edge" x1="743" y1="394" x2="743" y2="412" :stroke="stepEdge('fs','pos')" :stroke-width="stepEdgeW('fs','pos')" stroke-linecap="round"/>
+          <path class="edge" d="M297,394 C 400,394 640,412 743,412" fill="none" :stroke="stepEdge('mrk','pos')" :stroke-width="stepEdgeW('mrk','pos')" stroke-linecap="round"/>
+          <line class="edge" x1="297" y1="296" x2="297" y2="314" :stroke="stepEdge('plk','mrk')" :stroke-width="stepEdgeW('plk','mrk')" stroke-linecap="round"/>
+          <line class="edge" x1="743" y1="296" x2="743" y2="314" :stroke="stepEdge('plk','fs')" :stroke-width="stepEdgeW('plk','fs')" stroke-linecap="round"/>
+          <line class="edge" x1="200" y1="296" x2="200" y2="412" :stroke="stepEdge('plk','kzg')" :stroke-width="stepEdgeW('plk','kzg')" stroke-linecap="round"/>
+          <line class="edge" x1="840" y1="296" x2="840" y2="412" :stroke="stepEdge('plk','pos')" :stroke-width="stepEdgeW('plk','pos')" stroke-linecap="round"/>
+          <line class="edge" x1="520" y1="198" x2="520" y2="216" :stroke="stepEdge('sep','plk')" :stroke-width="stepEdgeW('sep','plk')" stroke-linecap="round"/>
+        </g>
+
+        <g><rect x="80" y="510" width="880" height="80" rx="6" :fill="stepFill('bls')" :stroke="stepStroke('bls')" :stroke-width="stepW('bls')"/>
+          <text x="520" y="546" text-anchor="middle" font-size="18" font-weight="700" fill="var(--fg)">BLS12-381</text>
+          <text x="520" y="568" text-anchor="middle" font-size="11" fill="var(--muted)">pairing-friendly curve · always there</text></g>
+
+        <g><rect x="80" y="412" width="434" height="80" rx="6" :fill="stepFill('kzg')" :stroke="stepStroke('kzg')" :stroke-width="stepW('kzg')"/>
+          <text x="297" y="448" text-anchor="middle" font-size="17" font-weight="700" fill="var(--fg)">KZG</text>
+          <text x="297" y="470" text-anchor="middle" font-size="11" fill="var(--muted)">polynomial commitments · 48 B</text></g>
+        <g><rect x="526" y="412" width="434" height="80" rx="6" :fill="stepFill('pos')" :stroke="stepStroke('pos')" :stroke-width="stepW('pos')"/>
+          <text x="743" y="448" text-anchor="middle" font-size="17" font-weight="700" fill="var(--fg)">Poseidon2</text>
+          <text x="743" y="470" text-anchor="middle" font-size="11" fill="var(--muted)">algebraic hash over F_r</text></g>
+
+        <g><rect x="80" y="314" width="434" height="80" rx="6" :fill="stepFill('mrk')" :stroke="stepStroke('mrk')" :stroke-width="stepW('mrk')"/>
+          <text x="297" y="350" text-anchor="middle" font-size="17" font-weight="700" fill="var(--fg)">Merkle tree</text>
+          <text x="297" y="372" text-anchor="middle" font-size="11" fill="var(--muted)">group commitment C_g · O(log n)</text></g>
+        <g><rect x="526" y="314" width="434" height="80" rx="6" :fill="stepFill('fs')" :stroke="stepStroke('fs')" :stroke-width="stepW('fs')"/>
+          <text x="743" y="350" text-anchor="middle" font-size="17" font-weight="700" fill="var(--fg)">Fiat-Shamir</text>
+          <text x="743" y="372" text-anchor="middle" font-size="11" fill="var(--muted)">transcript hash · Poseidon2</text></g>
+
+        <g><rect x="80" y="216" width="880" height="80" rx="6" :fill="stepFill('plk')" :stroke="stepStroke('plk')" :stroke-width="stepW('plk')"/>
+          <text x="520" y="252" text-anchor="middle" font-size="18" font-weight="700" fill="var(--fg)">PLONK</text>
+          <text x="520" y="274" text-anchor="middle" font-size="11" fill="var(--muted)">~700 B proof · single-pairing verifier</text></g>
+
+        <g><path d="M 210,198 L 290,118 L 750,118 L 830,198 Z" :fill="stepFill('sep')" :stroke="stepStroke('sep')" :stroke-width="stepW('sep')" stroke-linejoin="round"/>
+          <text x="520" y="152" text-anchor="middle" font-size="11" fill="var(--amber)" letter-spacing="2">POLICY · KEYSTONE</text>
+          <text x="520" y="180" text-anchor="middle" font-size="18" font-weight="700" fill="var(--fg)">sep-anarchy</text></g>
+      </svg>
+
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="flow-caption">
+          <span class="num" x-text="'STEP 0' + (step+1) + ' · engages ' + steps[step].engages"></span>
+          <h4 x-text="steps[step].title"></h4>
+          <p class="desc" x-text="steps[step].desc"></p>
+          <div class="flow-formula">
+            <div class="lbl" x-text="steps[step].lbl"></div>
+            <div x-html="render(steps[step].tex)"></div>
+          </div>
+        </div>
+
+        <div class="chain" aria-label="Soundness chain building up">
+          <div class="ch-head">soundness chain · accumulates with each step</div>
+          <template x-for="(ln, i) in chain" :key="i">
+            <div class="ln" :class="[ln.indent, ln.top && step>=ln.atStep ? 'top':'', step>=ln.atStep ? '' : 'dim']">
+              <span class="arr" x-show="ln.indent" x-text="'← '"></span><span x-text="ln.text"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="caption">Six steps. By the end, every brick is engaged at least once and the entire soundness chain — from <span class="mono">sep-anarchy</span> down to discrete log on BLS12-381 and to one honest contributor in the EF KZG ceremony — is visible.</p>
+</section>
+
+<!-- ============== §5 Soundness, both directions ============== -->
+<section data-screen-label="05 Soundness" aria-labelledby="snd-h">
+  <p class="eyebrow">soundness, both directions</p>
+  <h2 class="heading" id="snd-h">Forward: what every brick gives you. Reverse: what every brick costs you when it fails.</h2>
+  <p class="lede">The soundness chain is a conjunction — every brick has to hold. Toggle the wall into reverse mode and click any brick to see exactly which other bricks fail with it. The capstone goes red as soon as anything on its dependency closure does.</p>
+
+  <div class="wall-card split" x-data="soundness()" style="grid-template-columns:1.35fr 1fr;">
+    <div style="display:flex; flex-direction:column; gap:14px;">
+      <div style="display:flex; gap:14px; align-items:center; flex-wrap:wrap;">
+        <div class="mode-toggle" role="group" aria-label="Soundness mode">
+          <button type="button" :aria-pressed="mode==='forward'" @click="mode='forward'; failed=''">What holds it up</button>
+          <button type="button" class="fail" :aria-pressed="mode==='reverse'" @click="mode='reverse'">What breaks it</button>
+        </div>
+        <span class="muted mono" style="font-size:.78rem;" x-show="mode==='reverse' && !failed">Click any brick to break it.</span>
+        <span class="muted mono" style="font-size:.78rem;" x-show="mode==='reverse' && failed">Showing failure propagation for <b x-text="failed"></b>. <button @click="failed=''" class="btn" style="padding:3px 10px;margin-left:6px;">clear</button></span>
+        <span class="muted mono" style="font-size:.78rem;" x-show="mode==='forward'">Hover the keystone for the full forward chain.</span>
+      </div>
+
+      <svg class="wall-svg" viewBox="0 0 1040 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Brick wall, soundness mode">
+        <g class="edges">
+          <line class="edge" x1="297" y1="492" x2="297" y2="510" :stroke="sEdge('kzg','bls')" :stroke-width="sEdgeW('kzg','bls')" stroke-linecap="round"/>
+          <line class="edge" x1="743" y1="492" x2="743" y2="510" :stroke="sEdge('pos','bls')" :stroke-width="sEdgeW('pos','bls')" stroke-linecap="round"/>
+          <line class="edge" x1="743" y1="394" x2="743" y2="412" :stroke="sEdge('fs','pos')" :stroke-width="sEdgeW('fs','pos')" stroke-linecap="round"/>
+          <path class="edge" d="M297,394 C 400,394 640,412 743,412" fill="none" :stroke="sEdge('mrk','pos')" :stroke-width="sEdgeW('mrk','pos')" stroke-linecap="round"/>
+          <line class="edge" x1="297" y1="296" x2="297" y2="314" :stroke="sEdge('plk','mrk')" :stroke-width="sEdgeW('plk','mrk')" stroke-linecap="round"/>
+          <line class="edge" x1="743" y1="296" x2="743" y2="314" :stroke="sEdge('plk','fs')" :stroke-width="sEdgeW('plk','fs')" stroke-linecap="round"/>
+          <line class="edge" x1="200" y1="296" x2="200" y2="412" :stroke="sEdge('plk','kzg')" :stroke-width="sEdgeW('plk','kzg')" stroke-linecap="round"/>
+          <line class="edge" x1="840" y1="296" x2="840" y2="412" :stroke="sEdge('plk','pos')" :stroke-width="sEdgeW('plk','pos')" stroke-linecap="round"/>
+          <line class="edge" x1="520" y1="198" x2="520" y2="216" :stroke="sEdge('sep','plk')" :stroke-width="sEdgeW('sep','plk')" stroke-linecap="round"/>
+        </g>
+
+        <g class="brick" role="button" tabindex="0"
+           :aria-label="`BLS12-381, ${mode==='reverse' ? 'click to fail' : 'foundation'}`"
+           @click="onClick('bls')" @keydown.enter.prevent="onClick('bls')" @keydown.space.prevent="onClick('bls')">
+          <rect x="80" y="510" width="880" height="80" rx="6" :fill="sFill('bls')" :stroke="sStroke('bls')" :stroke-width="sW('bls')"/>
+          <text x="520" y="546" text-anchor="middle" font-size="18" font-weight="700" fill="var(--fg)" pointer-events="none">BLS12-381</text>
+          <text x="520" y="568" text-anchor="middle" font-size="11" fill="var(--muted)" pointer-events="none">pairing-friendly curve · foundation</text>
+        </g>
+        <g class="brick" role="button" tabindex="0"
+           :aria-label="`KZG, ${mode==='reverse' ? 'click to fail' : 'polynomial commitments'}`"
+           @click="onClick('kzg')" @keydown.enter.prevent="onClick('kzg')" @keydown.space.prevent="onClick('kzg')">
+          <rect x="80" y="412" width="434" height="80" rx="6" :fill="sFill('kzg')" :stroke="sStroke('kzg')" :stroke-width="sW('kzg')"/>
+          <text x="297" y="448" text-anchor="middle" font-size="17" font-weight="700" fill="var(--fg)" pointer-events="none">KZG</text>
+          <text x="297" y="470" text-anchor="middle" font-size="11" fill="var(--muted)" pointer-events="none">polynomial commitments · 48 B</text>
+        </g>
+        <g class="brick" role="button" tabindex="0"
+           :aria-label="`Poseidon2, ${mode==='reverse' ? 'click to fail' : 'algebraic hash'}`"
+           @click="onClick('pos')" @keydown.enter.prevent="onClick('pos')" @keydown.space.prevent="onClick('pos')">
+          <rect x="526" y="412" width="434" height="80" rx="6" :fill="sFill('pos')" :stroke="sStroke('pos')" :stroke-width="sW('pos')"/>
+          <text x="743" y="448" text-anchor="middle" font-size="17" font-weight="700" fill="var(--fg)" pointer-events="none">Poseidon2</text>
+          <text x="743" y="470" text-anchor="middle" font-size="11" fill="var(--muted)" pointer-events="none">algebraic hash · F_r</text>
+        </g>
+        <g class="brick" role="button" tabindex="0"
+           :aria-label="`Merkle tree, ${mode==='reverse' ? 'click to fail' : 'group commitment'}`"
+           @click="onClick('mrk')" @keydown.enter.prevent="onClick('mrk')" @keydown.space.prevent="onClick('mrk')">
+          <rect x="80" y="314" width="434" height="80" rx="6" :fill="sFill('mrk')" :stroke="sStroke('mrk')" :stroke-width="sW('mrk')"/>
+          <text x="297" y="350" text-anchor="middle" font-size="17" font-weight="700" fill="var(--fg)" pointer-events="none">Merkle tree</text>
+          <text x="297" y="372" text-anchor="middle" font-size="11" fill="var(--muted)" pointer-events="none">group commitment · O(log n)</text>
+        </g>
+        <g class="brick" role="button" tabindex="0"
+           :aria-label="`Fiat-Shamir, ${mode==='reverse' ? 'click to fail' : 'transcript hash'}`"
+           @click="onClick('fs')" @keydown.enter.prevent="onClick('fs')" @keydown.space.prevent="onClick('fs')">
+          <rect x="526" y="314" width="434" height="80" rx="6" :fill="sFill('fs')" :stroke="sStroke('fs')" :stroke-width="sW('fs')"/>
+          <text x="743" y="350" text-anchor="middle" font-size="17" font-weight="700" fill="var(--fg)" pointer-events="none">Fiat-Shamir</text>
+          <text x="743" y="372" text-anchor="middle" font-size="11" fill="var(--muted)" pointer-events="none">transcript hash · Poseidon2</text>
+        </g>
+        <g class="brick" role="button" tabindex="0"
+           :aria-label="`PLONK, ${mode==='reverse' ? 'click to fail' : 'SNARK'}`"
+           @click="onClick('plk')" @keydown.enter.prevent="onClick('plk')" @keydown.space.prevent="onClick('plk')">
+          <rect x="80" y="216" width="880" height="80" rx="6" :fill="sFill('plk')" :stroke="sStroke('plk')" :stroke-width="sW('plk')"/>
+          <text x="520" y="252" text-anchor="middle" font-size="18" font-weight="700" fill="var(--fg)" pointer-events="none">PLONK</text>
+          <text x="520" y="274" text-anchor="middle" font-size="11" fill="var(--muted)" pointer-events="none">~700 B · single-pairing</text>
+        </g>
+        <g class="brick" role="button" tabindex="0"
+           :aria-label="`sep-anarchy keystone, ${mode==='reverse' ? 'click to fail' : 'policy contract'}`"
+           @click="onClick('sep')" @keydown.enter.prevent="onClick('sep')" @keydown.space.prevent="onClick('sep')">
+          <path d="M 210,198 L 290,118 L 750,118 L 830,198 Z" :fill="sFill('sep')" :stroke="sStroke('sep')" :stroke-width="sW('sep')" stroke-linejoin="round"/>
+          <text x="520" y="152" text-anchor="middle" font-size="11" fill="var(--amber)" letter-spacing="2" pointer-events="none">POLICY · KEYSTONE</text>
+          <text x="520" y="180" text-anchor="middle" font-size="18" font-weight="700" fill="var(--fg)" pointer-events="none">sep-anarchy</text>
+        </g>
+      </svg>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <template x-if="mode==='forward'">
+        <div class="hold-card">
+          <span class="htag">forward soundness chain</span>
+          <h4>What holds it up</h4>
+          <p class="muted" style="font-size:.92rem; line-height:1.55; margin:0;">Every claim above reduces to the conjunction of claims below. Every line must hold.</p>
+          <div class="chain-mini">sep-anarchy authorisation soundness
+  <span class="arr">←</span> R_Upd circuit soundness · sep-anarchy predicate
+       <span class="arr">←</span> PLONK knowledge-soundness (AGM)
+            <span class="arr">←</span> KZG binding (d-SBDH on BLS12-381)
+                 <span class="arr">←</span> discrete log on BLS12-381
+                 <span class="arr">←</span> one-honest-contributor (EF KZG ceremony)
+            <span class="arr">←</span> Fiat-Shamir soundness (ROM)
+                 <span class="arr">←</span> Poseidon2 as random oracle
+            <span class="arr">←</span> Merkle path soundness
+                 <span class="arr">←</span> Poseidon2 collision resistance</div>
+        </div>
+      </template>
+      <template x-if="mode==='reverse'">
+        <template x-if="!failed">
+          <div class="hold-card">
+            <span class="htag" style="color:var(--danger)">reverse soundness</span>
+            <h4>What breaks it</h4>
+            <p class="muted" style="font-size:.94rem; line-height:1.6; margin:0;">Click any brick to see exactly which other bricks fail with it. Every brick on the dependency closure of the clicked brick turns red, and the capstone goes red if anything on its closure does. The wall is a conjunction; one broken link suffices.</p>
+          </div>
+        </template>
+        <template x-if="failed">
+          <div class="fail-card">
+            <span class="ftag" x-text="'failure mode · ' + failed"></span>
+            <h4 x-text="failInfo(failed).title"></h4>
+            <p class="body" x-text="failInfo(failed).body"></p>
+            <div class="red-set">red set: <b x-text="failInfo(failed).set"></b></div>
+          </div>
+        </template>
+      </template>
+    </div>
+  </div>
+
+  <p class="caption">Forward: what every brick gives you. Reverse: what every brick costs you when it fails. Be honest about the cost asymmetry — KZG and PLONK fall under Shor; Poseidon2, Merkle, and Fiat-Shamir survive. The contract as a whole only survives as long as <em>every</em> brick does.</p>
+</section>
+
+<!-- ============== §6 vs the other four policies ============== -->
+<section data-screen-label="06 Vs the other policies" aria-labelledby="vs-h">
+  <p class="eyebrow">vs the other four</p>
+  <h2 class="heading" id="vs-h">All five policies sit on the same wall. Only the keystone changes shape.</h2>
+  <p class="lede">The bricks beneath are bit-identical across <span class="mono">sep-anarchy</span>, <span class="mono">sep-democracy</span>, <span class="mono">sep-oligarchy</span>, <span class="mono">sep-oneonone</span>, and <span class="mono">sep-tyranny</span>. What differs is the predicate inside R_Upd — and so the size of the keystone circuit.</p>
+
+  <div class="policy-table">
+    <div class="ptable-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>policy tag</th>
+            <th>predicate</th>
+            <th>R_Upd size</th>
+            <th>trust shape</th>
+            <th>stack delta</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="subject" aria-current="true">
+            <td><span class="tag">sep-anarchy</span></td>
+            <td>any current member admits</td>
+            <td><span class="size-pill smallest">smallest</span></td>
+            <td>one valid Merkle path is sufficient</td>
+            <td>stack identical</td>
+          </tr>
+          <tr>
+            <td><span class="tag">sep-democracy</span></td>
+            <td>a quorum-of-N admits</td>
+            <td><span class="size-pill medium">medium</span></td>
+            <td>N co-signing members</td>
+            <td>stack identical · quorum check inside R_Upd</td>
+          </tr>
+          <tr>
+            <td><span class="tag">sep-oligarchy</span></td>
+            <td>a fixed founder set admits</td>
+            <td><span class="size-pill small">small</span></td>
+            <td>founder set baked into the circuit</td>
+            <td>stack identical</td>
+          </tr>
+          <tr>
+            <td><span class="tag">sep-oneonone</span></td>
+            <td>exactly two members agree</td>
+            <td><span class="size-pill small">small</span></td>
+            <td>both members co-sign the witness</td>
+            <td>stack identical</td>
+          </tr>
+          <tr>
+            <td><span class="tag">sep-tyranny</span></td>
+            <td>a single admin admits</td>
+            <td><span class="size-pill smallest">smallest</span></td>
+            <td>admin key baked into the circuit</td>
+            <td>stack identical</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="caption">Five contracts, one stack. Across the five policies, the bricks beneath the keystone are bit-identical: the same BLS12-381 curve, the same KZG SRS, the same Poseidon2 round constants, the same Merkle layout, the same Fiat-Shamir transform, the same PLONK proving system. Only the R_Upd predicate — and therefore the verifying key — differs.</p>
+</section>
+
+<!-- ============== §7 References ============== -->
+<section data-screen-label="07 References" aria-labelledby="refs-h">
+  <p class="eyebrow">go deeper</p>
+  <h2 class="heading" id="refs-h">Each brick has its own primitive sheet.</h2>
+  <p class="lede">Six sheets, one per primitive — plus the existing interactive PLONK admission walkthrough at <span class="mono">/proofs/</span>.</p>
+
+  <div class="refs">
+    <ul>
+      <li>
+        <span class="brick-name">BLS12-381</span>
+        <span><a href="/primitives/bls/"><span class="path">/primitives/bls/</span></a> <span class="gist">— the pairing-friendly curve. G₁ / G₂ / G_T and the bilinear pairing $e$. ~128-bit classical security; broken under Shor.</span></span>
+      </li>
+      <li>
+        <span class="brick-name">KZG</span>
+        <span><a href="/primitives/kzg/"><span class="path">/primitives/kzg/</span></a> <span class="gist">— constant-size polynomial commitments. 48 B commit, 48 B open, single-pairing verify. Trusted setup pinned by SHA-256 to the EF ceremony SRS.</span></span>
+      </li>
+      <li>
+        <span class="brick-name">Poseidon2</span>
+        <span><a href="/primitives/poseidon/"><span class="path">/primitives/poseidon/</span></a> <span class="gist">— algebraic hash over $F_r$. Two orders of magnitude cheaper than SHA-256 in-circuit. Conjectured PQ-secure.</span></span>
+      </li>
+      <li>
+        <span class="brick-name">Merkle tree</span>
+        <span><a href="/primitives/merkle/"><span class="path">/primitives/merkle/</span></a> <span class="gist">— binary tree hashed with Poseidon2 at every internal node. The group commitment $C_g$ is the root.</span></span>
+      </li>
+      <li>
+        <span class="brick-name">Fiat-Shamir</span>
+        <span><a href="/primitives/fiat-shamir/"><span class="path">/primitives/fiat-shamir/</span></a> <span class="gist">— interactive PLONK becomes non-interactive by hashing the transcript with Poseidon2. Soundness in the ROM, with the DFMS multi-round analysis.</span></span>
+      </li>
+      <li>
+        <span class="brick-name">PLONK</span>
+        <span><a href="/primitives/plonk/"><span class="path">/primitives/plonk/</span></a> <span class="gist">— universal-updatable SNARK over BLS12-381. ~700-byte proof, one-pairing verifier. The thing that actually makes and checks the proof.</span></span>
+      </li>
+      <li>
+        <span class="brick-name cap">sep-anarchy</span>
+        <span><a href="/proofs/"><span class="path">/proofs/</span></a> <span class="gist">— the interactive PLONK admission walkthrough, end to end, with the actual circuit and the actual Soroban transaction.</span></span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;">
+    <span class="mono">synthesis sheet · sep-anarchy</span>
+    <span>·</span>
+    <span class="muted">no tracking · no analytics · no external requests beyond Tailwind, Alpine, and KaTeX CDNs</span>
+  </div>
+  <p style="margin-top:16px;max-width:64ch;">Seven primitives, one keystone. Any current member admits. ~700-byte proof, one on-chain pairing, ~\$0.005 per admission. Broken under Shor — KZG falls and PLONK falls with it; Poseidon2, Merkle, and Fiat-Shamir survive.</p>
+</footer>
+
+<!-- Theme toggle -->
+<div class="toggle" role="group" aria-label="Theme">
+  <button id="t-dark"  aria-pressed="true"  onclick="setTheme('dark')">Dark</button>
+  <button id="t-light" aria-pressed="false" onclick="setTheme('light')">Light</button>
+</div>
+
+<script>
+  function setTheme(mode){
+    if(mode==='light') document.documentElement.setAttribute('data-theme','light');
+    else document.documentElement.removeAttribute('data-theme');
+    document.getElementById('t-dark').setAttribute('aria-pressed', mode==='dark');
+    document.getElementById('t-light').setAttribute('aria-pressed', mode==='light');
+    try{ localStorage.setItem('onym.theme', mode); }catch(e){}
+  }
+  (function(){
+    var t='dark';
+    try{ t = localStorage.getItem('onym.theme') || 'dark'; }catch(e){}
+    setTheme(t);
+  })();
+</script>
+
+<script>
+  /* ============================================================
+     Brick metadata + dependency graph (shared)
+     ============================================================ */
+  const BRICKS = {
+    bls: { id:'bls', row:'R0 · foundation', kind:'elliptic curve', name:'BLS12-381',
+      def:'A pairing-friendly elliptic curve providing the groups G_1, G_2, G_T and a bilinear pairing e. The base on which everything algebraic in the stack is computed.',
+      provides:'G_1 / G_2 / G_T · bilinear pairing · ~128-bit classical security',
+      depends:'discrete log assumption · q-strong Diffie-Hellman',
+      sound:'classical DL on BLS12-381; broken under Shor',
+      tag:'~128-bit · broken under Shor', path:'/primitives/bls/', href:'/primitives/bls/' },
+    kzg: { id:'kzg', row:'R1', kind:'polynomial commitment', name:'KZG',
+      def:'Constant-size polynomial commitment scheme over BLS12-381. 48-byte commitments, 48-byte openings, a single-pairing verify.',
+      provides:'48 B commit · 48 B open · 1 pairing verify',
+      depends:'BLS12-381 · trusted SRS (EF ceremony · ~141 000 contributors)',
+      sound:'binding under d-SBDH on BLS12-381',
+      tag:'48 B · d-SBDH', path:'/primitives/kzg/', href:'/primitives/kzg/' },
+    pos: { id:'pos', row:'R1', kind:'algebraic hash', name:'Poseidon2',
+      def:'An algebraic permutation hash defined over the BLS12-381 scalar field F_r. Two orders of magnitude cheaper than SHA-256 inside an arithmetic circuit.',
+      provides:'~50–300 constraints per call · 256-bit output over F_r',
+      depends:'BLS12-381 scalar field F_r',
+      sound:'conjectured collision resistance · conjectured PQ-secure',
+      tag:'conjectured PQ-secure', path:'/primitives/poseidon/', href:'/primitives/poseidon/' },
+    mrk: { id:'mrk', row:'R2', kind:'data structure', name:'Merkle tree',
+      def:'A binary Merkle tree whose internal node hash is Poseidon2. The root is the group commitment C_g. Membership proofs are O(log n) sibling paths.',
+      provides:'group commitment root C_g · O(log n) membership proofs',
+      depends:'Poseidon2 collision resistance',
+      sound:'inherits Poseidon2 collision resistance',
+      tag:'O(log n) sibling path', path:'/primitives/merkle/', href:'/primitives/merkle/' },
+    fs: { id:'fs', row:'R2', kind:'transform', name:'Fiat-Shamir',
+      def:'The transform that turns PLONK\'s public-coin interactive protocol into a non-interactive one by hashing the transcript-so-far with Poseidon2.',
+      provides:'non-interactivity · deterministic challenges',
+      depends:'Poseidon2 modeled as a random oracle',
+      sound:'soundness in ROM · multi-round DFMS analysis',
+      tag:'ROM · DFMS', path:'/primitives/fiat-shamir/', href:'/primitives/fiat-shamir/' },
+    plk: { id:'plk', row:'R3', kind:'SNARK', name:'PLONK',
+      def:'A universal-updatable SNARK over BLS12-381. Uses KZG for polynomial commitments and Fiat-Shamir for non-interactivity. One ~700 B proof; one pairing to verify.',
+      provides:'~700 B proof · 1 pairing verify · universal updatable SRS',
+      depends:'KZG · Fiat-Shamir · Poseidon2 (transcript) · Merkle (via R_Upd witness)',
+      sound:'knowledge-soundness in the AGM',
+      tag:'~700 B · AGM', path:'/primitives/plonk/', href:'/primitives/plonk/' },
+    sep: { id:'sep', row:'R4 · keystone', kind:'policy contract', name:'sep-anarchy',
+      def:'The simplest of the five membership-policy contracts. One PLONK circuit (R_Upd specialised for the sep-anarchy predicate) plus a Soroban contract that calls the verifier.',
+      provides:'any-member admission · one ledger entry · ~$0.005 per admission',
+      depends:'PLONK verifier · VK_anarchy · stored root C_g · epoch counter',
+      sound:'authorisation soundness ≡ conjunction of every brick below',
+      tag:'this page', path:'/policies/sep-anarchy/', href:'/policies/sep-anarchy/' }
+  };
+
+  const DEPS = {
+    sep: ['plk'],
+    plk: ['kzg','fs','pos','mrk'],
+    mrk: ['pos'],
+    fs:  ['pos'],
+    kzg: ['bls'],
+    pos: ['bls'],
+    bls: []
+  };
+  const REV = {
+    bls: ['kzg','pos'],
+    kzg: ['plk'],
+    pos: ['mrk','fs','plk'],
+    mrk: ['plk'],
+    fs:  ['plk'],
+    plk: ['sep'],
+    sep: []
+  };
+
+  function closureDown(brick){
+    const out = new Set([brick]);
+    const q = [brick];
+    while(q.length){
+      const x = q.shift();
+      for(const d of (DEPS[x]||[])){ if(!out.has(d)){ out.add(d); q.push(d); } }
+    }
+    return out;
+  }
+  function closureUp(brick){
+    const out = new Set([brick]);
+    const q = [brick];
+    while(q.length){
+      const x = q.shift();
+      for(const d of (REV[x]||[])){ if(!out.has(d)){ out.add(d); q.push(d); } }
+    }
+    return out;
+  }
+
+  const EDGES = [
+    ['kzg','bls'],['pos','bls'],
+    ['mrk','pos'],['fs','pos'],
+    ['plk','kzg'],['plk','fs'],['plk','pos'],['plk','mrk'],
+    ['sep','plk']
+  ];
+
+  function edgesBelow(brick){
+    const nodes = closureDown(brick);
+    return EDGES.filter(([a,b]) => nodes.has(a) && nodes.has(b));
+  }
+
+  function renderTeX(tex){
+    try{
+      if(window.katex) return window.katex.renderToString(tex, {throwOnError:false, displayMode:false});
+    }catch(e){}
+    return tex;
+  }
+
+  function page(){
+    return {
+      init(){
+        const tryRender = () => {
+          const el = document.getElementById('pred-eq');
+          if(el && window.katex){
+            el.innerHTML = window.katex.renderToString(el.dataset.tex, {throwOnError:false, displayMode:false});
+          } else {
+            setTimeout(tryRender, 60);
+          }
+        };
+        tryRender();
+      }
+    };
+  }
+
+  function wall(opts){
+    return {
+      hover: opts.hover || '',
+      selected: opts.selected || 'sep',
+      active(){ return this.hover || this.selected; },
+      litEdges(){
+        const b = this.hover || this.selected;
+        if(!b) return new Set();
+        return new Set(edgesBelow(b).map(e => e.join('>')));
+      },
+      isLit(a,b){ return this.litEdges().has(a + '>' + b); },
+      isInClosure(brick){
+        const b = this.hover || this.selected;
+        if(!b) return false;
+        return closureDown(b).has(brick);
+      },
+      brickFill(b){
+        if(b === 'sep'){
+          return (this.hover==='sep' || this.selected==='sep' || this.isInClosure('sep'))
+            ? 'var(--cap-fill-hot)' : 'var(--cap-fill)';
+        }
+        const lit = (this.hover && closureDown(this.hover).has(b))
+                 || (!this.hover && this.selected && closureDown(this.selected).has(b));
+        return lit ? 'var(--brick-fill-hot)' : 'var(--brick-fill)';
+      },
+      brickStroke(b){
+        if(b === 'sep'){
+          return (this.hover==='sep' || this.selected==='sep' || this.isInClosure('sep'))
+            ? 'var(--cap-stroke-hot)' : 'var(--cap-stroke)';
+        }
+        const lit = (this.hover && closureDown(this.hover).has(b))
+                 || (!this.hover && this.selected && closureDown(this.selected).has(b));
+        return lit ? 'var(--brick-stroke-hot)' : 'var(--brick-stroke)';
+      },
+      brickStrokeW(b){
+        const a = this.hover || this.selected;
+        if(a === b) return 2;
+        return 1;
+      },
+      edgeColor(a,b){ return this.isLit(a,b) ? 'var(--edge-hot)' : 'var(--edge)'; },
+      edgeWidth(a,b){ return this.isLit(a,b) ? 2.4 : 1.2; },
+      info(id){ return BRICKS[id] || BRICKS.sep; }
+    };
+  }
+
+  function flow(){
+    return {
+      step: 0,
+      timer: null,
+      steps: [
+        { title:'Setup (one-time)', engages:'KZG', domain:'KZG · SRS',
+          desc:'The KZG SRS was generated once, before this admission, by the EF ceremony — ~141 000 contributors, one honest contributor suffices. SHA-256 pins the SRS commit hash into the VK_anarchy supply chain. No animation on the foundation: BLS12-381 was always there.',
+          lbl:'srs', tex:'\\mathrm{SRS} = \\bigl([1]_1, [\\tau]_1, \\ldots, [\\tau^d]_1,\\ [1]_2,\\ [\\tau]_2\\bigr)' },
+        { title:'Alice has a witness', engages:'Merkle tree', domain:'Merkle · O(log n)',
+          desc:'Alice holds a Merkle-path witness to her leaf in the current group commitment C_g. One sibling hash per level, evaluated bottom-up with Poseidon2.',
+          lbl:'merkle path', tex:'\\mathrm{path}_\\mathrm{Alice} \\;=\\; \\bigl\\{ (\\mathrm{sib}_i,\\ \\mathrm{bit}_i) \\bigr\\}_{i=1}^{\\log_2 n}' },
+        { title:"Compute C_g'", engages:'Poseidon2', domain:'Poseidon2 · F_r',
+          desc:"Alice inserts Carol's leaf at the next empty slot, then re-hashes the path up to the new root C_g'. Poseidon2 is the node hash; the rehash is O(log n) compressions.",
+          lbl:'new root', tex:"C_g' \\;=\\; \\mathrm{ReHash}_{\\mathrm{Poseidon2}}\\bigl(\\mathrm{path},\\ \\mathrm{leaf}_{\\mathrm{Carol}}\\bigr)" },
+        { title:'Build R_Upd witness', engages:'PLONK · R_Upd', domain:'circuit · sep-anarchy',
+          desc:"Wire private inputs (Merkle path, opening to Alice's leaf) and public inputs (C_g, C_g', epoch, sep-anarchy tag) into the R_Upd circuit. For this policy the constraint system is the minimum — just the path check.",
+          lbl:'public inputs', tex:'x \\;=\\; (\\ C_g,\\ C_g\',\\ \\mathrm{epoch},\\ \\texttt{sep-anarchy}\\ )' },
+        { title:'PLONK prove', engages:'KZG · Fiat-Shamir · Poseidon2', domain:'PLONK · ~700 B',
+          desc:'KZG commits to the wire polynomials in G_1; Fiat-Shamir hashes the transcript with Poseidon2 to derive challenges; the prover packs ~700 bytes. AGM + ROM.',
+          lbl:'proof', tex:'\\pi \\;=\\; \\bigl(\\ [a]_1, [b]_1, [c]_1,\\ [z]_1,\\ [t]_1,\\ \\pi_\\zeta,\\ \\bar a, \\bar b, \\bar c, \\ldots\\ \\bigr),\\ \\ |\\pi| \\approx 700\\ \\mathrm{B}' },
+        { title:'On-chain verify', engages:'BLS12-381 · keystone', domain:'Stellar · CAP-0059',
+          desc:'Soroban pulls VK_anarchy, calls the BLS12-381 pairing host function once, checks the identity, swaps the stored root, increments the epoch by one, emits AdmissionEvent. One ledger entry; ~$0.005.',
+          lbl:'verifier identity', tex:'e\\bigl(L,\\ [1]_2\\bigr) \\;\\overset{?}{=}\\; e\\bigl(R,\\ [\\tau]_2\\bigr)' }
+      ],
+      glowAt: [
+        new Set(['bls','kzg']),
+        new Set(['bls','kzg','mrk']),
+        new Set(['bls','kzg','mrk','pos']),
+        new Set(['bls','kzg','mrk','pos','plk']),
+        new Set(['bls','kzg','mrk','pos','plk','fs']),
+        new Set(['bls','kzg','mrk','pos','plk','fs','sep'])
+      ],
+      litEdgesAt(i){
+        const out = new Set();
+        const nodes = this.glowAt[i];
+        for(const [a,b] of EDGES){
+          if(nodes.has(a) && nodes.has(b)) out.add(a + '>' + b);
+        }
+        return out;
+      },
+      chain: [
+        { atStep:5, indent:'',          top:true,  text:'sep-anarchy authorisation soundness' },
+        { atStep:3, indent:'indent-1',  text:'R_Upd circuit soundness · sep-anarchy predicate' },
+        { atStep:4, indent:'indent-1',  text:'PLONK knowledge-soundness (AGM)' },
+        { atStep:4, indent:'indent-2',  text:'KZG binding (d-SBDH on BLS12-381)' },
+        { atStep:0, indent:'indent-3',  text:'discrete log on BLS12-381' },
+        { atStep:0, indent:'indent-3',  text:'one-honest-contributor (EF KZG ceremony)' },
+        { atStep:4, indent:'indent-2',  text:'Fiat-Shamir soundness (ROM · DFMS)' },
+        { atStep:4, indent:'indent-3',  text:'Poseidon2 modeled as a random oracle' },
+        { atStep:1, indent:'indent-2',  text:'Merkle path soundness' },
+        { atStep:1, indent:'indent-3',  text:'Poseidon2 collision resistance' },
+        { atStep:5, indent:'indent-1',  text:'on-chain checks: root, VK, epoch advance' }
+      ],
+      next(){ if(this.step < this.steps.length-1) this.step++; this.stop(); },
+      prev(){ if(this.step > 0) this.step--; this.stop(); },
+      reset(){ this.step = 0; this.stop(); },
+      stop(){ if(this.timer){ clearInterval(this.timer); this.timer = null; } },
+      play(){
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if(reduced){ this.step = this.steps.length-1; return; }
+        this.stop();
+        this.timer = setInterval(() => {
+          if(this.step < this.steps.length-1) this.step++;
+          else this.stop();
+        }, 850);
+      },
+      glowing(b){ return this.glowAt[this.step].has(b); },
+      stepFill(b){
+        if(b === 'sep'){
+          return this.glowing('sep') ? 'var(--cap-fill-hot)' : 'var(--cap-fill)';
+        }
+        return this.glowing(b) ? 'var(--brick-fill-hot)' : 'var(--brick-fill)';
+      },
+      stepStroke(b){
+        if(b === 'sep'){
+          return this.glowing('sep') ? 'var(--cap-stroke-hot)' : 'var(--cap-stroke)';
+        }
+        return this.glowing(b) ? 'var(--brick-stroke-hot)' : 'var(--brick-stroke)';
+      },
+      stepW(b){ return this.glowing(b) ? 2 : 1; },
+      stepEdge(a,b){ return this.litEdgesAt(this.step).has(a + '>' + b) ? 'var(--edge-hot)' : 'var(--edge)'; },
+      stepEdgeW(a,b){ return this.litEdgesAt(this.step).has(a + '>' + b) ? 2.4 : 1.2; },
+      render(tex){ return renderTeX(tex); }
+    };
+  }
+
+  function soundness(){
+    return {
+      mode: 'forward',
+      failed: '',
+      onClick(id){
+        if(this.mode === 'reverse'){ this.failed = id; }
+      },
+      isRed(b){
+        if(this.mode !== 'reverse' || !this.failed) return false;
+        return closureUp(this.failed).has(b);
+      },
+      sFill(b){
+        if(this.isRed(b)) return 'var(--brick-fill-fail)';
+        if(b === 'sep') return this.mode==='forward' ? 'var(--cap-fill-hot)' : 'var(--cap-fill)';
+        if(this.mode==='forward') return 'var(--brick-fill-hot)';
+        return 'var(--brick-fill)';
+      },
+      sStroke(b){
+        if(this.isRed(b)) return 'var(--brick-stroke-fail)';
+        if(b === 'sep') return this.mode==='forward' ? 'var(--cap-stroke-hot)' : 'var(--cap-stroke)';
+        if(this.mode==='forward') return 'var(--brick-stroke-hot)';
+        return 'var(--brick-stroke)';
+      },
+      sW(b){
+        if(this.isRed(b)) return 2.2;
+        if(this.mode==='forward') return 1.8;
+        return 1;
+      },
+      sEdge(a,b){
+        if(this.mode === 'reverse' && this.failed){
+          const red = closureUp(this.failed);
+          if(red.has(a) && red.has(b)) return 'var(--edge-fail)';
+        }
+        if(this.mode === 'forward') return 'var(--edge-hot)';
+        return 'var(--edge)';
+      },
+      sEdgeW(a,b){
+        if(this.mode === 'reverse' && this.failed){
+          const red = closureUp(this.failed);
+          if(red.has(a) && red.has(b)) return 2.4;
+        }
+        if(this.mode === 'forward') return 2;
+        return 1.2;
+      },
+      failInfo(id){
+        const set = [...closureUp(id)];
+        const cases = {
+          bls: {
+            title: 'Shor on the curve recovers τ in the SRS.',
+            body:  "Discrete log on BLS12-381 falls. KZG's binding assumption (d-SBDH) collapses — an adversary recovers the secret SRS scalar τ. Every brick built on KZG, the pairing, or the scalar field collapses. The contract accepts arbitrary admissions."
+          },
+          kzg: {
+            title: 'KZG binding collapses.',
+            body:  "Without binding, a prover commits to one polynomial and opens to a different one. PLONK's knowledge-soundness reduction fails. VK_anarchy admits proofs for any C_g' the prover chooses."
+          },
+          pos: {
+            title: 'Poseidon2 collision resistance breaks.',
+            body:  'Merkle paths and Fiat-Shamir transcripts both lose soundness simultaneously. R_Upd accepts witnesses for non-leaves; FS challenges become predictable; PLONK knowledge-soundness collapses on two fronts.'
+          },
+          mrk: {
+            title: 'Merkle path soundness breaks.',
+            body:  'An adversary substitutes an alternate leaf with a forged sibling path. The R_Upd circuit accepts a witness for a non-member. Admission soundness collapses — the policy predicate is vacuous.'
+          },
+          fs: {
+            title: 'Fiat-Shamir loses multi-round soundness.',
+            body:  "The DFMS multi-round soundness loss bound is violated. Proofs become malleable: the verifier may accept a proof for public inputs other than the bound (C_g, C_g')."
+          },
+          plk: {
+            title: 'PLONK is unsound.',
+            body:  'The proof system itself fails — no policy contract built on it has authorisation soundness. The keystone falls regardless of which predicate it carries.'
+          },
+          sep: {
+            title: 'The keystone itself is wrong.',
+            body:  'Bug in the R_Upd predicate or the Soroban wrapper. Soundness of the underlying primitives is irrelevant — the keystone is what authorises admissions.'
+          }
+        };
+        return Object.assign({}, cases[id], { set: set.map(s => BRICKS[s].name.toLowerCase().replace(/ /g,'·')).join(' · ') });
+      }
+    };
+  }
+</script>
+
+</body>
+</html>
