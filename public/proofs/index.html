@@ -1,0 +1,1153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Proofs · Onym</title>
+<meta name="description" content="An interactive walkthrough of Onym's metadata-hiding group registry: how legitimate updates are gated by a ~700-byte PLONK proof on Stellar, and why three Bob adversaries can't forge one." />
+<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+<link rel="icon" type="image/png" href="/assets/icon-dark.png" />
+<link rel="apple-touch-icon" href="/assets/icon-dark.png" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Proofs · Onym" />
+<meta property="og:description" content="How Alice updates a group on-chain. And why three Bobs can't. A walkthrough of Onym's PLONK-gated state changes on Stellar." />
+<meta property="og:image" content="https://onym.app/assets/og-card.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Proofs · Onym" />
+<meta name="twitter:description" content="How Alice updates a group on-chain. And why three Bobs can't." />
+<meta name="twitter:image" content="https://onym.app/assets/og-card.jpg" />
+<link rel="alternate" hreflang="en" href="https://onym.app/proofs/" />
+<link rel="alternate" hreflang="x-default" href="https://onym.app/proofs/" />
+<script>(function(){try{var p=(navigator.language||'').toLowerCase();if(p==='ru'||p.startsWith('ru-')){var pa=location.pathname;location.replace('/ru'+(pa==='/'?'/':pa));return;}}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});"></script>
+
+<style>
+  :root{
+    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
+    --hair:rgba(245,245,247,.10);
+    --hair-strong:rgba(245,245,247,.18);
+    --card:#101013;
+    --card-2:#16161b;
+    --nav-bg: rgba(8,8,10,.72);
+
+    /* Lane tints — subtle, theme-aware */
+    --lane-off:   rgba(120,150,255,.06);
+    --lane-off-edge: rgba(120,150,255,.22);
+    --lane-on:    rgba(255,170,90,.06);
+    --lane-on-edge: rgba(255,170,90,.22);
+    --wire:       #6a8bff;
+    --ok:         #4ade80;
+    --warn:       #f0b35e;
+    --danger:     #ef5350;
+    --danger-soft:rgba(239,83,80,.10);
+  }
+  html[data-theme="light"]{
+    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
+    --hair:rgba(10,10,10,.10);
+    --hair-strong:rgba(10,10,10,.22);
+    --card:#ffffff;
+    --card-2:#fbfbfd;
+    --nav-bg: rgba(245,245,247,.72);
+
+    --lane-off:    rgba(40,80,200,.05);
+    --lane-off-edge: rgba(40,80,200,.22);
+    --lane-on:     rgba(200,110,30,.05);
+    --lane-on-edge: rgba(200,110,30,.22);
+    --wire:        #1d4ed8;
+    --ok:          #16803c;
+    --warn:        #a05a00;
+    --danger:      #b91c1c;
+    --danger-soft: rgba(185,28,28,.08);
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); color:var(--fg); }
+  body{
+    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+    font-feature-settings: "ss01","ss02","cv11";
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+    line-height:1.55;
+    transition: background-color .35s ease, color .35s ease;
+  }
+  .mono{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-feature-settings:"zero","ss01"; }
+  .hair{ border-color:var(--hair); }
+  .muted{ color:var(--muted); }
+  .focus-ring:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--wire); border-radius:4px; }
+
+  .katex{ font-size:1em; color:inherit; }
+
+  /* ---------- Nav (matches /how/, /threat-model/) ---------- */
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:var(--nav-bg);
+    backdrop-filter:saturate(160%) blur(14px);
+    -webkit-backdrop-filter:saturate(160%) blur(14px);
+    border-bottom:1px solid var(--hair);
+  }
+  .mark{
+    display:inline-block; width:22px; height:22px; border-radius:22%;
+    background:url('/assets/icon-dark.png') center/cover no-repeat;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.06), 0 4px 16px -2px rgba(255,255,255,.14), 0 .5px 0 rgba(255,255,255,.10) inset;
+  }
+  html[data-theme="light"] .mark{
+    background-image:url('/assets/icon-light.png');
+    box-shadow: 0 0 0 1px rgba(10,10,10,.10), 0 4px 12px -3px rgba(10,10,10,.18);
+  }
+
+  main{ max-width: 1080px; margin:0 auto; padding: 0 clamp(20px, 5vw, 56px); }
+  section{
+    padding-top: clamp(56px, 8vw, 112px);
+    padding-bottom: clamp(56px, 8vw, 112px);
+    border-bottom: 1px solid var(--hair);
+  }
+  section:last-of-type{ border-bottom:none; }
+
+  .eyebrow{
+    font-size:.74rem; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--muted); font-weight:500;
+    margin: 0 0 clamp(20px, 3vw, 28px) 0;
+  }
+
+  h1.hero{
+    font-weight:700; letter-spacing:-0.035em; line-height:1.05; margin:0;
+    text-wrap:balance;
+    font-size: clamp(2.2rem, 5.5vw, 3.8rem);
+  }
+  h2.heading{
+    font-weight:700; letter-spacing:-0.028em; line-height:1.12; margin:0;
+    text-wrap:balance;
+    font-size: clamp(1.6rem, 3.6vw, 2.3rem);
+  }
+  h3.sub{
+    font-weight:600; letter-spacing:-0.018em; line-height:1.2; margin:0;
+    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+  }
+  .lede{
+    font-size: clamp(1.05rem, 1.35vw, 1.18rem);
+    color:var(--muted); margin: clamp(20px, 2.6vw, 28px) 0 0 0;
+    line-height:1.6; max-width: 62ch;
+  }
+  p.body{
+    font-size: 1.02rem; color:var(--fg);
+    margin: clamp(16px, 2vw, 22px) 0 0 0;
+    line-height:1.65; max-width: 64ch;
+  }
+  p.body.muted{ color:var(--muted); }
+  p.caption{
+    font-size:.94rem; color:var(--muted); line-height:1.6;
+    margin: 20px 0 0 0; max-width: 64ch;
+  }
+
+  /* ---------- Theme toggle ---------- */
+  .toggle{
+    position:fixed; bottom:18px; right:18px; z-index:60;
+    background:var(--nav-bg);
+    border:1px solid var(--hair); border-radius:999px;
+    padding:4px; display:flex; gap:2px;
+    backdrop-filter:saturate(180%) blur(14px);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    box-shadow:0 8px 24px -10px rgba(10,10,10,.18);
+  }
+  .toggle button{
+    font-size:12px; letter-spacing:.04em; padding:7px 12px; border-radius:999px;
+    color:var(--muted); border:0; background:transparent; cursor:pointer;
+  }
+  .toggle button[aria-pressed="true"]{ background:var(--fg); color:var(--bg); }
+
+  /* ---------- Stat strip ---------- */
+  .stat-strip{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    display:grid;
+    grid-template-columns: repeat(5, minmax(0,1fr));
+    gap: 1px;
+    background: var(--hair);
+    border: 1px solid var(--hair);
+    border-radius: 10px;
+    overflow:hidden;
+  }
+  .stat-strip > div{
+    background: var(--bg);
+    padding: 14px 16px;
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .stat-strip .val{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-size:.98rem; font-weight:600; letter-spacing:-0.01em; }
+  .stat-strip .label{ font-size:.72rem; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; }
+  @media (max-width:780px){ .stat-strip{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+
+  /* ---------- Cast grid ---------- */
+  .cast{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    display:grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    gap: 14px;
+  }
+  @media (max-width:980px){ .cast{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  @media (max-width:520px){ .cast{ grid-template-columns: 1fr; } }
+  .character{
+    border:1px solid var(--hair); border-radius:14px;
+    background:var(--card); padding:20px;
+    display:flex; flex-direction:column; gap:14px;
+    min-height:240px;
+  }
+  .portrait{
+    width:64px; height:64px; border-radius:50%;
+    background:var(--card-2); border:1px solid var(--hair);
+    display:grid; place-items:center;
+  }
+  .character h4{ margin:0; font-size:1.02rem; font-weight:600; letter-spacing:-0.01em; }
+  .character .role{ font-size:.78rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+  .character p{ margin:0; font-size:.94rem; line-height:1.55; color:var(--muted); }
+  .character.alice .portrait{ background: var(--lane-off); border-color: var(--lane-off-edge); }
+  .character.bob   .portrait{ background: var(--danger-soft); border-color: rgba(239,83,80,.30); }
+
+  /* ---------- Swim lane ---------- */
+  .swimlane{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    border:1px solid var(--hair); border-radius:16px;
+    overflow:hidden; background:var(--card);
+  }
+  .lane-head{
+    display:grid; grid-template-columns: 1fr 96px 1fr;
+    border-bottom:1px solid var(--hair);
+    font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+  }
+  .lane-head > div{ padding:14px 20px; display:flex; align-items:center; gap:10px; }
+  .lane-head .gap{ border-left:1px solid var(--hair); border-right:1px solid var(--hair); justify-content:center; }
+  .lane-head .dot{ width:8px; height:8px; border-radius:50%; }
+  .lane-head .dot.off{ background:var(--wire); }
+  .lane-head .dot.on{ background:#f0b35e; }
+  html[data-theme="light"] .lane-head .dot.on{ background:#d97706; }
+
+  .lane-body{
+    display:grid; grid-template-columns: 1fr 96px 1fr;
+    min-height: 520px;
+    position:relative;
+  }
+  .lane{
+    padding: 20px;
+    display:flex; flex-direction:column; gap:14px;
+    position:relative;
+  }
+  .lane.off{ background: var(--lane-off); }
+  .lane.on { background: var(--lane-on); }
+  .lane.center{
+    background: var(--bg);
+    border-left:1px solid var(--hair); border-right:1px solid var(--hair);
+    display:flex; align-items:center; justify-content:center;
+    padding: 16px 8px;
+  }
+
+  .step{
+    border:1px solid var(--hair); border-radius:12px;
+    background: var(--bg);
+    padding:14px 16px;
+    display:flex; flex-direction:column; gap:8px;
+    opacity:.45;
+    transition: opacity .35s ease, border-color .35s ease, box-shadow .35s ease, transform .35s ease;
+  }
+  .step.active{
+    opacity:1;
+    border-color: var(--hair-strong);
+    box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 16px 40px -24px rgba(10,10,10,.4);
+  }
+  .step.done{ opacity:.92; }
+  .step.fail{
+    opacity:1;
+    border-color: var(--danger);
+    background: var(--danger-soft);
+  }
+  .step .num{
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.72rem; color:var(--muted); letter-spacing:.06em;
+  }
+  .step .title{ font-weight:600; font-size:1rem; letter-spacing:-0.01em; }
+  .step .detail{ font-size:.88rem; color:var(--muted); line-height:1.5; }
+  .step .prim{ display:flex; flex-wrap:wrap; gap:6px; margin-top:2px; }
+  .prim button{
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.74rem; letter-spacing:.02em;
+    padding:3px 8px; border-radius:999px;
+    border:1px solid var(--hair); background:var(--card-2); color:var(--fg);
+    cursor:pointer;
+    transition: background .15s ease, border-color .15s ease;
+  }
+  .prim button:hover, .prim button:focus-visible{
+    border-color: var(--hair-strong); background: var(--card);
+    outline:none;
+  }
+  .prim button:focus-visible{ box-shadow: 0 0 0 2px var(--wire); }
+
+  .wire{
+    position:relative; width:100%; height:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:10px;
+  }
+  .wire svg{ width:64px; height:120px; }
+  .wire .envelope{
+    border:1px solid var(--hair); border-radius:8px; background:var(--card);
+    padding:8px 10px; font-size:.72rem; line-height:1.4;
+    transform: translateY(0);
+    transition: opacity .4s ease, transform .6s ease;
+    opacity:0;
+    text-align:center;
+  }
+  .wire .envelope.flying{ opacity:1; animation: fly 1200ms ease-in-out both; }
+  .wire .envelope.delivered{ opacity:1; }
+  .wire .envelope.tampered{
+    opacity:1;
+    border-color:var(--danger);
+    color:var(--danger);
+    background: var(--danger-soft);
+  }
+  @keyframes fly{
+    0%{ opacity:0; transform: translateY(-40px); }
+    20%{ opacity:1; }
+    100%{ opacity:1; transform: translateY(40px); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .step, .wire .envelope{ transition: none !important; animation: none !important; }
+  }
+
+  /* Stack lane on narrow viewports */
+  @media (max-width: 820px){
+    .lane-body{ grid-template-columns: 1fr; min-height:auto; }
+    .lane-head{ grid-template-columns: 1fr; }
+    .lane-head .gap{ display:none; }
+    .lane.center{
+      border-left:0; border-right:0; border-top:1px solid var(--hair); border-bottom:1px solid var(--hair);
+      min-height: 120px;
+    }
+    .wire svg{ width:120px; height:48px; transform: rotate(90deg) translateX(0); }
+  }
+
+  /* Controls */
+  .controls{
+    display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+    margin-top: 18px;
+  }
+  .btn{
+    border:1px solid var(--hair); border-radius:999px;
+    background:var(--card); color:var(--fg);
+    padding:8px 14px; font-size:.88rem; cursor:pointer;
+    transition: background .15s, border-color .15s;
+  }
+  .btn:hover{ border-color: var(--hair-strong); }
+  .btn:focus-visible{ outline:none; box-shadow: 0 0 0 2px var(--wire); }
+  .btn[disabled]{ opacity:.45; cursor:not-allowed; }
+  .btn.primary{ background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .progress{ display:flex; gap:4px; align-items:center; margin-left:6px; }
+  .progress .seg{ width:22px; height:4px; border-radius:2px; background:var(--hair); }
+  .progress .seg.on{ background:var(--fg); }
+  .progress .seg.fail{ background:var(--danger); }
+
+  /* ---------- Bob tabs ---------- */
+  .tabs{
+    display:flex; gap:6px; padding:4px;
+    border:1px solid var(--hair); border-radius:999px; background:var(--card);
+    width:max-content; max-width:100%; overflow:auto;
+    margin-top: clamp(24px, 3vw, 32px);
+  }
+  .tabs button{
+    border:0; background:transparent; cursor:pointer; color:var(--muted);
+    padding:8px 14px; font-size:.88rem; border-radius:999px;
+    white-space:nowrap;
+  }
+  .tabs button[aria-pressed="true"]{ background: var(--fg); color: var(--bg); }
+  .tabs button:focus-visible{ outline:none; box-shadow: 0 0 0 2px var(--wire); }
+
+  .bob-callout{
+    margin-top: 20px;
+    border:1px solid var(--hair); border-radius:14px;
+    padding: 18px 20px;
+    background: var(--card);
+    display:grid; grid-template-columns: 200px 1fr;
+    gap: 20px; align-items:start;
+  }
+  @media (max-width: 720px){ .bob-callout{ grid-template-columns:1fr; } }
+  .bob-callout .label{ font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; color:var(--danger); font-weight:600; }
+  .bob-callout p{ margin:0; font-size:.96rem; line-height:1.6; max-width: 64ch; }
+  .bob-callout .where{ font-size:.86rem; color:var(--muted); margin-top:8px; font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; }
+  .pin{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:.74rem; letter-spacing:.04em; color:var(--danger);
+    padding:3px 8px; border-radius:999px;
+    background: var(--danger-soft); border:1px solid rgba(239,83,80,.25);
+    font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    margin-top: 6px;
+  }
+
+  /* ---------- Crypto stack ---------- */
+  .stack{
+    margin-top: clamp(28px, 3.4vw, 40px);
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 900px){ .stack{ grid-template-columns: 1fr; } }
+
+  .stack-graph{
+    border:1px solid var(--hair); border-radius:16px; background:var(--card);
+    padding: 18px;
+    position:relative;
+  }
+  .stack-graph svg{ width:100%; height:auto; display:block; }
+
+  .stack-node{ cursor:pointer; }
+  .stack-node rect{
+    fill: var(--card-2); stroke: var(--hair-strong); stroke-width:1;
+    transition: fill .15s, stroke .15s;
+  }
+  .stack-node:hover rect, .stack-node.active rect{
+    fill: var(--bg); stroke: var(--fg);
+  }
+  .stack-node text{ fill: var(--fg); font-size:13px; font-family:-apple-system,system-ui,sans-serif; }
+  .stack-node .sub{ fill: var(--muted); font-size:10px; font-family:"SF Mono",ui-monospace,Menlo,monospace; letter-spacing:.04em; }
+  .stack-edge{ stroke: var(--hair-strong); stroke-width:1; fill:none; }
+  .stack-edge.dashed{ stroke-dasharray: 4 4; opacity:.6; }
+
+  .stack-panel{
+    border:1px solid var(--hair); border-radius:16px; background:var(--card);
+    padding: 22px;
+    min-height: 360px;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .stack-panel h4{ margin:0; font-weight:700; font-size:1.18rem; letter-spacing:-0.02em; }
+  .stack-panel .kicker{ font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+  .stack-panel dl{ display:grid; grid-template-columns: 120px 1fr; gap:6px 16px; margin:0; font-size:.92rem; }
+  .stack-panel dt{ color:var(--muted); font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.78rem; padding-top:3px; }
+  .stack-panel dd{ margin:0; line-height:1.55; }
+  .stack-panel .pq{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:3px 8px; border-radius:999px; font-size:.74rem;
+    border:1px solid var(--hair);
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; letter-spacing:.03em;
+  }
+  .pq.pq-secure{ color: var(--ok); border-color: rgba(74,222,128,.35); }
+  .pq.pq-shor{ color: var(--danger); border-color: rgba(239,83,80,.35); }
+  .pq.pq-conj{ color: var(--warn); border-color: rgba(240,179,94,.35); }
+
+  /* ---------- References ---------- */
+  .refs{
+    margin-top: clamp(24px, 3vw, 32px);
+    display:grid; grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 28px 40px;
+  }
+  @media (max-width:780px){ .refs{ grid-template-columns: 1fr; } }
+  .refs h4{ margin:0 0 8px; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); font-weight:500; }
+  .refs ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+  .refs li{ font-size:.92rem; line-height:1.5; }
+  .refs a{
+    color:var(--fg); text-decoration:underline;
+    text-decoration-color:var(--hair); text-underline-offset:3px;
+    transition: text-decoration-color .15s;
+  }
+  .refs a:hover{ text-decoration-color:var(--fg); }
+  .refs .authors{ color:var(--muted); }
+  .refs .venue{ color:var(--muted); font-style:italic; }
+
+  /* ---------- Outro / footer ---------- */
+  .outro-thin{
+    max-width:1080px; margin:0 auto;
+    padding: 32px clamp(20px, 5vw, 56px);
+    display:flex; flex-wrap:wrap; gap:18px; align-items:center; justify-content:space-between;
+    border-top:1px solid var(--hair);
+    font-size:.92rem;
+  }
+  .outro-thin a{
+    color:var(--fg); text-decoration:underline;
+    text-decoration-color:var(--hair); text-underline-offset:3px;
+  }
+  .outro-thin a:hover{ text-decoration-color:var(--fg); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ scroll-behavior:auto !important; }
+  }
+</style>
+</head>
+<body x-data="page()" x-init="init()">
+
+<header class="nav">
+  <div class="max-w-[1080px] mx-auto px-6 h-[52px] flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3 hover:opacity-80 focus-ring" aria-label="Onym home">
+      <span class="mark" role="img" aria-label="Onym"></span>
+      <span class="text-[14px] font-medium tracking-tight">Onym <span class="muted">· Proofs</span></span>
+    </a>
+    <div class="flex items-center gap-4">
+      <span class="muted mono hidden sm:inline" style="font-size:.74rem;letter-spacing:.06em;">v0.0.11 · testnet alpha</span>
+      <a href="/" class="text-[12.5px] muted hover:text-[var(--fg)] focus-ring">&larr; Back</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ============== §1 Hero ============== -->
+<section data-screen-label="01 Hero">
+  <p class="eyebrow">authorization, on a public ledger</p>
+  <h1 class="hero">How Alice updates a group on-chain.<br/>And why three Bobs can't.</h1>
+  <p class="lede">Open · Anonymous · Onchain. Every state change in an Onym group is gated by a ~700-byte PLONK proof. The chain checks the math; nobody — including us — gets to override it.</p>
+  <p class="body muted">Measured against release tag v0.0.11 (2026-05-07) on Stellar testnet alpha.</p>
+
+  <div class="stat-strip" aria-label="Onym deployment at a glance">
+    <div><div class="val">5</div><div class="label">policy contracts</div></div>
+    <div><div class="val">30</div><div class="label">verifying keys</div></div>
+    <div><div class="val">~700 B</div><div class="label">proof size</div></div>
+    <div><div class="val">~$0.005</div><div class="label">per update</div></div>
+    <div><div class="val">MIT</div><div class="label">licensed</div></div>
+  </div>
+</section>
+
+<!-- ============== §2 The cast ============== -->
+<section data-screen-label="02 Cast">
+  <p class="eyebrow">the cast</p>
+  <h2 class="heading">One member. Three impostors.</h2>
+  <p class="lede">Alice holds a valid witness to the current group commitment $C_g$. The three Bobs each try a different shortcut — none of them get past the verifier.</p>
+
+  <div class="cast">
+    <!-- Alice -->
+    <div class="character alice">
+      <div class="portrait" aria-hidden="true">
+        <svg viewBox="0 0 40 40" width="40" height="40">
+          <circle cx="20" cy="20" r="18" fill="none" stroke="var(--wire)" stroke-width="1.4"/>
+          <circle cx="20" cy="16" r="5" fill="var(--wire)"/>
+          <path d="M8 32 Q20 22 32 32" fill="none" stroke="var(--wire)" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="role">legitimate</div>
+        <h4>Alice</h4>
+      </div>
+      <p>Holds a valid Merkle witness to her leaf in the group whose commitment is <span class="mono">C_g</span>. Wants to add Carol.</p>
+    </div>
+
+    <!-- Bob outsider -->
+    <div class="character bob">
+      <div class="portrait" aria-hidden="true">
+        <svg viewBox="0 0 40 40" width="40" height="40">
+          <circle cx="20" cy="20" r="18" fill="none" stroke="var(--danger)" stroke-width="1.4" stroke-dasharray="3 3"/>
+          <circle cx="20" cy="16" r="5" fill="none" stroke="var(--danger)" stroke-width="1.4"/>
+          <path d="M8 32 Q20 22 32 32" fill="none" stroke="var(--danger)" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="role">outsider</div>
+        <h4>Bob (outsider)</h4>
+      </div>
+      <p>Has never been in the group. Wants to forge a membership witness from nothing.</p>
+    </div>
+
+    <!-- Bob insider -->
+    <div class="character bob">
+      <div class="portrait" aria-hidden="true">
+        <svg viewBox="0 0 40 40" width="40" height="40">
+          <circle cx="20" cy="20" r="18" fill="none" stroke="var(--danger)" stroke-width="1.4"/>
+          <circle cx="20" cy="16" r="5" fill="var(--danger)"/>
+          <path d="M8 32 Q20 22 32 32" fill="none" stroke="var(--danger)" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M28 12 L36 4 M28 4 L36 12" stroke="var(--danger)" stroke-width="1.4"/>
+        </svg>
+      </div>
+      <div>
+        <div class="role">policy violator</div>
+        <h4>Bob (insider)</h4>
+      </div>
+      <p>Real member of a <span class="mono">sep-democracy</span> group. Wants to admit someone without the quorum.</p>
+    </div>
+
+    <!-- Bob MITM -->
+    <div class="character bob">
+      <div class="portrait" aria-hidden="true">
+        <svg viewBox="0 0 40 40" width="40" height="40">
+          <rect x="6" y="14" width="28" height="14" rx="3" fill="none" stroke="var(--danger)" stroke-width="1.4"/>
+          <path d="M2 21 L8 21 M32 21 L38 21" stroke="var(--danger)" stroke-width="1.4"/>
+          <circle cx="20" cy="21" r="3" fill="var(--danger)"/>
+        </svg>
+      </div>
+      <div>
+        <div class="role">network observer</div>
+        <h4>Bob (MITM)</h4>
+      </div>
+      <p>Sees Alice's transaction on the wire. Wants to rewrite <span class="mono">C_g'</span> in flight.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============== §3 Alice's flow ============== -->
+<section data-screen-label="03 Alice flow" aria-labelledby="alice-h">
+  <p class="eyebrow">the happy path</p>
+  <h2 class="heading" id="alice-h">Alice updates the group.</h2>
+  <p class="lede">A swim-lane through one legitimate update. Off-chain on the left — Alice's wallet computes the new root, builds the witness, and runs the prover. On-chain on the right — Stellar verifies the proof and swaps the commitment in storage. Click any primitive to dig in.</p>
+
+  <div class="swimlane" role="group" aria-label="Alice update flow">
+    <div class="lane-head">
+      <div><span class="dot off"></span>Off-chain · Alice's wallet</div>
+      <div class="gap">wire</div>
+      <div><span class="dot on"></span>On-chain · Stellar L1</div>
+    </div>
+    <div class="lane-body">
+      <div class="lane off">
+        <div class="step" :class="stepClass(1)">
+          <div class="num">step 01</div>
+          <div class="title">Compute new root $C_g'$</div>
+          <div class="detail">Insert Carol's leaf, rehash the Merkle path up to the root.</div>
+          <div class="prim">
+            <button @click="openPrim('merkle')">Merkle tree</button>
+            <button @click="openPrim('poseidon')">Poseidon2</button>
+          </div>
+        </div>
+        <div class="step" :class="stepClass(2)">
+          <div class="num">step 02</div>
+          <div class="title">Build R_Upd witness</div>
+          <div class="detail">Wire private inputs (sibling path, Alice's signing key) and public inputs ($C_g$, $C_g'$, epoch, policy tag) into the circuit.</div>
+          <div class="prim">
+            <button @click="openPrim('rupd')">R_Upd</button>
+            <button @click="openPrim('policy')">policy circuit</button>
+          </div>
+        </div>
+        <div class="step" :class="stepClass(3)">
+          <div class="num">step 03</div>
+          <div class="title">PLONK prove → π</div>
+          <div class="detail">KZG commitments, BLS12-381 scalar math, Fiat-Shamir challenges hashed with Poseidon2. Out drops a ~700-byte proof.</div>
+          <div class="prim">
+            <button @click="openPrim('plonk')">PLONK</button>
+            <button @click="openPrim('kzg')">KZG</button>
+            <button @click="openPrim('bls')">BLS12-381</button>
+            <button @click="openPrim('fs')">Fiat-Shamir</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="lane center">
+        <div class="wire">
+          <svg viewBox="0 0 64 200" aria-hidden="true">
+            <line x1="32" y1="0" x2="32" y2="200" stroke="var(--hair-strong)" stroke-dasharray="3 4"/>
+            <polygon points="26,188 32,200 38,188" fill="var(--wire)"/>
+          </svg>
+          <div class="envelope mono"
+            :class="envelopeClass()"
+            x-show="step >= 3"
+            x-transition.opacity>
+            <div style="font-weight:600;color:var(--fg);">tx</div>
+            <div>{ C_g, C_g', π }</div>
+            <div class="muted">~700 B</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lane on">
+        <div class="step" :class="stepClass(4)">
+          <div class="num">step 04</div>
+          <div class="title">Verify proof π</div>
+          <div class="detail">Soroban contract calls the BLS12-381 host fn for the pairing check, Poseidon2 host fn for Fiat-Shamir replay. Pass / fail in one shot.</div>
+          <div class="prim">
+            <button @click="openPrim('bls')">BLS12-381 host</button>
+            <button @click="openPrim('poseidon')">Poseidon2 host</button>
+          </div>
+        </div>
+        <div class="step" :class="stepClass(5)">
+          <div class="num">step 05</div>
+          <div class="title">Swap $C_g \to C_g'$ in storage</div>
+          <div class="detail">Soroban writes the new commitment, increments the epoch counter, emits an event. Total: one ledger entry, ~$0.005.</div>
+          <div class="prim">
+            <button @click="openPrim('soroban')">Soroban</button>
+            <button @click="openPrim('epoch')">epoch</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" @click="reset()" :disabled="step===0 && !failure">↺ Reset</button>
+    <button class="btn primary" @click="next()" :disabled="step>=5 || failure" x-text="step===0 ? 'Start ▸' : (step>=5 ? 'Done' : 'Next ▸')"></button>
+    <label style="display:inline-flex;align-items:center;gap:6px;font-size:.86rem;color:var(--muted);margin-left:6px;">
+      <input type="checkbox" x-model="autoplay" @change="toggleAuto()" style="accent-color: var(--wire);"> autoplay
+    </label>
+    <div class="progress" aria-hidden="true">
+      <template x-for="i in [1,2,3,4,5]">
+        <div class="seg" :class="{'on': step >= i, 'fail': failure && failStep === i}"></div>
+      </template>
+    </div>
+    <span class="muted mono" style="font-size:.78rem;margin-left:8px;" x-text="actorLabel()"></span>
+  </div>
+
+  <p class="caption">Five steps; one ledger entry on success. No application-layer operator sees any of it — the trust shape is the Stellar validator set and the cryptographic assumptions in §5.</p>
+</section>
+
+<!-- ============== §4 Three Bobs ============== -->
+<section data-screen-label="04 Three Bobs" aria-labelledby="bobs-h">
+  <p class="eyebrow">why it doesn't break</p>
+  <h2 class="heading" id="bobs-h">Three Bobs. Three ways to fail.</h2>
+  <p class="lede">Same swim-lane. Pick an adversary and watch where the diagram red-flashes. Each Bob is stopped by a different layer of the construction.</p>
+
+  <div class="tabs" role="tablist" aria-label="Adversaries">
+    <button role="tab" :aria-pressed="actor==='outsider'" @click="setActor('outsider')">Bob · outsider</button>
+    <button role="tab" :aria-pressed="actor==='insider'" @click="setActor('insider')">Bob · insider</button>
+    <button role="tab" :aria-pressed="actor==='mitm'"    @click="setActor('mitm')">Bob · MITM</button>
+  </div>
+
+  <div class="bob-callout">
+    <div>
+      <div class="label" x-text="bobInfo().label"></div>
+      <h3 class="sub" style="margin-top:6px;" x-text="bobInfo().title"></h3>
+      <div class="where" x-text="'fails at step ' + bobInfo().failStep"></div>
+      <template x-if="actor==='mitm'">
+        <div class="pin">P1 postmortem · fixed in v0.0.11</div>
+      </template>
+    </div>
+    <div>
+      <p x-html="bobInfo().body"></p>
+      <p style="margin-top:10px;font-size:.88rem;color:var(--muted);" x-text="bobInfo().assumption"></p>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" @click="reset()">↺ Reset</button>
+    <button class="btn primary" @click="runFailure()">▶ Replay attack</button>
+    <span class="muted mono" style="font-size:.78rem;margin-left:8px;">Scroll up to watch the swim-lane react.</span>
+  </div>
+
+  <p class="caption">All three attacks reduce to a single observation: every public input — $C_g$, $C_g'$, epoch, policy tag — is bound into the proof. There is no surface for an outsider to fake a witness, an insider to skip the policy circuit, or a network observer to rewrite the destination commitment without making the pairing check reject.</p>
+</section>
+
+<!-- ============== §5 Crypto stack ============== -->
+<section data-screen-label="05 Stack" aria-labelledby="stack-h">
+  <p class="eyebrow">the cryptographic stack</p>
+  <h2 class="heading" id="stack-h">Seven pieces, stacked.</h2>
+  <p class="lede">Click any node. The panel on the right swaps in concrete parameters, security assumptions, and the post-quantum stance.</p>
+
+  <div class="stack">
+    <div class="stack-graph" role="img" aria-label="Onym crypto stack diagram">
+      <svg viewBox="0 0 540 420" xmlns="http://www.w3.org/2000/svg">
+        <g class="stack-node" :class="{active: prim==='plonk'}" @click="openPrim('plonk')" tabindex="0" @keydown.enter="openPrim('plonk')">
+          <rect x="210" y="18" width="120" height="52" rx="8"/>
+          <text x="270" y="42" text-anchor="middle" font-weight="600">PLONK</text>
+          <text x="270" y="58" text-anchor="middle" class="sub">proof system</text>
+        </g>
+
+        <g class="stack-node" :class="{active: prim==='kzg'}" @click="openPrim('kzg')" tabindex="0" @keydown.enter="openPrim('kzg')">
+          <rect x="20" y="160" width="120" height="58" rx="8"/>
+          <text x="80" y="184" text-anchor="middle" font-weight="600">KZG</text>
+          <text x="80" y="200" text-anchor="middle" class="sub">poly commit</text>
+        </g>
+        <g class="stack-node" :class="{active: prim==='fs'}" @click="openPrim('fs')" tabindex="0" @keydown.enter="openPrim('fs')">
+          <rect x="160" y="160" width="120" height="58" rx="8"/>
+          <text x="220" y="184" text-anchor="middle" font-weight="600">Fiat-Shamir</text>
+          <text x="220" y="200" text-anchor="middle" class="sub">non-interactive</text>
+        </g>
+        <g class="stack-node" :class="{active: prim==='poseidon'}" @click="openPrim('poseidon')" tabindex="0" @keydown.enter="openPrim('poseidon')">
+          <rect x="300" y="160" width="120" height="58" rx="8"/>
+          <text x="360" y="184" text-anchor="middle" font-weight="600">Poseidon2</text>
+          <text x="360" y="200" text-anchor="middle" class="sub">hash in-circuit</text>
+        </g>
+        <g class="stack-node" :class="{active: prim==='sha'}" @click="openPrim('sha')" tabindex="0" @keydown.enter="openPrim('sha')">
+          <rect x="440" y="160" width="90" height="58" rx="8"/>
+          <text x="485" y="184" text-anchor="middle" font-weight="600">SHA-256</text>
+          <text x="485" y="200" text-anchor="middle" class="sub">supply chain</text>
+        </g>
+
+        <g class="stack-node" :class="{active: prim==='bls'}" @click="openPrim('bls')" tabindex="0" @keydown.enter="openPrim('bls')">
+          <rect x="80" y="320" width="160" height="58" rx="8"/>
+          <text x="160" y="344" text-anchor="middle" font-weight="600">BLS12-381</text>
+          <text x="160" y="360" text-anchor="middle" class="sub">pairing-friendly curve</text>
+        </g>
+        <g class="stack-node" :class="{active: prim==='merkle'}" @click="openPrim('merkle')" tabindex="0" @keydown.enter="openPrim('merkle')">
+          <rect x="280" y="320" width="180" height="58" rx="8"/>
+          <text x="370" y="344" text-anchor="middle" font-weight="600">Merkle tree</text>
+          <text x="370" y="360" text-anchor="middle" class="sub">group membership</text>
+        </g>
+
+        <path class="stack-edge" d="M250 70 Q200 110 80 160"/>
+        <path class="stack-edge" d="M270 70 L220 160"/>
+        <path class="stack-edge" d="M290 70 Q340 110 360 160"/>
+        <path class="stack-edge dashed" d="M310 70 Q420 110 485 160"/>
+        <path class="stack-edge" d="M80 218 L160 320"/>
+        <path class="stack-edge" d="M360 218 Q360 270 370 320"/>
+        <path class="stack-edge dashed" d="M220 218 Q300 270 360 305"/>
+
+        <text x="270" y="95" text-anchor="middle" class="sub" fill="var(--muted)">uses</text>
+      </svg>
+    </div>
+
+    <div class="stack-panel" aria-live="polite">
+      <div class="kicker" x-text="primInfo().kicker"></div>
+      <h4 x-text="primInfo().name"></h4>
+      <p class="muted" style="margin:0;font-size:.96rem;line-height:1.55;" x-text="primInfo().def"></p>
+      <dl>
+        <dt>role</dt><dd x-text="primInfo().role"></dd>
+        <dt>params</dt><dd class="mono" x-html="primInfo().params"></dd>
+        <dt>security</dt><dd x-text="primInfo().sec"></dd>
+        <dt>caveats</dt><dd x-text="primInfo().caveats"></dd>
+        <dt>pq stance</dt>
+        <dd><span class="pq" :class="primInfo().pqClass" x-text="primInfo().pq"></span></dd>
+        <dt>ref</dt><dd><a :href="primInfo().href" target="_blank" rel="noopener" x-text="primInfo().refLabel"></a></dd>
+      </dl>
+    </div>
+  </div>
+
+  <p class="caption">SHA-256 sits outside the transaction path. It's how the SRS and verifying keys are pinned in the supply chain — distinct from the in-circuit hash that gates state changes.</p>
+</section>
+
+<!-- ============== §6 References ============== -->
+<section data-screen-label="06 References" aria-labelledby="refs-h">
+  <p class="eyebrow">references</p>
+  <h2 class="heading" id="refs-h">Where these pieces come from.</h2>
+  <p class="lede">Primary literature for every primitive Onym depends on. Links open in a new tab.</p>
+
+  <div class="refs">
+    <div>
+      <h4>PLONK &amp; proof systems</h4>
+      <ul>
+        <li><span class="authors">Gabizon, Williamson, Ciobotaru. 2019.</span> <a href="https://eprint.iacr.org/2019/953" target="_blank" rel="noopener">PLONK: Permutations over Lagrange-bases for Oecumenical Noninteractive arguments of Knowledge.</a> <span class="venue">IACR ePrint 2019/953.</span></li>
+        <li><span class="authors">Groth, J. 2016.</span> <a href="https://doi.org/10.1007/978-3-662-49896-5_11" target="_blank" rel="noopener">On the Size of Pairing-Based Non-Interactive Arguments.</a> <span class="venue">EUROCRYPT 2016, 305–326.</span></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>KZG polynomial commitments</h4>
+      <ul>
+        <li><span class="authors">Kate, Zaverucha, Goldberg. 2010.</span> <a href="https://doi.org/10.1007/978-3-642-17373-8_11" target="_blank" rel="noopener">Constant-Size Commitments to Polynomials and Their Applications.</a> <span class="venue">ASIACRYPT 2010, 177–194.</span></li>
+        <li><span class="authors">Ethereum Foundation &amp; KZG Ceremony Contributors. 2023.</span> <a href="https://github.com/ethereum/kzg-ceremony" target="_blank" rel="noopener">KZG Summoning Ceremony.</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>BLS12-381</h4>
+      <ul>
+        <li><span class="authors">Bowe, S. 2017.</span> <a href="https://electriccoin.co/blog/new-snark-curve/" target="_blank" rel="noopener">BLS12-381: New zk-SNARK Elliptic Curve Construction.</a> <span class="venue">Electric Coin Co. blog.</span></li>
+        <li><span class="authors">Kim, Barbulescu. 2016.</span> <a href="https://doi.org/10.1007/978-3-662-53018-4_20" target="_blank" rel="noopener">Extended Tower Number Field Sieve: A New Complexity for the Medium Prime Case.</a> <span class="venue">CRYPTO 2016, 543–571.</span></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>Poseidon &amp; Poseidon2</h4>
+      <ul>
+        <li><span class="authors">Grassi, Khovratovich, Rechberger, Roy, Schofnegger. 2021.</span> <a href="https://www.usenix.org/conference/usenixsecurity21/presentation/grassi" target="_blank" rel="noopener">Poseidon: A New Hash Function for Zero-Knowledge Proof Systems.</a> <span class="venue">USENIX Security 2021.</span></li>
+        <li><span class="authors">Grassi, Khovratovich, Schofnegger. 2023.</span> <a href="https://eprint.iacr.org/2023/323" target="_blank" rel="noopener">Poseidon2: A Faster Version of the Poseidon Hash Function.</a> <span class="venue">IACR ePrint 2023/323.</span></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>SHA-256</h4>
+      <ul>
+        <li><span class="authors">NIST. 2015.</span> <a href="https://doi.org/10.6028/NIST.FIPS.180-4" target="_blank" rel="noopener">FIPS PUB 180-4: Secure Hash Standard (SHS).</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>Merkle tree</h4>
+      <ul>
+        <li><span class="authors">Merkle, R. C. 1989.</span> <a href="https://doi.org/10.1007/0-387-34805-0_21" target="_blank" rel="noopener">A Certified Digital Signature.</a> <span class="venue">CRYPTO '89, 218–238.</span></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>Fiat-Shamir transform</h4>
+      <ul>
+        <li><span class="authors">Fiat, Shamir. 1986.</span> <a href="https://doi.org/10.1007/3-540-47721-7_12" target="_blank" rel="noopener">How to Prove Yourself: Practical Solutions to Identification and Signature Problems.</a> <span class="venue">CRYPTO '86, 186–194.</span></li>
+        <li><span class="authors">Don, Fehr, Majenz, Schaffner. 2019.</span> <a href="https://eprint.iacr.org/2019/190" target="_blank" rel="noopener">Security of the Fiat-Shamir Transformation in the Quantum Random-Oracle Model.</a> <span class="venue">CRYPTO 2019.</span></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>Quantum baseline</h4>
+      <ul>
+        <li><span class="authors">Shor, P. W. 1994.</span> <a href="https://doi.org/10.1109/SFCS.1994.365700" target="_blank" rel="noopener">Algorithms for Quantum Computation: Discrete Logarithms and Factoring.</a> <span class="venue">FOCS 1994, 124–134.</span></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>Stellar host functions</h4>
+      <ul>
+        <li><span class="authors">Stellar Development Foundation. 2024.</span> <a href="https://github.com/stellar/stellar-protocol/blob/master/core/cap-0059.md" target="_blank" rel="noopener">CAP-0059: Host Functions for BLS12-381 Curve Operations.</a></li>
+        <li><span class="authors">Stellar Development Foundation. 2025.</span> <a href="https://github.com/stellar/stellar-protocol/blob/master/core/cap-0075.md" target="_blank" rel="noopener">CAP-0075: Cryptographic Primitives for Poseidon and Poseidon2 Hash Functions.</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <p class="caption">Honest about post-quantum: Onym is classically secure today and broken under Shor's algorithm on a CRQC. Migration paths (lattice-based polynomial commitments, hash-based SNARKs) are tracked but not deployed.</p>
+</section>
+
+<nav class="outro-thin" aria-label="Onward">
+  <a href="/how/">&larr; How it works</a>
+  <a href="/threat-model/">Threat model</a>
+  <a href="/about/">About Onym</a>
+  <a href="/qa/">Try the alpha &rarr;</a>
+</nav>
+
+</main>
+
+<footer class="hair border-t" style="border-top-style:solid;">
+  <div class="max-w-[1080px] mx-auto px-6 py-10 flex flex-wrap items-center justify-between gap-4 text-[12px] muted mono">
+    <span>© 2026 · Onym · MIT licensed</span>
+    <span>v0.0.11 · 2026-05-07 · testnet alpha</span>
+    <span>Never pay with your identity.</span>
+  </div>
+</footer>
+
+<!-- ============== Theme toggle ============== -->
+<div class="toggle" role="group" aria-label="Theme">
+  <button id="t-dark"  aria-pressed="true"  onclick="setTheme('dark')">Dark</button>
+  <button id="t-light" aria-pressed="false" onclick="setTheme('light')">Light</button>
+</div>
+
+<script>
+  function setTheme(mode){
+    if(mode==='light') document.documentElement.setAttribute('data-theme','light');
+    else document.documentElement.removeAttribute('data-theme');
+    document.getElementById('t-dark').setAttribute('aria-pressed', mode==='dark');
+    document.getElementById('t-light').setAttribute('aria-pressed', mode==='light');
+    try{ localStorage.setItem('onym.theme', mode); }catch(e){}
+  }
+  (function(){
+    var t='dark';
+    try{ t = localStorage.getItem('onym.theme') || 'dark'; }catch(e){}
+    setTheme(t);
+  })();
+</script>
+
+<script>
+function page(){
+  return {
+    step: 0,
+    failure: false,
+    failStep: null,
+    actor: 'alice',
+    autoplay: false,
+    autoTimer: null,
+    prim: 'plonk',
+
+    init(){
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if(reduce){ this.autoplay = false; }
+    },
+    actorLabel(){
+      if(this.actor === 'alice') return 'actor: alice · legitimate';
+      if(this.actor === 'outsider') return 'actor: bob (outsider)';
+      if(this.actor === 'insider') return 'actor: bob (insider)';
+      if(this.actor === 'mitm') return 'actor: bob (mitm)';
+      return '';
+    },
+    next(){
+      if(this.failure) return;
+      if(this.step < 5){ this.step++; }
+    },
+    reset(){
+      this.step = 0;
+      this.failure = false;
+      this.failStep = null;
+      if(this.autoTimer){ clearInterval(this.autoTimer); this.autoTimer = null; this.autoplay = false; }
+    },
+    toggleAuto(){
+      if(this.autoTimer){ clearInterval(this.autoTimer); this.autoTimer = null; }
+      if(this.autoplay){
+        this.autoTimer = setInterval(()=>{
+          if(this.step >= 5 || this.failure){ clearInterval(this.autoTimer); this.autoTimer = null; this.autoplay = false; return; }
+          this.next();
+        }, 1100);
+      }
+    },
+    setActor(name){
+      this.actor = name;
+      this.reset();
+    },
+    runFailure(){
+      this.reset();
+      var failAt = this.bobInfo().failStep;
+      var i = 0;
+      var step = ()=>{
+        i++;
+        if(i < failAt){ this.step = i; setTimeout(step, 600); }
+        else { this.step = failAt; this.failure = true; this.failStep = failAt; }
+      };
+      setTimeout(step, 200);
+    },
+    stepClass(n){
+      var cls = {};
+      if(this.failure && this.failStep === n){ cls.fail = true; return cls; }
+      cls.active = (n === this.step);
+      cls.done   = (n < this.step);
+      return cls;
+    },
+    envelopeClass(){
+      if(this.actor === 'mitm' && this.failure && this.failStep === 4) return 'tampered';
+      if(this.step === 3) return 'flying';
+      if(this.step >= 4) return 'delivered';
+      return '';
+    },
+
+    bobInfo(){
+      var map = {
+        outsider: {
+          label: 'Bob · outsider',
+          title: 'No membership witness.',
+          failStep: 4,
+          body: 'Bob has never been in the group. To forge a witness he’d need one of three published hard problems: a <strong>Poseidon2 collision</strong> (no known attack), a <strong>knowledge-soundness break of PLONK</strong> in the algebraic group model, or recovery of the SRS’s toxic waste τ — a discrete log on BLS12-381 (Shor, not classical). The pairing check at step 4 rejects.',
+          assumption: 'Reduces to: collision-resistance of Poseidon2 · AGM knowledge-soundness of PLONK · discrete log on BLS12-381.'
+        },
+        insider: {
+          label: 'Bob · insider · policy violator',
+          title: 'Valid witness, no quorum.',
+          failStep: 3,
+          body: 'Bob is a real member of a <span class="mono">sep-democracy</span> group, but he has only his own signature. The policy predicate is <strong>inside the R_Upd circuit</strong>. With one signature where the policy requires a quorum, the constraint system is unsatisfied — the prover halts before producing π. There is no proof to even submit.',
+          assumption: 'Reduces to: completeness of PLONK is the only way to get a valid π; an unsatisfied circuit has no satisfying assignment.'
+        },
+        mitm: {
+          label: 'Bob · network observer (MITM)',
+          title: 'Tries to rewrite C_g′ in flight.',
+          failStep: 4,
+          body: 'Bob sees Alice’s transaction on the wire and swaps her C_g′ for his own. Because <strong>C_g′ is a public input of R_Upd</strong>, it enters the Fiat-Shamir transcript and every challenge in π depends on it. Changing C_g′ invalidates the proof. Simulation-extractability of the PLONK variant Onym ships also rules out re-randomisation.',
+          assumption: 'This is the P1 postmortem bug, fixed in v0.0.11: every public input must enter the transcript before any prover challenge is drawn.'
+        }
+      };
+      return map[this.actor] || map.outsider;
+    },
+
+    openPrim(name){
+      this.prim = name;
+      var el = document.getElementById('stack-h');
+      if(el && el.scrollIntoView){
+        try { el.scrollIntoView({behavior: 'smooth', block: 'start'}); } catch(e){}
+      }
+    },
+    primInfo(){
+      var prims = {
+        plonk: {
+          kicker: 'proof system',
+          name: 'PLONK',
+          def: 'Universal-updatable preprocessing SNARK. Compiles arithmetic circuits to ~700-byte non-interactive proofs.',
+          role: 'Produces π over R_Upd (writes) and R_Mem (reads).',
+          params: 'proof: ~700 B · verifier: 2 pairings · one SRS, 30 verifying keys',
+          sec: 'Knowledge-soundness in the algebraic group model under q-DLOG on BLS12-381.',
+          caveats: 'Onym ships a simulation-extractable variant to neutralise proof malleability (the v0.0.11 fix).',
+          pq: 'broken under Shor', pqClass: 'pq-shor',
+          href: 'https://eprint.iacr.org/2019/953', refLabel: 'eprint 2019/953'
+        },
+        kzg: {
+          kicker: 'polynomial commitment',
+          name: 'KZG',
+          def: 'Constant-size commitment to a polynomial of any degree, evaluated by a single pairing.',
+          role: 'Backs PLONK’s polynomial IOP. Reuses the Ethereum Foundation SRS.',
+          params: 'commitment: 48 B · opening: 48 B · SRS: ~141 000 contributors',
+          sec: 'Hiding & binding under q-SDH on BLS12-381.',
+          caveats: 'SRS toxic waste τ must be unrecoverable — powers-of-tau ceremony assumption.',
+          pq: 'broken under Shor', pqClass: 'pq-shor',
+          href: 'https://doi.org/10.1007/978-3-642-17373-8_11', refLabel: 'ASIACRYPT 2010'
+        },
+        bls: {
+          kicker: 'elliptic curve',
+          name: 'BLS12-381',
+          def: 'Pairing-friendly elliptic curve. The arithmetic backbone for all SNARK math in Onym.',
+          role: 'Stellar Protocol 22 added host functions (CAP-0059). All pairing checks happen on-chain.',
+          params: '~128-bit classical security · G1 point: 48 B · G2: 96 B',
+          sec: 'Discrete log on G1/G2 and q-SDH on the pairing.',
+          caveats: 'Conservative target is now ~120 bits after the 2016 ExTNFS improvement.',
+          pq: 'broken under Shor', pqClass: 'pq-shor',
+          href: 'https://electriccoin.co/blog/new-snark-curve/', refLabel: 'Bowe 2017'
+        },
+        poseidon: {
+          kicker: 'algebraic hash',
+          name: 'Poseidon2',
+          def: 'Sponge hash over a prime field, designed to be cheap inside a SNARK circuit.',
+          role: 'In-circuit hash for the Merkle tree and the Fiat-Shamir transcript. Stellar Protocol 25 added a host fn (CAP-0075).',
+          params: 'rate 8 / capacity 4 · ~2k constraints per absorb',
+          sec: 'Algebraic-attack-resistant; no known distinguisher within the security claim.',
+          caveats: 'Younger than SHA-2 — ongoing cryptanalysis. Onym tracks the literature.',
+          pq: 'conjectured PQ-secure', pqClass: 'pq-conj',
+          href: 'https://eprint.iacr.org/2023/323', refLabel: 'eprint 2023/323'
+        },
+        sha: {
+          kicker: 'standard hash',
+          name: 'SHA-256',
+          def: 'NIST-standard Merkle–Damgård hash. Conservative, ubiquitous, ~128-bit collision resistance.',
+          role: 'Out-of-circuit. Pins the SRS and verifying-key supply chain — never used in the transaction path.',
+          params: '256-bit output · ~128-bit collision · 32-byte digest',
+          sec: 'Pre-image and collision resistance from the Merkle–Damgård construction over SHACAL-2.',
+          caveats: 'Too expensive to use in-circuit — that’s why Onym hashes with Poseidon2 inside the SNARK.',
+          pq: 'conjectured PQ-secure', pqClass: 'pq-conj',
+          href: 'https://doi.org/10.6028/NIST.FIPS.180-4', refLabel: 'FIPS 180-4'
+        },
+        merkle: {
+          kicker: 'commitment structure',
+          name: 'Merkle tree',
+          def: 'Binary tree hashed with Poseidon2. The root is a constant-size commitment to the membership set.',
+          role: 'The group commitment $C_g$ is its root. Membership witnesses are Merkle paths.',
+          params: 'arity 2 · Poseidon2 hashed · depth set per group size',
+          sec: 'Inherits collision resistance from Poseidon2.',
+          caveats: 'Authenticates the set, not the order — ordering is enforced separately when relevant.',
+          pq: 'conjectured PQ-secure', pqClass: 'pq-conj',
+          href: 'https://doi.org/10.1007/0-387-34805-0_21', refLabel: 'CRYPTO ’89'
+        },
+        fs: {
+          kicker: 'transform',
+          name: 'Fiat-Shamir',
+          def: 'Replaces an interactive verifier with a hash of the transcript. Turns PLONK into a non-interactive proof.',
+          role: 'Every challenge in π is drawn by hashing public inputs and prior commitments with Poseidon2.',
+          params: 'transcript hash: Poseidon2 · all public inputs bound before any challenge',
+          sec: 'Sound in the random oracle model. Tight reductions to the quantum ROM are known.',
+          caveats: 'If a public input is missed in the transcript, malleability follows — the P1 postmortem bug.',
+          pq: 'conjectured PQ-secure (in QROM)', pqClass: 'pq-conj',
+          href: 'https://eprint.iacr.org/2019/190', refLabel: 'CRYPTO 2019'
+        },
+        rupd: {
+          kicker: 'ZK relation',
+          name: 'R_Upd',
+          def: '“C_g′ is the legitimate successor of C_g under this policy, the witness was authorised, and the epoch advances by one.”',
+          role: 'The write-relation. One R_Upd circuit per policy contract; thirty verifying keys total.',
+          params: '~50k constraints (policy-dependent) · public inputs: (C_g, C_g′, epoch, policy tag)',
+          sec: 'Soundness inherits from PLONK; satisfiability defines the legal update set.',
+          caveats: 'Policy logic lives inside the circuit, not outside it — there is no off-chain gate.',
+          pq: 'broken under Shor', pqClass: 'pq-shor',
+          href: 'https://eprint.iacr.org/2019/953', refLabel: 'see PLONK ref'
+        },
+        policy: {
+          kicker: 'policy circuit',
+          name: 'sep-* policies',
+          def: 'Five compiled policy circuits: sep-anarchy, sep-democracy, sep-oligarchy, sep-oneonone, sep-tyranny.',
+          role: 'Each compiles to a distinct R_Upd circuit. All share one SRS; thirty verifying keys deployed.',
+          params: '5 policies · 6 group-size profiles each → 30 verifying keys',
+          sec: 'Same as PLONK; the policy predicate is enforced in-circuit, so violations are unprovable.',
+          caveats: 'Switching policy is itself a state change — not a free reconfigure.',
+          pq: 'broken under Shor', pqClass: 'pq-shor',
+          href: 'https://eprint.iacr.org/2019/953', refLabel: 'see PLONK ref'
+        },
+        soroban: {
+          kicker: 'execution layer',
+          name: 'Soroban',
+          def: 'Stellar’s WASM smart-contract runtime. Hosts the verifier and the commitment storage.',
+          role: 'Calls BLS12-381 and Poseidon2 host functions; writes (C_g′, epoch+1) on a passing proof.',
+          params: '~$0.005 per update · one ledger entry · CAP-0059 + CAP-0075',
+          sec: 'Trust shape: the Stellar validator set plus the host-function implementations.',
+          caveats: 'No application-layer operator — no admin override exists.',
+          pq: 'host curves broken under Shor', pqClass: 'pq-shor',
+          href: 'https://github.com/stellar/stellar-protocol/blob/master/core/cap-0059.md', refLabel: 'CAP-0059'
+        },
+        epoch: {
+          kicker: 'replay guard',
+          name: 'Epoch',
+          def: 'Monotonic counter incremented by exactly one on every successful update.',
+          role: 'Public input of R_Upd. A proof for epoch N cannot be replayed at epoch N+1.',
+          params: 'unsigned counter · bound into Fiat-Shamir transcript',
+          sec: 'Replay protection; ordering separate from membership-set authentication.',
+          caveats: 'If skipped or rolled back, replays become possible — enforced in-circuit.',
+          pq: 'inherits from PLONK', pqClass: 'pq-shor',
+          href: 'https://eprint.iacr.org/2019/953', refLabel: 'see PLONK ref'
+        }
+      };
+      return prims[this.prim] || prims.plonk;
+    }
+  };
+}
+</script>
+
+</body>
+</html>
