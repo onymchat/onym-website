@@ -524,6 +524,39 @@
   a.spec:focus-visible{ outline:2px solid var(--fg); outline-offset:3px; }
   .spec.in{ opacity:1; transform:none; }
 
+  /* SEP capstone — the contract sitting on top of the primitive bricks */
+  .capstone{
+    --amber: #f0b35e;
+    --amber-edge: rgba(240,179,94,.45);
+    --amber-soft: rgba(240,179,94,.10);
+    border-color: var(--amber-edge);
+    background:
+      linear-gradient(180deg, var(--amber-soft) 0%, var(--card) 70%),
+      var(--card);
+    display:flex; align-items:center; justify-content:space-between;
+    gap: 22px; flex-wrap: wrap;
+    padding: 22px 26px;
+  }
+  html[data-theme="light"] .capstone{ --amber: #b45309; --amber-edge: rgba(180,83,9,.45); --amber-soft: rgba(180,83,9,.08); }
+  .capstone .cap-left{ display:flex; flex-direction:column; gap:6px; min-width: 0; }
+  .capstone .cap-eyebrow{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:11px; color: var(--amber); letter-spacing:.04em; }
+  .capstone .cap-name{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:18px; letter-spacing:-0.01em; }
+  .capstone .cap-desc{ color: var(--muted); font-size: 13px; max-width: 62ch; line-height:1.55; }
+  .capstone .cap-go{ font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:13px; color: var(--amber); white-space: nowrap; }
+  a.capstone:hover{ border-color: var(--amber); }
+  .brick-rule{
+    display:flex; align-items:center; gap:10px;
+    margin: 18px 0 4px;
+    color: var(--muted);
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+    opacity: 0; transition: opacity .6s ease;
+  }
+  .brick-rule.in{ opacity: 1; }
+  .brick-rule::before, .brick-rule::after{
+    content:""; flex:1; height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--hair) 50%, transparent 100%);
+  }
+
   /* Terminal */
   .terminal{
     background:#0a0a0a; color:#e6e6e6; border-radius:18px; padding: 22px 24px;
@@ -1383,15 +1416,22 @@ End-to-end encrypted, with an <a href="/threat-model/" class="hover:text-[var(--
         Onym is built from primitives that have been deployed, attacked, and studied by cryptographers for decades. No new crypto.
       </p>
     </div>
-    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mt-14" id="specGrid">
+    <a class="spec capstone mt-14" href="/policies/sep-anarchy/" id="specCapstone" aria-label="sep-anarchy synthesis sheet — how the bricks compose into one contract">
+      <div class="cap-left">
+        <p class="cap-eyebrow">Keystone · the contract on top of these bricks</p>
+        <p class="cap-name">sep-anarchy</p>
+        <p class="cap-desc">Seven primitives, one contract, any current member admits. The simplest of five policy contracts, with the full brick-by-brick soundness chain.</p>
+      </div>
+      <span class="cap-go">See the wall &rarr;</span>
+    </a>
+    <div class="brick-rule" id="brickRule" aria-hidden="true">building blocks</div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4" id="specGrid">
       <a class="spec" href="/primitives/merkle/" aria-label="Merkle tree primitive sheet"><p class="mono text-[11px] muted">Membership</p><p class="mono text-[15px] mt-2">Merkle tree</p><p class="muted text-[13px] mt-3 leading-[1.55]">32-byte root commits to the full set.</p></a>
       <a class="spec" href="/primitives/bls/" aria-label="BLS12-381 primitive sheet"><p class="mono text-[11px] muted">Group proofs</p><p class="mono text-[15px] mt-2">BLS12-381</p><p class="muted text-[13px] mt-3 leading-[1.55]">Pairing-friendly curve for aggregate signatures.</p></a>
       <a class="spec" href="/primitives/plonk/" aria-label="PLONK primitive sheet"><p class="mono text-[11px] muted">Zero-knowledge</p><p class="mono text-[15px] mt-2">PLONK</p><p class="muted text-[13px] mt-3 leading-[1.55]">Universal SNARK for membership proofs.</p></a>
       <a class="spec" href="/primitives/poseidon/" aria-label="Poseidon primitive sheet"><p class="mono text-[11px] muted">Hashing</p><p class="mono text-[15px] mt-2">Poseidon</p><p class="muted text-[13px] mt-3 leading-[1.55]">SNARK-friendly hash inside the circuit.</p></a>
       <a class="spec" href="/primitives/fiat-shamir/" aria-label="Fiat-Shamir primitive sheet"><p class="mono text-[11px] muted">NIZK transform</p><p class="mono text-[15px] mt-2">Fiat-Shamir</p><p class="muted text-[13px] mt-3 leading-[1.55]">Interactive proof → one signed transaction.</p></a>
       <a class="spec" href="/primitives/kzg/" aria-label="KZG primitive sheet"><p class="mono text-[11px] muted">Polynomial commit</p><p class="mono text-[15px] mt-2">KZG</p><p class="muted text-[13px] mt-3 leading-[1.55]">48-byte commitment, one pairing to verify.</p></a>
-      <a class="spec" href="https://datatracker.ietf.org/doc/html/rfc8032" rel="noopener" aria-label="RFC 8032 — EdDSA / Ed25519"><p class="mono text-[11px] muted">Stellar keys</p><p class="mono text-[15px] mt-2">Ed25519</p><p class="muted text-[13px] mt-3 leading-[1.55]">Fast, deterministic signatures for chain anchors.</p></a>
-      <a class="spec" href="https://github.com/onymchat/onym-contracts" rel="noopener" aria-label="Onym Soroban contracts"><p class="mono text-[11px] muted">Anchors</p><p class="mono text-[15px] mt-2">Soroban</p><p class="muted text-[13px] mt-3 leading-[1.55]">Group state lives in a Stellar smart contract.</p></a>
     </div>
   </div>
 </section>
@@ -1468,6 +1508,7 @@ End-to-end encrypted, with an <a href="/threat-model/" class="hover:text-[var(--
           <li><a href="/primitives/merkle/" class="hover:text-[var(--fg)] focus-ring">Merkle tree <span class="ml-1 text-[10px] uppercase tracking-wider opacity-60">primitive</span></a></li>
           <li><a href="/primitives/fiat-shamir/" class="hover:text-[var(--fg)] focus-ring">Fiat-Shamir <span class="ml-1 text-[10px] uppercase tracking-wider opacity-60">primitive</span></a></li>
           <li><a href="/primitives/kzg/" class="hover:text-[var(--fg)] focus-ring">KZG <span class="ml-1 text-[10px] uppercase tracking-wider opacity-60">primitive</span></a></li>
+          <li><a href="/policies/sep-anarchy/" class="hover:text-[var(--fg)] focus-ring">sep-anarchy <span class="ml-1 text-[10px] uppercase tracking-wider opacity-60">synthesis</span></a></li>
           <li>Whitepaper <span class="ml-1 text-[10px] uppercase tracking-wider opacity-50">soon</span></li>
         </ul>
       </div>
@@ -1617,7 +1658,7 @@ End-to-end encrypted, with an <a href="/threat-model/" class="hover:text-[var(--
       if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
     });
   }, {rootMargin: '0px 0px -10% 0px', threshold: 0.1});
-  document.querySelectorAll('.reveal, .spec').forEach(el=>io.observe(el));
+  document.querySelectorAll('.reveal, .spec, .brick-rule').forEach(el=>io.observe(el));
 
   // Stagger specs
   document.querySelectorAll('#specGrid .spec').forEach((el, i)=>{
