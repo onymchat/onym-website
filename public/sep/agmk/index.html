@@ -931,7 +931,7 @@
     <div style="display:flex;align-items:center;gap:10px;min-width:0;">
       <span class="nav-mark mono" aria-hidden="true">SEP</span>
       <span style="font-weight:600;letter-spacing:-0.01em;" class="mono">agmk</span>
-      <span class="nav-crumb">/ keystone contract · SEP draft v0.4.2</span>
+      <span class="nav-crumb">/ keystone contract · SEP draft v0.4.3</span>
     </div>
     <a href="/" class="text-[12.5px] muted hover:text-[var(--fg)] focus-ring" style="white-space:nowrap;">&larr; Back</a>
   </div>
@@ -944,7 +944,7 @@
   <p class="eyebrow">Stellar Ecosystem Proposal · Anonymous Group-Membership Keystone</p>
   <h1 class="hero" id="hero-h">One contract. Any update relation. No admin.</h1>
   <p class="lede">A Soroban-hosted keystone that verifies one PLONK proof per state-transition step and stays neutral about what the transition means. Admission, removal, key rotation, liveness-tick — all share <span class="mono">apply(tag, new_root, expected_epoch, proof, extras)</span>.</p>
-  <p class="body muted">The SEP is normative for the contract interface only. Each tag points to an immutable <span class="mono">(vk, vk_digest, pi_schema_hash, bootstrap_root, registrant)</span> and a mutable <span class="mono">(current_root, epoch)</span>. Concrete governance predicates are deferred to downstream proposals — this is the host, not the policy.</p>
+  <p class="body muted">The SEP is normative for the contract interface only. Each tag points to an immutable <span class="mono">(vk, vk_digest, vk_digest_fr, pi_schema_hash, extras_arity, bootstrap_root, registrant)</span> and a mutable <span class="mono">(current_root, epoch)</span>. Concrete governance predicates are deferred to downstream proposals — this is the host, not the policy.</p>
 
   <div class="bom" aria-label="Contract surface">
     <span class="b">register_relation</span><span class="sep">·</span>
@@ -1031,6 +1031,7 @@
     <div><span class="nm">current_root(tag)</span><span class="rt">Field · advances with each apply</span></div>
     <div><span class="nm">current_epoch(tag)</span><span class="rt">u64 · monotone counter</span></div>
     <div><span class="nm">vk_digest(tag)</span><span class="rt">BytesN&lt;32&gt; · immutable</span></div>
+    <div><span class="nm">vk_digest_fr(tag)</span><span class="rt">Field · immutable · FS slot 1</span></div>
     <div><span class="nm">bootstrap_root(tag)</span><span class="rt">Field · immutable</span></div>
     <div><span class="nm">pi_schema_hash(tag)</span><span class="rt">BytesN&lt;32&gt; · immutable</span></div>
     <div><span class="nm">extras_arity(tag)</span><span class="rt">u32 · immutable</span></div>
@@ -1070,6 +1071,7 @@
                 <div class="sect immut"><span class="lk">▣</span> immutable · set at register_relation</div>
                 <dl>
                   <div><dt>vk_digest</dt><dd x-text="r.vk_digest"></dd></div>
+                  <div><dt>vk_digest_fr</dt><dd x-text="r.vk_digest_fr"></dd></div>
                   <div><dt>pi_schema_hash</dt><dd x-text="r.pi_schema_hash"></dd></div>
                   <div><dt>extras_arity</dt><dd x-text="r.extras_arity"></dd></div>
                   <div><dt>bootstrap_root</dt><dd x-text="r.bootstrap"></dd></div>
@@ -1324,13 +1326,13 @@
     <template x-if="swapPair!==null">
       <span>SOUNDNESS BROKEN · slots <span x-text="swapPair"></span> and <span x-text="(swapPair+1)%8"></span> transposed</span>
     </template>
-    <span class="vec" x-text="swapPair!==null ? ('conformance vector: tx_swap_'+swapPair+'_'+((swapPair+1)%8)) : '8 transposition vectors define the KAT set'"></span>
+    <span class="vec" x-text="swapPair!==null ? ('conformance vector: ' + (swapPair===7 ? 'tx_swap_wrap_7_0' : 'tx_swap_'+swapPair+'_'+(swapPair+1))) : '8 transposition vectors define the KAT set'"></span>
     <template x-if="swapPair!==null">
       <button class="btn" type="button" @click="setSwap(null)" style="padding:3px 10px;">clear</button>
     </template>
   </div>
 
-  <p class="caption">The eight transposition vectors <span class="mono">tx_swap_0_1</span> … <span class="mono">tx_swap_7_0</span> are the SEP's transcript-discipline KAT set. A conformant verifier rejects all eight. A verifier that accepts any of them is, by definition, off-spec.</p>
+  <p class="caption">The eight transposition vectors — seven linear (<span class="mono">tx_swap_0_1</span> … <span class="mono">tx_swap_6_7</span>) plus one cyclic wraparound (<span class="mono">tx_swap_wrap_7_0</span>) — are the SEP's transcript-discipline KAT set. A conformant verifier rejects all eight. A verifier that accepts any of them is, by definition, off-spec.</p>
 </section>
 
 <!-- ============== §6 Replay ============== -->
@@ -1433,7 +1435,7 @@
 <!-- ============== §7 Two-leaf-update with LCA ============== -->
 <section data-screen-label="07 LCA constraint" aria-labelledby="lca-h" x-data="lca()">
   <p class="eyebrow">§7 · two-leaf-update · the LCA constraint</p>
-  <h2 class="heading" id="lca-h">Two Merkle paths must agree on every level strictly above their LCA.</h2>
+  <h2 class="heading" id="lca-h">Two Merkle paths must agree at and above their LCA.</h2>
   <p class="lede">For relations using the in-tree spent-slot pattern, a single step updates two leaves: the admitter's (LIVE → SPENT) and an empty slot (∅ → NEW). Each leaf carries its own sibling path. The two paths must be <em>witness-compatible</em>: identical above the lowest common ancestor (LCA), independent below. Drag either marker.</p>
 
   <div class="lca-card">
@@ -1466,7 +1468,7 @@
     <div class="lca-legend" aria-label="LCA diagram legend">
       <span><span class="sw" style="background: var(--wire);"></span>path_a · admitter (idx_a, LIVE→SPENT)</span>
       <span><span class="sw" style="background: var(--gold);"></span>path_e · empty slot (idx_e, ∅→NEW)</span>
-      <span><span class="sw" style="background: var(--ok); height:2px;"></span>must-be-equal · siblings strictly above LCA</span>
+      <span><span class="sw" style="background: var(--ok); height:2px;"></span>must-be-equal · siblings at and above LCA</span>
       <span><span class="sw" style="background: var(--plum);"></span>LCA · lowest common ancestor</span>
     </div>
 
@@ -1477,7 +1479,7 @@
     </template>
   </div>
 
-  <p class="caption" id="lca-caption">For two distinct leaves at <span class="mono">idx_a, idx_e</span> in a depth-<span class="mono">D</span> tree, let <span class="mono">h_LCA</span> be the height of their lowest common ancestor. The two-witness compatibility constraint is <span id="lca-constraint" data-tex="\mathsf{path}_a[\ell] = \mathsf{path}_e[\ell]\ \text{for every}\ \ell\ \text{with}\ h_{\text{LCA}} < \ell \le D - 1"></span>. Below the LCA the paths are independent; at the LCA the two sibling values are <em>recomputed subtree roots, not equal in general</em>; above the LCA they must be bit-identical.</p>
+  <p class="caption" id="lca-caption">For two distinct leaves at <span class="mono">idx_a, idx_e</span> in a depth-<span class="mono">D</span> tree, let <span class="mono">h_LCA</span> be the height of their lowest common ancestor. The two-witness compatibility constraint is <span id="lca-constraint" data-tex="\mathsf{path}_a[\ell] = \mathsf{path}_e[\ell]\ \text{for every}\ \ell\ \text{with}\ h_{\text{LCA}} \le \ell \le D - 1"></span>. Three regions: <em>independent</em> at levels <span class="mono">0 ≤ ℓ ≤ h_LCA − 2</span> (disjoint subtrees, siblings share nothing); <em>cross-related</em> at level <span class="mono">ℓ = h_LCA − 1</span> (each path references the other leaf's level-(h_LCA−1) ancestor — recomputed subtree roots, not equal in general); <em>equal</em> at levels <span class="mono">h_LCA ≤ ℓ ≤ D − 1</span> (shared ancestors, hence shared siblings; bit-identical).</p>
 </section>
 
 <!-- ============== §8 TTL ============== -->
@@ -1657,7 +1659,7 @@
           </thead>
           <tbody>
             <tr><td>TRANSCRIPT_TAG_FR</td><td>FS slot 0 · domain-separate the AGMK transcript</td><td>1 Fr</td><td class="pin">v0.5.0 · 32B BE</td></tr>
-            <tr><td>VK_DIGEST_TAG_FR</td><td>FS slot 1 · H(VK_DIGEST_TAG_FR, vk_digest)</td><td>1 Fr</td><td class="pin">v0.5.0 · 32B BE</td></tr>
+            <tr><td>VK_DIGEST_TAG_FR</td><td>FS slot 1 · vk_digest_fr = H(VK_DIGEST_TAG_FR, vk_digest), cached in RelationRecord at registration</td><td>1 Fr</td><td class="pin">v0.5.0 · 32B BE</td></tr>
             <tr><td>TAG_TAG_FR</td><td>PI slot 3 · t_Fr = H(TAG_TAG_FR, tag)</td><td>1 Fr</td><td class="pin">v0.5.0 · 32B BE</td></tr>
             <tr><td>EXTRAS_TAG_FR</td><td>PI slot 4 · r_ext = H(EXTRAS_TAG_FR, extras)</td><td>1 Fr</td><td class="pin">v0.5.0 · 32B BE</td></tr>
             <tr><td>SCHEMA_TAG_FR</td><td>pi_schema_hash construction · binds schema to vk</td><td>1 Fr</td><td class="pin">v0.5.0 · 32B BE</td></tr>
@@ -1672,7 +1674,7 @@
 <!-- ============== §12 Iteration timeline ============== -->
 <section data-screen-label="12 Iteration timeline" aria-labelledby="iter-h">
   <p class="eyebrow">§12 · revisions</p>
-  <h2 class="heading" id="iter-h">Five iterations. The interface has been pressure-tested.</h2>
+  <h2 class="heading" id="iter-h">Eight iterations. The interface has been pressure-tested.</h2>
   <p class="lede">Reviewers can see the design has moved. Each line summarises one revision; the contract surface is the same shape now as in v0.3.0, but the discipline around it (TTL, replay split, two-leaf LCA) has tightened.</p>
 
   <div class="iter">
@@ -1697,9 +1699,13 @@
         <span class="v">v0.4.1</span>
         <span class="d">TTL discipline · unconditional bump-to-max on every apply · bump_ttl permissionless</span>
       </div>
-      <div class="iter-step head">
+      <div class="iter-step">
         <span class="v">v0.4.2</span>
         <span class="d">two-leaf-update LCA constraint made explicit · matches in-tree spent-slot pattern</span>
+      </div>
+      <div class="iter-step head">
+        <span class="v">v0.4.3</span>
+        <span class="d">LCA range fixed to h_LCA ≤ ℓ ≤ D−1 · Soroban trait → struct/impl · vk_digest_fr cached in RelationRecord · transcript vectors split into 7 linear + tx_swap_wrap_7_0 · Appendix A non-implementability notice</span>
       </div>
       <div class="iter-step">
         <span class="v">v0.5.0</span>
@@ -1718,7 +1724,7 @@
     <a href="Sep Anarchy.html">sep-anarchy synthesis sheet</a>
     <a href="#" aria-disabled="true">open PR</a>
   </div>
-  <p style="margin-top:8px; max-width:64ch;">AGMK · Anonymous Group-Membership Keystone · SEP draft v0.4.2. One contract, any update relation, no admin. Normative for the interface only; concrete governance predicates are deferred to downstream proposals. No tracking · no analytics · CDNs: Tailwind, Alpine, KaTeX.</p>
+  <p style="margin-top:8px; max-width:64ch;">AGMK · Anonymous Group-Membership Keystone · SEP draft v0.4.3. One contract, any update relation, no admin. Normative for the interface only; concrete governance predicates are deferred to downstream proposals. No tracking · no analytics · CDNs: Tailwind, Alpine, KaTeX.</p>
 </footer>
 
 <!-- Theme toggle -->
@@ -1786,12 +1792,13 @@
           does:[
             'asserts tag not present',
             'computes vk_digest = SHA-256(vk)',
+            'computes vk_digest_fr = H_bytes(VK_DIGEST_TAG_FR, vk_digest) · FS slot 1 cache',
             'writes RelationRecord(tag) — immutable',
             'writes RelationState(tag) = (bootstrap_root, 0)',
             'extends TTL on both to network_max'
           ],
           out:[
-            'emits relation_registered { tag, vk_digest, pi_schema_hash, registrant }',
+            'emits relation_registered { tag, registrant, vk_digest, vk_digest_fr, pi_schema_hash, bootstrap_root, extras_arity }',
             'returns ()'
           ],
           secref:'§3.2 · table 3'
@@ -1852,7 +1859,8 @@
       rels: [
         {
           tag:'onym_admit_anarchy_v1', kind:'admission',
-          vk_digest:'0x4a72…cf1d', pi_schema_hash:'0x91…be',
+          vk_digest:'0x4a72…cf1d', vk_digest_fr:'0x07a8…3f1d · cached FS slot 1',
+          pi_schema_hash:'0x91…be',
           extras_arity:'1 · spent-slot index (in-tree)',
           bootstrap:'0xfe00…0000 · empty depth-32 tree',
           registrant:'GA…ANYC',
@@ -1861,7 +1869,8 @@
         },
         {
           tag:'onym_admit_oneonone_v1', kind:'admission',
-          vk_digest:'0xb1a3…7e90', pi_schema_hash:'0x91…be',
+          vk_digest:'0xb1a3…7e90', vk_digest_fr:'0x21e0…0c44 · cached FS slot 1',
+          pi_schema_hash:'0x91…be',
           extras_arity:'2 · two co-signing members',
           bootstrap:'0xfe00…0000 · empty depth-32 tree',
           registrant:'GA…ONE1',
@@ -1870,7 +1879,8 @@
         },
         {
           tag:'onym_remove_quorum_v1', kind:'removal',
-          vk_digest:'0x2e44…aa12', pi_schema_hash:'0xb2…d4',
+          vk_digest:'0x2e44…aa12', vk_digest_fr:'0x18bf…9201 · cached FS slot 1',
+          pi_schema_hash:'0xb2…d4',
           extras_arity:'5 · quorum members + LIVE→REVOKED slot',
           bootstrap:'0x9c2f…b178 · forked from anarchy_v1@epoch=4000',
           registrant:'GA…QUOR',
@@ -1879,7 +1889,8 @@
         },
         {
           tag:'onym_rotate_key_v1', kind:'rotation',
-          vk_digest:'0xff09…3c01', pi_schema_hash:'0xc7…8a',
+          vk_digest:'0xff09…3c01', vk_digest_fr:'0x5d2c…7e88 · cached FS slot 1',
+          pi_schema_hash:'0xc7…8a',
           extras_arity:'3 · old_pk_commit + new_pk_commit + nullifier',
           bootstrap:'0x9c2f…b178 · forked from anarchy_v1@epoch=4000',
           registrant:'GA…ROTK',
@@ -1958,7 +1969,7 @@
       swapPair: null,
       slots: [
         { id:0, raw:'TRANSCRIPT_TAG_FR' },
-        { id:1, raw:'H(VK_DIGEST_TAG_FR, vk_digest)' },
+        { id:1, raw:'record.vk_digest_fr' },
         { id:2, raw:'pi_schema_hash' },
         { id:3, raw:'t_Fr' },
         { id:4, raw:'C_g' },
