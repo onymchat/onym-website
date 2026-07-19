@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Приватность · Onym</title>
+<meta name="description" content="Onym не собирает данные. Ни аккаунтов, ни номера телефона, ни почты, ни слежки, ни рекламы, ни аналитики. Ваши ключи, контакты и сообщения остаются на устройстве. Это наша политика конфиденциальности." />
+<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+<link rel="icon" type="image/png" href="/assets/icon-dark.png" />
+<link rel="apple-touch-icon" href="/assets/icon-dark.png" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Приватность · Onym" />
+<meta property="og:description" content="Мы не собираем данные. Ни аккаунтов, ни номера телефона, ни почты, ни слежки, ни рекламы, ни аналитики. Ключи и сообщения никогда не покидают устройство в открытом виде." />
+<meta property="og:image" content="https://onym.app/assets/og-card-about.jpg" />
+<link rel="alternate" hreflang="en" href="https://onym.app/privacy/" />
+<link rel="alternate" hreflang="ru" href="https://onym.app/ru/privacy/" />
+<link rel="alternate" hreflang="x-default" href="https://onym.app/privacy/" />
+<script>(function(){try{var p=(navigator.language||'').toLowerCase();if(!(p==='ru'||p.startsWith('ru-'))){var pa=location.pathname.replace(/^\/ru/,'')||'/';location.replace(pa);return;}}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
+    --hair:rgba(245,245,247,.10);
+    --card:#101013;
+    --shadow: 0 1px 0 rgba(0,0,0,.4), 0 30px 60px -30px rgba(0,0,0,.6);
+    --nav-bg: rgba(8,8,10,.72);
+  }
+  html[data-theme="light"]{
+    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
+    --hair:rgba(10,10,10,.08);
+    --card:#fbfbfd;
+    --shadow: 0 1px 2px rgba(10,10,10,.04), 0 12px 40px -24px rgba(10,10,10,.18);
+    --nav-bg: rgba(245,245,247,.72);
+  }
+  html,body{ background:var(--bg); color:var(--fg); }
+  body{
+    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  .mono{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; }
+  .display{ font-weight:700; letter-spacing:-.04em; line-height:.95; }
+  .display-xl{ font-size: clamp(2.5rem, 7vw, 5rem); }
+  .display-md{ font-size: clamp(1.5rem, 3vw, 2.25rem); letter-spacing:-.03em; line-height:1.1; }
+  .eyebrow{ font-size:.78rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+  .hair{ border-color:var(--hair); }
+  .muted{ color:var(--muted); }
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:var(--nav-bg);
+    backdrop-filter:saturate(160%) blur(14px);
+    -webkit-backdrop-filter:saturate(160%) blur(14px);
+    border-bottom:1px solid var(--hair);
+  }
+  .mark{
+    display:inline-block; width:22px; height:22px; border-radius:22%;
+    background:url('/assets/icon-dark.png') center/cover no-repeat;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.06),
+      0 4px 16px -2px rgba(255,255,255,.14),
+      0 .5px 0 rgba(255,255,255,.10) inset;
+  }
+  html[data-theme="light"] .mark{
+    background:url('/assets/icon-light.png') center/cover no-repeat;
+    box-shadow:
+      0 4px 12px -3px rgba(10,10,10,.18),
+      0 .5px 0 rgba(255,255,255,.6) inset;
+  }
+  .toggle{
+    position:fixed; bottom:18px; right:18px; z-index:60;
+    background:var(--nav-bg);
+    border:1px solid var(--hair); border-radius:999px;
+    padding:4px; display:flex; gap:2px;
+    backdrop-filter:saturate(180%) blur(14px);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    box-shadow:0 8px 24px -10px rgba(10,10,10,.18);
+  }
+  .toggle button{
+    font-size:12px; letter-spacing:.04em; padding:7px 12px; border-radius:999px;
+    color:var(--muted);
+  }
+  .toggle button[aria-pressed="true"]{ background:var(--fg); color:var(--bg); }
+  a.link{
+    color:var(--fg); text-decoration:underline;
+    text-decoration-color:var(--hair); text-underline-offset:3px;
+    transition:text-decoration-color .15s ease;
+  }
+  a.link:hover{ text-decoration-color:var(--fg); }
+  .card{ background:var(--card); border:1px solid var(--hair); border-radius:16px; }
+</style>
+</head>
+<body>
+
+<div class="toggle" role="group" aria-label="Тема">
+  <button id="themeDark" aria-pressed="true">Тёмная</button>
+  <button id="themeLight" aria-pressed="false">Светлая</button>
+</div>
+
+<header class="nav">
+  <div class="max-w-[1100px] mx-auto px-6 h-[52px] flex items-center justify-between">
+    <a href="/ru/" class="flex items-center gap-3 hover:opacity-80" aria-label="Onym — главная">
+      <span class="mark" role="img" aria-label="Onym"></span>
+      <span class="text-[14px] font-medium tracking-tight">Onym <span class="muted">· Приватность</span></span>
+    </a>
+    <a href="/ru/" class="text-[12.5px] muted hover:text-[var(--fg)]">&larr; Назад</a>
+  </div>
+</header>
+
+<main class="max-w-[820px] mx-auto px-6 py-16 md:py-24">
+  <p class="eyebrow mb-5">Политика конфиденциальности</p>
+  <h1 class="display display-xl mb-8">Мы не собираем<br/>ваши данные.</h1>
+  <p class="text-[clamp(1.1rem,1.4vw,1.3rem)] muted leading-[1.55] max-w-[55ch]">
+    Onym устроен так, что собирать нечего. Ни аккаунта, ни номера телефона, ни почты, ни слежки, ни рекламы, ни аналитики. Ваша личность и ваши разговоры живут на вашем устройстве &mdash; а не на нашем.
+  </p>
+  <p class="muted mono text-[12px] mt-6">Обновлено 19 июля 2026</p>
+
+  <hr class="hair border-t my-16" style="border-top-style:solid;" />
+
+  <section class="space-y-12">
+    <div>
+      <h2 class="display display-md mb-4">Коротко</h2>
+      <ul class="space-y-3 text-[clamp(1rem,1.1vw,1.05rem)]">
+        <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Мы не спрашиваем, кто вы. Нет регистрации, номера телефона и почты.</span></li>
+        <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Никакой аналитики, рекламы и сторонних трекеров.</span></li>
+        <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Ваши ключи, контакты и сообщения создаются и хранятся на устройстве.</span></li>
+        <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Сообщения зашифрованы сквозным шифрованием. Мы не видим их содержимого.</span></li>
+        <li class="flex items-baseline gap-3"><span class="muted mono text-[12px] flex-shrink-0">&gt;</span><span>Раз у нас ничего нет — нечего продавать, сливать или выдавать по запросу.</span></li>
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="display display-md mb-4">Что мы собираем</h2>
+      <div class="muted leading-[1.7] space-y-4 text-[clamp(1rem,1.15vw,1.1rem)]">
+        <p><strong class="text-[var(--fg)] font-medium">Ничего.</strong> У Onym нет серверов, которые хранят ваши данные, и нет системы аккаунтов, где они могли бы храниться. Создание личности происходит целиком на телефоне; результат — криптографические ключи, а не запись в нашей базе данных.</p>
+        <p>Мы не собираем имена, номера телефонов, адреса почты, списки контактов, геолокацию, идентификаторы устройства, статистику использования и отчёты о сбоях. Нет ни конвейера аналитики Onym, ни рекламы, ни сторонних трекеров или SDK атрибуции внутри приложения.</p>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="display display-md mb-4">Что остаётся на устройстве</h2>
+      <div class="muted leading-[1.7] space-y-4 text-[clamp(1rem,1.15vw,1.1rem)]">
+        <p>Ваши приватные ключи, секретная фраза, контакты, участие в группах и история сообщений хранятся локально на устройстве. Секретная фраза из двенадцати слов покидает устройство только если <em>вы</em> сами её запишете или скопируете.</p>
+        <p>Мы не можем это прочитать. У нас нет копии. Если вы удалите приложение или потеряете устройство без секретной фразы — эти данные пропадут, и мы не сможем их восстановить, потому что у нас их никогда не было.</p>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="display display-md mb-4">Что видят третьи стороны</h2>
+      <div class="muted leading-[1.7] space-y-4 text-[clamp(1rem,1.15vw,1.1rem)]">
+        <p>Onym децентрализован, поэтому ваши сообщения идут через инфраструктуру, которой мы не владеем. Мы предпочитаем говорить об этом честно, а не делать вид, что её нет:</p>
+        <p><strong class="text-[var(--fg)] font-medium">Релеи и медиасерверы.</strong> Сообщения и приглашения идут через релеи Nostr; медиа (изображения, видео, голос) хранится на серверах Blossom. Они несут <em>шифротекст</em> &mdash; никогда не открытый текст &mdash; но оператор релея может видеть метаданные соединения: IP-адрес и время. Для максимальной приватности вы можете указать свои релеи и серверы или поднять их сами.</p>
+        <p><strong class="text-[var(--fg)] font-medium">Сеть Stellar и релеер.</strong> Состав группы закреплён в публичной сети Stellar через смарт-контракт; релеер отправляет подписанные транзакции и платит комиссии. Они видят шифротекст и обязательства в блокчейне &mdash; не ваши сообщения и не то, кто из участников отправил конкретное сообщение. Поднимите свой релеер и переключитесь на него в любой момент.</p>
+        <p><strong class="text-[var(--fg)] font-medium">Магазин приложений и ОС.</strong> Загрузка и обновление приложения идут через App Store (или Google Play на Android) с их собственными политиками конфиденциальности, которые мы не контролируем.</p>
+        <p>Полный разбор того, кто что видит, — на странице <a href="/ru/threat-model/" class="link">модели угроз</a>.</p>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="display display-md mb-4">Запросы данных</h2>
+      <div class="muted leading-[1.7] space-y-4 text-[clamp(1rem,1.15vw,1.1rem)]">
+        <p>У нас нет аккаунтов, хранилища сообщений и социального графа. Если мы получим юридический запрос на данные пользователя, честный ответ — предоставлять нечего. Единственное общее состояние — публичный смарт-контракт, который и так может прочитать любой.</p>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="display display-md mb-4">Дети</h2>
+      <div class="muted leading-[1.7] space-y-4 text-[clamp(1rem,1.15vw,1.1rem)]">
+        <p>Onym не предназначен для детей и не собирает сведения ни о ком осознанно — потому что не собирает никаких сведений вообще.</p>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="display display-md mb-4">Изменения этой политики</h2>
+      <div class="muted leading-[1.7] space-y-4 text-[clamp(1rem,1.15vw,1.1rem)]">
+        <p>Если политика изменится, обновлённая версия будет опубликована здесь с новой датой. Существенные изменения отметим в <a href="/ru/changelog/" class="link">списке изменений</a>.</p>
+      </div>
+    </div>
+
+    <div class="card p-6 md:p-8">
+      <h2 class="display display-md mb-4">Отказ от ответственности — без гарантий</h2>
+      <div class="muted leading-[1.7] space-y-4 text-[clamp(1rem,1.15vw,1.1rem)]">
+        <p>Onym — это бесплатное программное обеспечение с открытым исходным кодом, предоставляемое <strong class="text-[var(--fg)] font-medium">«как есть», без каких-либо гарантий</strong>, явных или подразумеваемых, включая, помимо прочего, гарантии товарной пригодности, пригодности для конкретной цели, доступности или безопасности.</p>
+        <p>В максимальной степени, допустимой законом, мейнтейнер, контрибьюторы и все, кто связан с проектом, <strong class="text-[var(--fg)] font-medium">не несут ответственности за любые потери, ущерб или иные последствия</strong>, возникшие в результате использования Onym — или невозможности его использовать. Это включает, помимо прочего: потерю доступа из-за утраченной или неправильно сохранённой секретной фразы; потерю, задержку или раскрытие сообщений и медиа; поведение релеев, серверов, сетей и другой инфраструктуры, которую используете вы или другие; и действия любого человека, с которым вы общаетесь.</p>
+        <p><strong class="text-[var(--fg)] font-medium">Вы отвечаете</strong> за сохранность своей секретной фразы, за безопасность своего устройства и за то, как вы используете приложение и с кем общаетесь. Надёжные инструменты приватности не делают рискованные решения безопасными. Используете Onym на свой страх и риск.</p>
+        <p>Ничто из вышесказанного не ограничивает ответственность, которая не может быть ограничена по применимому праву.</p>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="display display-md mb-4">Контакты</h2>
+      <div class="muted leading-[1.7] space-y-4 text-[clamp(1rem,1.15vw,1.1rem)]">
+        <p>Вопросы о приватности? Пишите на <a href="mailto:lead@onym.app" class="link">lead@onym.app</a>. Исходный код открыт во всех <a href="https://github.com/onymchat" class="link mono">репозиториях Onym</a> — проверьте эти утверждения сами.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="hair border-t mt-12" style="border-top-style:solid;">
+  <div class="max-w-[1100px] mx-auto px-6 py-10 flex flex-wrap items-center justify-between gap-4 text-[12px] muted mono">
+    <span>&copy; 2026 &middot; Onym &middot; под MIT</span>
+    <span>Распространяется по лицензии MIT</span>
+    <span>Никогда не платите своей идентичностью.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const root = document.documentElement;
+  const tD = document.getElementById('themeDark');
+  const tL = document.getElementById('themeLight');
+  function setTheme(t){
+    if (t === 'light'){
+      root.setAttribute('data-theme', 'light');
+      tD.setAttribute('aria-pressed', 'false');
+      tL.setAttribute('aria-pressed', 'true');
+    } else {
+      root.removeAttribute('data-theme');
+      tD.setAttribute('aria-pressed', 'true');
+      tL.setAttribute('aria-pressed', 'false');
+    }
+    try{ localStorage.setItem('onym.theme', t); }catch(e){}
+  }
+  tD.addEventListener('click', () => setTheme('dark'));
+  tL.addEventListener('click', () => setTheme('light'));
+  try{
+    const saved = localStorage.getItem('onym.theme');
+    if (saved) setTheme(saved);
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
