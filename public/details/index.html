@@ -20,7 +20,7 @@
 <link rel="alternate" hreflang="en" href="https://onym.app/" />
 <link rel="alternate" hreflang="ru" href="https://onym.app/ru/" />
 <link rel="alternate" hreflang="x-default" href="https://onym.app/" />
-<script>(function(){try{var p=(navigator.language||'').toLowerCase();if(p==='ru'||p.startsWith('ru-')){var pa=location.pathname;location.replace('/ru'+(pa==='/'?'/':pa));return;}}catch(e){}})();</script>
+<script>(function(){try{if(document.referrer){try{if(new URL(document.referrer).host===location.host)return}catch(e){}} var p=(navigator.language||'').toLowerCase();if(p==='ru'||p.startsWith('ru-')){var pa=location.pathname;location.replace('/ru'+(pa==='/'?'/':pa));return;}}catch(e){}})();</script>
 <script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>

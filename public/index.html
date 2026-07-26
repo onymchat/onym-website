@@ -16,7 +16,7 @@
 <link rel="alternate" hreflang="en" href="https://onym.app/"/>
 <link rel="alternate" hreflang="ru" href="https://onym.app/ru/"/>
 <link rel="alternate" hreflang="x-default" href="https://onym.app/"/>
-<script>(function(){try{var l=(navigator.language||"").toLowerCase();if(l==="ru"||l.startsWith("ru-"))location.replace("/ru/"+location.hash)}catch(e){}})();</script>
+<script>(function(){try{if(document.referrer){try{if(new URL(document.referrer).host===location.host)return}catch(e){}} var l=(navigator.language||"").toLowerCase();if(l==="ru"||l.startsWith("ru-"))location.replace("/ru/"+location.hash)}catch(e){}})();</script>
 <style>
   :root{--bg:#f5f5f7;--fg:#0a0a0a;--muted:#6e6e73;--card:#fbfbfd;--hair:rgba(10,10,10,.1);--glass:rgba(245,245,247,.82);--shadow:0 30px 80px -38px rgba(10,10,10,.3)}
   *{box-sizing:border-box}
