@@ -189,7 +189,7 @@
       <div class="phone-sticky">
 <div class="phone">
 <div class="screen">
-        <div class="shot active" data-screen="0">
+        <div class="shot" data-screen="0">
 <div class="ui settings-screen">
 <div class="ui-status">
 <span>19:22</span>
@@ -290,7 +290,7 @@
 </div>
 </div>
         <div class="shot" data-screen="1"><div class="ui new-group-screen"><div class="ui-status"><span>19:45</span><span class="ui-signals"><b>▮▮▮▮</b>⌁<i></i></span></div><div class="new-group-head"><div class="new-group-title">New Group</div><div class="new-group-step">Step 1 of 2</div></div><div class="group-avatar-wrap"><div class="group-avatar-mark"></div><span class="group-camera"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="4"/></svg></span></div><div class="new-group-content"><div class="group-field">Sunny Orchard</div><p class="group-helper">Visible to members. You can change this anytime.</p><div class="group-section-label">Invitation message</div><div class="group-field group-textarea">Add a greeting, group rules, or policy…</div><p class="group-helper">Shown to people before they accept your invite. Optional.</p><div class="group-section-label">Group type</div><div class="group-type-card"><span class="founder-icon"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14"/><path d="m8 19 2-8 6 5 6-5 2 8z"/><path d="M9 22h14"/></svg></span><div><div class="group-type-title">Founder</div><div class="group-type-copy">You’re the founder — you decide who joins and manage the group’s settings. Everyone can chat and share; only you control membership.</div></div></div></div><div class="new-group-actions"><div class="group-next">Next · Add people</div><div class="group-close">Close</div></div></div></div>
-        <div class="shot" data-screen="2">
+        <div class="shot active" data-screen="2">
 <div class="ui inbox">
 <div class="ui-status">
 <span>19:15</span>
@@ -471,43 +471,36 @@
         <li class="step active" data-step="0">
 <div class="step-inner">
 <span class="number">01</span>
-<h3>Start with an identity you own.</h3>
-<p>It is created on your phone—not registered with us. Back it up with your recovery phrase and take it with you.</p>
+<h3>It starts as a messenger.</h3>
+<p>Your chats, groups, and private conversations are where you expect them. No architecture lesson required.</p>
 </div>
 </li>
         <li class="step" data-step="1">
 <div class="step-inner">
 <span class="number">02</span>
-<h3>Create the place you want to talk.</h3>
-<p>Name the group, write the invitation, and choose its rules. The group is not a row in our private database.</p>
+<h3>Open a chat and just talk.</h3>
+<p>Messages and media feel familiar, while end-to-end encryption protects the conversation underneath.</p>
 </div>
 </li>
         <li class="step" data-step="2">
 <div class="step-inner">
 <span class="number">03</span>
-<h3>Keep separate private lives.</h3>
-<p>Each identity has its own contacts, groups, and history. Switch identity, and you switch inbox.</p>
+<h3>Then you discover the identity is yours.</h3>
+<p>It lives on your device—not in an Onym account. Back it up, move it, or build the open-source client yourself.</p>
 </div>
 </li>
         <li class="step" data-step="3">
 <div class="step-inner">
 <span class="number">04</span>
-<h3>Know what protects the group.</h3>
-<p>Messages are end-to-end encrypted. No phone number is exposed. Group state is anchored separately from the conversation.</p>
+<h3>The courier is separate.</h3>
+<p>Nostr relays carry encrypted envelopes. Use ours, choose another, or run your own—the courier never owns your identity.</p>
 </div>
 </li>
         <li class="step" data-step="4">
 <div class="step-inner">
 <span class="number">05</span>
-<h3>Choose who carries your messages.</h3>
-<p>Use the Onym relay, choose another Nostr relay, or run your own. The courier is replaceable—and never becomes your identity.</p>
-</div>
-</li>
-        <li class="step" data-step="5">
-<div class="step-inner">
-<span class="number">06</span>
-<h3>Then just talk.</h3>
-<p>The architecture stays out of the way. Underneath, each replaceable part keeps any single operator from owning the whole path.</p>
+<h3>The notary is separate too.</h3>
+<p>Stellar anchors group state without carrying the conversation. Replace or operate each service independently: identity, courier, and notary never collapse into one owner.</p>
 </div>
 </li>
       </ol>
@@ -540,14 +533,14 @@
 </div>
 </footer>
 <script>
-  const steps=[...document.querySelectorAll(".step")],shots=[...document.querySelectorAll(".shot")],dots=[...document.querySelectorAll(".dot")];
+  const steps=[...document.querySelectorAll(".step")],shots=[...document.querySelectorAll(".shot")],dots=[...document.querySelectorAll(".dot")],screenOrder=[2,5,0,4,3];
   let active=-1,raf=0;
   function update(){
     raf=0;let next=0,line=innerHeight*.7;
     steps.forEach((step,i)=>{if(step.getBoundingClientRect().top<line)next=i});
     if(next===active)return;active=next;
     steps.forEach((el,i)=>el.classList.toggle("active",i===active));
-    shots.forEach((el,i)=>el.classList.toggle("active",i===active));
+    shots.forEach(el=>el.classList.toggle("active",Number(el.dataset.screen)===screenOrder[active]));
     dots.forEach((el,i)=>el.classList.toggle("active",i===active));
   }
   addEventListener("scroll",()=>{if(!raf)raf=requestAnimationFrame(update)},{passive:true});
