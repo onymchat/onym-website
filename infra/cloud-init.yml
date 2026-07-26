@@ -45,6 +45,17 @@ write_files:
         encode gzip
         file_server
 
+        # HTML must always be revalidated, never served stale from the
+        # browser cache. The pages carry a client-side locale redirect
+        # keyed on a stored preference; a stale page from an older
+        # deploy can disagree with a fresh one and ping-pong the user
+        # between / and /ru/. no-cache forces a conditional request
+        # (etag/last-modified still make that cheap: 304 when unchanged)
+        # so version skew can't happen. Assets (hashed-ish, immutable
+        # enough) keep Caddy's default caching.
+        @html path_regexp html_or_dir (\.html$|/$)
+        header @html Cache-Control "no-cache"
+
         # iOS OTA install needs the right Content-Types on the
         # manifest.plist + .ipa so itms-services:// can hand off.
         @plist path *.plist
