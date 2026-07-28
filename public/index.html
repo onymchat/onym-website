@@ -156,26 +156,26 @@
       <article class="layer">
 <span class="number">01 · YOURS</span>
 <h3>Identity</h3>
-<p>Your keys and history live on your device. There is no Onym account to suspend.</p>
+<p>Your identity is generated locally. Keys, contacts, group memberships, and message history stay on your device, never in an Onym account database. A twelve-word recovery phrase restores your identity on a new phone; Onym never receives it and cannot reset or revoke it.</p>
 <strong>No phone number. No email.</strong>
 </article>
       <article class="layer">
 <span class="number">02 · OPEN</span>
 <h3>Messenger</h3>
-<p>The iPhone and Android clients are open source. Inspect the code or build the app yourself.</p>
+<p>The iPhone and Android clients are open source and MIT-licensed. End-to-end encryption happens on your device; chats and history remain local. Inspect the interface, cryptography, message formats, and network behavior before you trust it; then build or fork the app yourself.</p>
 <strong>A window, not a gatekeeper.</strong>
 </article>
       <article class="layer">
 <span class="number">03 · REPLACEABLE</span>
 <h3>Courier</h3>
-<p>Nostr relays carry encrypted messages. Pick a relay you trust or operate your own.</p>
+<p>Nostr relays carry encrypted messages and invitations; Blossom servers store encrypted media. Operators see connection metadata—IP address, timing, and size—but never message plaintext or private keys. Choose another service, use several, or run your own.</p>
 <strong>The courier cannot read the letter.</strong>
 </article>
       <article class="layer">
 <span class="number">04 · VERIFIABLE</span>
 <h3>Notary</h3>
 <p>Stellar contracts enforce group rules against cryptographic membership commitments—not a readable member list, group name, or conversation. The ledger still reveals group-level metadata such as the governance model, capacity tier, update timing, and sometimes a member count.</p>
-<strong>The notary verifies membership without seeing the roster.</strong>
+<strong>The notary never sees the roster.</strong>
 </article>
     </div>
   </div>
