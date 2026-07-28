@@ -21,7 +21,7 @@
   :root{--bg:#f5f5f7;--fg:#0a0a0a;--muted:#6e6e73;--card:#fbfbfd;--hair:rgba(10,10,10,.1);--glass:rgba(245,245,247,.82);--shadow:0 30px 80px -38px rgba(10,10,10,.3)}
   *{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}
   .mono,.eyebrow,.number{font-family:"SF Mono",Menlo,monospace}.nav{position:fixed;z-index:50;inset:0 0 auto;background:var(--glass);border-bottom:1px solid var(--hair);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}.nav-inner{height:58px;max-width:1180px;margin:auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:9px;font-weight:650;font-size:15px}.brand img{width:21px;height:21px;border-radius:5px}.nav-links{display:flex;align-items:center;gap:22px;font-size:13px;color:var(--muted)}.nav-cta,.button{border-radius:999px;padding:11px 18px;border:1px solid var(--hair)}.nav-cta,.button.primary{background:var(--fg);color:var(--bg);border-color:var(--fg)}
-  .wrap{width:min(1180px,calc(100% - 48px));margin:auto}.hero{min-height:100svh;padding:150px 0 90px;display:flex;align-items:center}.eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}h1,h2,h3,p{margin:0}h1{font-size:clamp(64px,10vw,138px);line-height:.88;letter-spacing:-.065em;max-width:1150px}.hero-copy{margin-top:36px;display:grid;grid-template-columns:minmax(0,650px) auto;gap:36px;align-items:end}.hero-copy p{font-size:clamp(20px,2.3vw,30px);line-height:1.25;color:var(--muted);letter-spacing:-.02em}.actions{display:flex;gap:10px;white-space:nowrap}.button{font-size:14px;display:inline-flex;align-items:center;justify-content:center}
+  .wrap{width:min(1180px,calc(100% - 48px));margin:auto}.hero{min-height:100svh;padding:150px 0 90px;display:flex;align-items:center}.eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}h1,h2,h3,p{margin:0}h1{font-size:clamp(64px,10vw,138px);line-height:.88;letter-spacing:-.065em;max-width:1150px}.hero-copy{margin-top:36px;display:grid;grid-template-columns:minmax(0,650px) auto;gap:36px;align-items:end}.hero-copy p{font-size:clamp(20px,2.3vw,30px);line-height:1.25;color:var(--muted);letter-spacing:-.02em}.actions{display:flex;gap:10px;white-space:nowrap;align-items:center}.button{font-size:14px;display:inline-flex;align-items:center;justify-content:center}.play-badge{display:inline-flex}.play-badge img{display:block;height:52px;width:auto;padding:4px 10px;box-sizing:content-box}.legal{margin:14px auto 0;font-size:11px}
   .ownership{padding:120px 0;border-top:1px solid var(--hair)}.section-head{display:grid;grid-template-columns:1fr 1fr;gap:50px;margin-bottom:70px}h2{font-size:clamp(48px,6.5vw,88px);line-height:.95;letter-spacing:-.055em}.section-head p{align-self:end;font-size:20px;line-height:1.45;color:var(--muted);max-width:540px}.layers{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--hair);border-radius:24px;overflow:hidden;background:var(--card)}.layer{min-height:320px;padding:28px;display:flex;flex-direction:column;border-right:1px solid var(--hair)}.layer:last-child{border:0}.number{font-size:11px;color:var(--muted);letter-spacing:.12em}.layer h3{font-size:30px;letter-spacing:-.035em;margin-top:auto}.layer p{font-size:15px;line-height:1.48;color:var(--muted);margin-top:12px}.layer strong{display:block;font-size:12px;margin-top:18px;font-weight:600}
   .flow{padding:120px 0;border-top:1px solid var(--hair)}.flow-intro{max-width:850px;margin-bottom:80px}.flow-intro p:last-child{font-size:20px;line-height:1.45;color:var(--muted);margin-top:24px}.flow-body{display:grid;grid-template-columns:minmax(0,1fr) 410px;gap:clamp(60px,9vw,130px);align-items:start}.phone-sticky{position:sticky;top:86px;grid-column:2;grid-row:1;display:flex;justify-content:center}.phone{width:390px;aspect-ratio:9/19.5;padding:9px;border-radius:50px;background:linear-gradient(180deg,#252527,#08080a);box-shadow:var(--shadow);position:relative}.screen{width:100%;height:100%;border-radius:41px;overflow:hidden;background:#fff;position:relative}.shot{position:absolute;inset:0;opacity:0;transition:opacity .45s ease}.shot.active{opacity:1}.shot img{display:block;width:100%;height:100%;object-fit:cover}.dots{position:absolute;z-index:3;left:50%;bottom:18px;transform:translateX(-50%);display:flex;gap:6px}.dot{width:5px;height:5px;border-radius:9px;background:rgba(0,0,0,.2);transition:.3s}.dot.active{width:18px;background:rgba(0,0,0,.72)}.steps{grid-column:1;grid-row:1;list-style:none;margin:0;padding:0}.step{min-height:74vh;display:flex;align-items:center;opacity:.28;transition:opacity .3s}.step.active{opacity:1}.step-inner{max-width:620px}.step h3{font-size:clamp(42px,5vw,70px);line-height:.98;letter-spacing:-.05em}.step p{font-size:18px;line-height:1.48;color:var(--muted);margin-top:20px;max-width:540px}.step .number{display:block;margin-bottom:14px}
   .close{padding:150px 0;border-top:1px solid var(--hair);text-align:center}.close h2{max-width:1000px;margin:auto}.close p{max-width:720px;margin:30px auto 0;font-size:21px;line-height:1.45;color:var(--muted)}.close .actions{justify-content:center;margin-top:36px}footer{border-top:1px solid var(--hair);padding:30px 0 44px;color:var(--muted);font-size:13px}.footer-inner{display:flex;justify-content:space-between;gap:24px}.footer-links{display:flex;gap:20px}
@@ -53,7 +53,7 @@
 <div class="hero-copy">
 <p>Личность остаётся на телефоне. Код мессенджера открыт. Вы выбираете, кто доставляет сообщения и кто заверяет состояние группы.</p>
 <div class="actions">
-<a class="button primary" href="/ru/qa/">Попробовать альфу</a>
+<a class="play-badge" href="https://play.google.com/store/apps/details?id=app.onym.android&amp;hl=ru"><img src="/assets/google-play-badge-ru.png" alt="Скачать из Google Play"/></a>
 <a class="button" href="#ownership">Как устроено владение</a>
 </div>
 </div>
@@ -423,11 +423,12 @@
 </section>
   <section class="close">
 <div class="wrap">
-<p class="eyebrow">iPhone · Android · открытый код</p>
+<p class="eyebrow">Android в Google Play · альфа для iPhone · открытый код</p>
 <h2>Приватный мессенджер, которым действительно владеете вы.</h2>
 <p>Используйте стандартные настройки. Замените курьера. Разверните нотариуса. Соберите клиент. Ваш разговор не зависит от контроля одной компании.</p>
 <div class="actions">
-<a class="button primary" href="/ru/qa/">Попробовать альфу</a>
+<a class="play-badge" href="https://play.google.com/store/apps/details?id=app.onym.android&amp;hl=ru"><img src="/assets/google-play-badge-ru.png" alt="Скачать из Google Play"/></a>
+<a class="button primary" href="/ru/qa/">Попробовать альфу для iOS</a>
 <a class="button" href="/ru/details/">Технические подробности</a>
 </div>
 </div>
@@ -443,6 +444,7 @@
 <a href="https://github.com/onymchat">GitHub</a>
 </div>
 </div>
+<p class="wrap legal">Google Play и логотип Google Play являются товарными знаками корпорации Google LLC.</p>
 </footer>
 <script>
   const steps=[...document.querySelectorAll(".step")],shots=[...document.querySelectorAll(".shot")],dots=[...document.querySelectorAll(".dot")],screenOrder=[2,5,0,4,3];let active=-1,raf=0;
