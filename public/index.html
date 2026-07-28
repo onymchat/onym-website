@@ -174,8 +174,8 @@
       <article class="layer">
 <span class="number">04 · VERIFIABLE</span>
 <h3>Notary</h3>
-<p>Stellar contracts record group membership and rules. Use one you trust or deploy your own.</p>
-<strong>The notary does not carry the conversation.</strong>
+<p>Stellar contracts enforce group rules against cryptographic membership commitments—not a readable member list, group name, or conversation. The ledger still reveals group-level metadata such as the governance model, capacity tier, update timing, and sometimes a member count.</p>
+<strong>The notary verifies membership without seeing the roster.</strong>
 </article>
     </div>
   </div>
@@ -502,7 +502,7 @@
 <div class="step-inner">
 <span class="number">05</span>
 <h3>The notary is separate too.</h3>
-<p>Stellar anchors group state without carrying the conversation. Replace or operate each service independently: identity, courier, and notary never collapse into one owner.</p>
+<p>Stellar verifies group updates against hidden membership commitments. It never stores the roster, name, or conversation, though the governance model, capacity tier, and state-change timing are public. Identity, courier, and notary never collapse into one owner.</p>
 </div>
 </li>
       </ol>
