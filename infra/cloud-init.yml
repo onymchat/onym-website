@@ -32,6 +32,13 @@ write_files:
     content: |
       # Onym site config. TLS auto-provisioned by Caddy via Let's
       # Encrypt as soon as DNS for onym.app points to this droplet.
+
+      # Sibling sites on this droplet (onym.foundation, ...) deploy
+      # their own vhost files into sites.d from their own repos; this
+      # file never carries their config. A glob import that matches
+      # nothing is valid, so this is safe on a fresh droplet too.
+      import /etc/caddy/sites.d/*.caddy
+
       onym.app, www.onym.app {
         root * /var/www/onym
 
@@ -85,7 +92,9 @@ runcmd:
   - chmod 700 /home/deploy/.ssh
   - chmod 600 /home/deploy/.ssh/authorized_keys
 
-  # 2. Web root: deploy-owned, world-readable so caddy user can serve
+  # 2. Web root: deploy-owned, world-readable so caddy user can serve.
+  # sites.d holds vhosts owned by sibling-site repos (see Caddyfile import).
+  - mkdir -p /etc/caddy/sites.d
   - mkdir -p /var/www/onym
   - chown -R deploy:deploy /var/www/onym
   - chmod 755 /var/www/onym
