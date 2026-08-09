@@ -912,6 +912,15 @@
     </div>
   </div>
 
+  <h2>Authorship is provable, on purpose</h2>
+  <p>Every message carries a signature by the sender's identity key over the exact bytes of the message body. This is not the same thing as the transport authentication that proves a message reached you unaltered: it is a <em>transferable</em> proof, one the recipient can hand to somebody who was never in the conversation.</p>
+  <p>So the guarantee below is one Onym deliberately does <strong>not</strong> offer:</p>
+  <ul>
+    <li><strong>Deniability.</strong> You cannot credibly claim a message attributed to your key was fabricated. A recipient can prove to an arbitrary third party that the holder of that key wrote those exact words. Some messengers offer repudiable authentication, where a recipient knows who is talking to them but can prove it to nobody. Onym does not.</li>
+  </ul>
+  <p>The reason is moderation. The seat's evidence rule is that an authority verifies the accused's own signature over the disclosed content, which forces the property in both directions: if a recipient could manufacture that signature, any user could be framed for words they never wrote; if nobody could produce it, no report could be checked and abuse would be unanswerable. A messenger that wants reportable harassment has to give up deniability. We would rather say so here than let anyone discover it from a subpoena.</p>
+  <p>What this does not change: the signature lives inside the encryption. Relays, media servers, the relayer and the chain still see ciphertext. Nobody outside a conversation learns a message exists, and the proof is only ever as identifying as the key it names &mdash; which is a public key, not a name, and is linked to a person only by information Onym never holds.</p>
+
   <h2>What Onym does not protect against</h2>
   <p>Counterintuitively, this section earns more trust than any positive claim. We would rather be narrow than wrong. Six categories of threat live outside Onym's perimeter. The diagram below names them; the prose afterwards spells each one out.</p>
 
