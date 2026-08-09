@@ -157,6 +157,17 @@
     </div>
 
     <div>
+      <h2 class="display display-md mb-4">Who wrote a message, and who can prove it</h2>
+      <div class="muted leading-[1.7] space-y-4 text-[clamp(1rem,1.15vw,1.1rem)]">
+        <p>Every message you send is signed by your identity key. That signature travels with the message, so anyone who receives it can prove to a third party &mdash; a moderation authority, a court, a journalist, anyone at all &mdash; that <em>the holder of that key</em> wrote those exact words. You cannot later deny having sent them, and you cannot take the proof back.</p>
+        <p><strong class="text-[var(--fg)] font-medium">This is a deliberate trade, and it is the price of being able to report abuse.</strong> A report has to carry evidence the accused cannot disown and the reporter cannot fabricate. If a recipient could produce that proof themselves, anyone could be framed for anything; if nobody could produce it, harassment would be unreportable. There is no third option, so we chose the one where an accusation can be checked.</p>
+        <p><strong class="text-[var(--fg)] font-medium">Your identity is a public key, not your name.</strong> It is not an account, a phone number, or an email address, and nothing in Onym ties it to you. The proof says &ldquo;this key wrote this&rdquo; &mdash; it does not say who holds the key. It becomes a proof about <em>you</em> only if that key is already linked to you by something outside Onym: you published it, you reused it elsewhere, you told someone, or someone correlated it. Treat your identity key as public and long-lived, because in this respect it behaves like one.</p>
+        <p>This applies to every message, not only messages that get reported, and not only if you have consented to a moderation authority. The signature exists whether or not anyone ever looks at it.</p>
+        <p>What it does <em>not</em> do: it does not reveal the message to anyone who was not already in the conversation. The signature is inside the encryption, and relays still carry only ciphertext. It changes who can prove authorship of a message they already have &mdash; not who can read one.</p>
+      </div>
+    </div>
+
+    <div>
       <h2 class="display display-md mb-4">Data requests</h2>
       <div class="muted leading-[1.7] space-y-4 text-[clamp(1rem,1.15vw,1.1rem)]">
         <p>We have no accounts, no message store, and no social graph. If we receive a legal request for user data, our honest answer is that we have nothing to produce. The only shared state is the public smart contract, which anyone can already read.</p>
