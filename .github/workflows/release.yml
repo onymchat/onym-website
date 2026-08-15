@@ -133,7 +133,12 @@ jobs:
     env:
       IP: ${{ needs.ensure-droplet.outputs.ip }}
     steps:
+      # lfs: true is load-bearing — media under public/assets/ lives in
+      # git-lfs, and a plain checkout leaves 131-byte pointer files that
+      # rsync would happily ship to production as "images".
       - uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: Configure SSH
         env:
