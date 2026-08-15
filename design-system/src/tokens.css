@@ -1,0 +1,119 @@
+/* Onym design tokens.
+   Color values are the authoritative OnymTokens / OnymAccent values from the
+   OnymDesign Swift package (onym-ios); glass values come from the marketing
+   site's iOS mock. Light is the default; dark applies via
+   [data-on-theme="dark"] or prefers-color-scheme when theme is auto. */
+
+.on-screen {
+  /* surfaces */
+  --on-bg: #ffffff;
+  --on-surface: #f5f5f7;
+  --on-surface2: #ffffff;
+  --on-surface3: #ebebef;
+
+  /* text */
+  --on-text: #0a0a0c;
+  --on-text2: rgba(10, 10, 12, 0.62);
+  --on-text3: rgba(10, 10, 12, 0.42);
+
+  /* hairlines */
+  --on-hairline: rgba(0, 0, 0, 0.06);
+  --on-hairline-strong: rgba(0, 0, 0, 0.12);
+
+  /* semantic */
+  --on-green: #1fa84a;
+  --on-red: #e5392e;
+  --on-blue: #1f86e0;
+  --on-on-accent: #ffffff;
+
+  /* accent palette (per-sender identity accents) */
+  --on-accent-orange: #e85f2a;
+  --on-accent-blue: #1f86e0;
+  --on-accent-green: #1fa84a;
+  --on-accent-purple: #8b4deb;
+  --on-accent-pink: #e03253;
+  --on-accent-yellow: #d9a400;
+
+  /* settings icon-tile palette (static across themes) */
+  --on-tile-purple: #a04ce0;
+  --on-tile-blue: #0a84ff;
+  --on-tile-indigo: #5b5be2;
+  --on-tile-orange: #ff7a2d;
+  --on-tile-green: #30b45a;
+  --on-tile-gray: #8e8e93;
+  --on-tile-red: #e5392e;
+  --on-tile-teal: #2bb3cf;
+  --on-tile-amber: #ff9500;
+
+  /* liquid glass */
+  --on-glass: rgba(255, 255, 255, 0.58);
+  --on-glass-bd: rgba(255, 255, 255, 0.6);
+  --on-glass-hi: rgba(255, 255, 255, 0.9);
+  --on-glass-shadow: 0 10px 32px -6px rgba(24, 24, 40, 0.22);
+
+  /* shape */
+  --on-radius-card: 14px;
+  --on-radius-field: 12px;
+  --on-radius-tile: 7px;
+  --on-radius-bubble: 14px;
+  --on-radius-pill: 999px;
+
+  /* type */
+  --on-font: -apple-system, BlinkMacSystemFont, system-ui, "Helvetica Neue",
+    sans-serif;
+  --on-font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.on-screen[data-on-theme="dark"] {
+  --on-bg: #000000;
+  --on-surface: #0e0e10;
+  --on-surface2: #17171a;
+  --on-surface3: #1f1f23;
+  --on-text: #f2f2f4;
+  --on-text2: rgba(242, 242, 244, 0.62);
+  --on-text3: rgba(242, 242, 244, 0.4);
+  --on-hairline: rgba(255, 255, 255, 0.07);
+  --on-hairline-strong: rgba(255, 255, 255, 0.12);
+  --on-green: #34c759;
+  --on-red: #ff453a;
+  --on-blue: #3fa8ff;
+  --on-on-accent: #000000;
+  --on-accent-orange: #ff7a45;
+  --on-accent-blue: #3fa8ff;
+  --on-accent-green: #3dd66e;
+  --on-accent-purple: #b278ff;
+  --on-accent-pink: #ff4d6d;
+  --on-accent-yellow: #ffc93c;
+  --on-glass: rgba(58, 58, 62, 0.48);
+  --on-glass-bd: rgba(255, 255, 255, 0.13);
+  --on-glass-hi: rgba(255, 255, 255, 0.12);
+  --on-glass-shadow: 0 12px 34px -8px rgba(0, 0, 0, 0.65);
+}
+
+@media (prefers-color-scheme: dark) {
+  .on-screen:not([data-on-theme="light"]):not([data-on-theme="dark"]) {
+    --on-bg: #000000;
+    --on-surface: #0e0e10;
+    --on-surface2: #17171a;
+    --on-surface3: #1f1f23;
+    --on-text: #f2f2f4;
+    --on-text2: rgba(242, 242, 244, 0.62);
+    --on-text3: rgba(242, 242, 244, 0.4);
+    --on-hairline: rgba(255, 255, 255, 0.07);
+    --on-hairline-strong: rgba(255, 255, 255, 0.12);
+    --on-green: #34c759;
+    --on-red: #ff453a;
+    --on-blue: #3fa8ff;
+    --on-on-accent: #000000;
+    --on-accent-orange: #ff7a45;
+    --on-accent-blue: #3fa8ff;
+    --on-accent-green: #3dd66e;
+    --on-accent-purple: #b278ff;
+    --on-accent-pink: #ff4d6d;
+    --on-accent-yellow: #ffc93c;
+    --on-glass: rgba(58, 58, 62, 0.48);
+    --on-glass-bd: rgba(255, 255, 255, 0.13);
+    --on-glass-hi: rgba(255, 255, 255, 0.12);
+    --on-glass-shadow: 0 12px 34px -8px rgba(0, 0, 0, 0.65);
+  }
+}

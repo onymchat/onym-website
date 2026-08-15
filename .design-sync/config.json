@@ -1,0 +1,11 @@
+{
+  "projectId": "2d6ac2c8-44d1-4cfa-bf71-de5aeaf42684",
+  "shape": "package",
+  "pkg": "@onym/design",
+  "globalName": "OnymDesign",
+  "buildCmd": "npm --prefix design-system run build",
+  "cssEntry": "dist/styles.css",
+  "docsDir": "docs",
+  "readmeHeader": ".design-sync/conventions.md",
+  "provider": { "component": "Screen" }
+}
