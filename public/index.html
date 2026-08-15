@@ -45,11 +45,11 @@
   .button{font-size:14px;display:inline-flex;align-items:center;justify-content:center}
   .play-badge{display:inline-flex}
   .play-badge img{display:block;height:60px;width:auto}
-  .tf-badge{display:inline-flex;align-items:center;gap:10px;height:46px;padding:0 16px 0 13px;background:#000;color:#fff;border:1px solid #a6a6a6;border-radius:8px}
-  .tf-badge svg{width:22px;height:26px;fill:currentColor;flex:none}
+  .tf-badge{display:inline-flex;align-items:center;gap:9px;height:40px;padding:0 14px 0 12px;background:#000;color:#fff;border:1px solid #a6a6a6;border-radius:5px}
+  .tf-badge svg{width:19px;height:23px;fill:currentColor;flex:none}
   .tf-badge-copy{display:flex;flex-direction:column;line-height:1;text-align:left}
-  .tf-badge-copy small{font-size:10px;font-weight:400;letter-spacing:.02em;margin-bottom:3px}
-  .tf-badge-copy b{font-size:19px;font-weight:600;letter-spacing:-.01em}
+  .tf-badge-copy small{font-size:9px;font-weight:400;letter-spacing:.02em;margin-bottom:2px}
+  .tf-badge-copy b{font-size:16px;font-weight:600;letter-spacing:-.01em}
   .legal{margin:14px auto 0;font-size:11px}
   .ownership{padding:120px 0;border-top:1px solid var(--hair)}
   .section-head{display:grid;grid-template-columns:1fr 1fr;gap:50px;margin-bottom:70px}
@@ -67,8 +67,9 @@
   .flow-intro p:last-child{font-size:20px;line-height:1.45;color:var(--muted);margin-top:24px}
   .flow-body{display:grid;grid-template-columns:minmax(0,1fr) 410px;gap:clamp(60px,9vw,130px);align-items:start}
   .phone-sticky{position:sticky;top:86px;grid-column:2;grid-row:1;display:flex;justify-content:center}
-  .phone{width:390px;aspect-ratio:9/19.5;padding:9px;border-radius:50px;background:linear-gradient(180deg,#252527,#08080a);box-shadow:var(--shadow);position:relative}
-  .screen{width:100%;height:100%;border-radius:41px;overflow:hidden;background:var(--on-surface2);position:relative}
+  .phone{width:390px;padding:11px;border-radius:54px;background:linear-gradient(150deg,#5c5c63,#1a1a1e 22%,#08080a 58%,#43434a);box-shadow:0 40px 70px -30px rgba(12,12,32,.55),0 3px 10px rgba(0,0,0,.28);position:relative}
+  .screen{width:100%;aspect-ratio:393/852;border-radius:43px;overflow:hidden;background:var(--on-surface2);position:relative}
+  .island{position:absolute;top:1.2%;left:50%;transform:translateX(-50%);width:32%;aspect-ratio:3.5/1;border-radius:999px;background:#000;z-index:30}
   .shot{position:absolute;inset:0;opacity:0;transition:opacity .45s ease}
   .shot.active{opacity:1}
   .shot img{display:block;width:100%;height:100%;object-fit:cover}
@@ -122,7 +123,7 @@
   }
   @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.shot,.step,.dot{transition:none}}
 </style>
-<link rel="stylesheet" href="/assets/home-mock.css"/>
+<link rel="stylesheet" href="/assets/mock/onym-ds.css"/>
 </head>
 <body>
 <nav class="nav">
@@ -205,269 +206,14 @@
       <div class="phone-sticky">
 <div class="phone">
 <div class="screen">
-        <div class="shot" data-screen="0">
-<div class="ui settings-screen">
-<div class="ui-status">
-<span>19:22</span>
-<span class="ui-signals"><svg class="g-cell" viewBox="0 0 20 14"><rect x="0" y="9.5" width="3.2" height="4.5" rx="1"/><rect x="5.6" y="6.5" width="3.2" height="7.5" rx="1"/><rect x="11.2" y="3.3" width="3.2" height="10.7" rx="1"/><rect x="16.8" y="0" width="3.2" height="14" rx="1"/></svg><svg class="g-wifi" viewBox="0 0 16 12"><path d="M8 11.3 1 4.1a10 10 0 0 1 14 0L8 11.3Z"/></svg><span class="g-batt"><i></i></span></span>
+        <div class="shot" data-screen="0" data-mock="settings"></div>
+        <div class="shot" data-screen="1" data-mock="newgroup"></div>
+        <div class="shot active" data-screen="2" data-mock="chats"></div>
+        <div class="shot" data-screen="3" data-mock="welcome"></div>
+        <div class="shot" data-screen="4" data-mock="relays"></div>
+        <div class="shot" data-screen="5" data-mock="conversation"></div>
+        <div class="island" aria-hidden="true"></div>
 </div>
-<div class="settings-scroll">
-<div class="settings-title">Settings</div>
-<div class="profile-panel">
-<div class="profile-qr">
-<div class="qr-pattern">
-</div>
-</div>
-<div class="profile-name">Alice <span class="edit-pencil">✎</span>
-</div>
-<span class="active-chip">ACTIVE</span>
-<div class="profile-hint">Start a chat by scanning</div>
-<div class="profile-key">BLS b0338a0215bc…</div>
-<div class="profile-actions">
-<span class="profile-action">
-<svg viewBox="0 0 24 24">
-<path d="M12 16V3m-4 4 4-4 4 4"/>
-<path d="M7 10H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-2"/>
-</svg>Share</span>
-<span class="profile-action">
-<svg viewBox="0 0 24 24">
-<circle cx="9" cy="8" r="4"/>
-<path d="m12 11 7 7m-3-3 2-2m-5 5-2 2"/>
-</svg>Backup</span>
-<span class="profile-action danger">
-<svg viewBox="0 0 24 24">
-<path d="M4 7h16M9 7V4h6v3m-9 0 1 14h10l1-14M10 11v6m4-6v6"/>
-</svg>Delete</span>
-</div>
-<div class="carousel-dots">
-<i>
-</i>
-<i class="active">
-</i>
-<i>
-</i>
-</div>
-</div>
-<div class="settings-label">Anchors</div>
-<div class="settings-group">
-<div class="settings-row">
-<span class="settings-color-icon anchor"><svg viewBox="0 0 24 24"><path d="M9.5 14.5 14.5 9"/><path d="M7.3 17.7 5.8 19.2a3.5 3.5 0 0 1-5-5l4-4a3.5 3.5 0 0 1 5 0"/><path d="m16.7 6.3 1.5-1.5a3.5 3.5 0 1 1 5 5l-4 4a3.5 3.5 0 0 1-5 0"/></svg></span>
-<div class="settings-row-copy">
-<div class="settings-row-title">Anchors</div>
-<div class="settings-row-sub">Stellar · Testnet</div>
-</div>
-<span class="inbox-chevron">›</span>
-</div>
-<div class="settings-row">
-<span class="settings-color-icon relayer"><svg viewBox="0 0 24 24"><path d="M12 20V9"/><circle cx="12" cy="6" r="2"/><path d="M7.8 9.5a6 6 0 0 1 0-7M16.2 2.5a6 6 0 0 1 0 7M4.8 12.5a10 10 0 0 1 0-13M19.2-.5a10 10 0 0 1 0 13"/></svg></span>
-<div class="settings-row-copy">
-<div class="settings-row-title">Relayer</div>
-<div class="settings-row-sub">Stellar Soroban</div>
-</div>
-<span class="inbox-chevron">›</span>
-</div>
-</div>
-<p class="settings-note">Replace Onym-run instances with your own deployments for maximum privacy.</p>
-<div class="settings-label">Transport</div>
-<div class="settings-group">
-<div class="settings-row">
-<span class="settings-color-icon transport"><svg viewBox="0 0 24 24"><path d="M12 20V9"/><circle cx="12" cy="6" r="2"/><path d="M7.8 9.5a6 6 0 0 1 0-7M16.2 2.5a6 6 0 0 1 0 7M4.8 12.5a10 10 0 0 1 0-13M19.2-.5a10 10 0 0 1 0 13"/></svg></span>
-<div class="settings-row-copy">
-<div class="settings-row-title">Nostr Relays</div>
-<div class="settings-row-sub">Inbox + invitation transport</div>
-</div>
-<span class="inbox-chevron">›</span>
-</div>
-<div class="settings-row">
-<span class="settings-color-icon blossom"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3.5"/><circle cx="8.5" cy="9.5" r="1.7"/><path d="m4 17 4.5-4.5 3.5 3.5 3.5-3.5L20 16.5"/></svg></span>
-<div class="settings-row-copy">
-<div class="settings-row-title">Blossom Relays</div>
-<div class="settings-row-sub">Encrypted media storage</div>
-</div>
-<span class="inbox-chevron">›</span>
-</div>
-</div>
-</div>
-<div class="inbox-dock">
-<div class="tab-capsule">
-<span class="dock-tab">
-<svg viewBox="0 0 24 20">
-<path d="M2 2h13a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H9l-4 4v-4a3 3 0 0 1-3-3z"/>
-<path d="M8 5h11a3 3 0 0 1 3 3v8l-3-2"/>
-</svg>Chats</span>
-<span class="dock-tab active">
-<svg viewBox="0 0 24 24">
-<circle cx="12" cy="12" r="4"/>
-<path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"/>
-</svg>Settings</span>
-</div>
-<span class="dock-search">
-<svg viewBox="0 0 24 24">
-<circle cx="10" cy="10" r="7"/>
-<path d="m15 15 6 6"/>
-</svg>
-</span>
-</div>
-</div>
-</div>
-        <div class="shot" data-screen="1"><div class="ui new-group-screen"><div class="ui-status"><span>19:45</span><span class="ui-signals"><svg class="g-cell" viewBox="0 0 20 14"><rect x="0" y="9.5" width="3.2" height="4.5" rx="1"/><rect x="5.6" y="6.5" width="3.2" height="7.5" rx="1"/><rect x="11.2" y="3.3" width="3.2" height="10.7" rx="1"/><rect x="16.8" y="0" width="3.2" height="14" rx="1"/></svg><svg class="g-wifi" viewBox="0 0 16 12"><path d="M8 11.3 1 4.1a10 10 0 0 1 14 0L8 11.3Z"/></svg><span class="g-batt"><i></i></span></span></div><div class="new-group-head"><div class="new-group-title">New Group</div><div class="new-group-step">Step 1 of 2</div></div><div class="group-avatar-wrap"><div class="group-avatar-mark"></div><span class="group-camera"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="4"/></svg></span></div><div class="new-group-content"><div class="group-field">Sunny Orchard</div><p class="group-helper">Visible to members. You can change this anytime.</p><div class="group-section-label">Invitation message</div><div class="group-field group-textarea">Add a greeting, group rules, or policy…</div><p class="group-helper">Shown to people before they accept your invite. Optional.</p><div class="group-section-label">Group type</div><div class="group-type-card"><span class="founder-icon"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14"/><path d="m8 19 2-8 6 5 6-5 2 8z"/><path d="M9 22h14"/></svg></span><div><div class="group-type-title">Founder</div><div class="group-type-copy">You’re the founder — you decide who joins and manage the group’s settings. Everyone can chat and share; only you control membership.</div></div></div></div><div class="new-group-actions"><div class="group-next">Next · Add people</div><div class="group-close">Close</div></div></div></div>
-        <div class="shot active" data-screen="2">
-<div class="ui inbox">
-<div class="ui-status">
-<span>19:15</span>
-<span class="ui-signals"><svg class="g-cell" viewBox="0 0 20 14"><rect x="0" y="9.5" width="3.2" height="4.5" rx="1"/><rect x="5.6" y="6.5" width="3.2" height="7.5" rx="1"/><rect x="11.2" y="3.3" width="3.2" height="10.7" rx="1"/><rect x="16.8" y="0" width="3.2" height="14" rx="1"/></svg><svg class="g-wifi" viewBox="0 0 16 12"><path d="M8 11.3 1 4.1a10 10 0 0 1 14 0L8 11.3Z"/></svg><span class="g-batt"><i></i></span></span>
-</div>
-<div class="inbox-head">
-<div class="inbox-tools">
-<div class="identity-switch">
-<i class="person-glyph">
-</i>
-<i class="down-glyph">
-</i>
-</div>
-<div class="action-capsule">
-<span>
-<svg viewBox="0 0 24 24">
-<circle cx="14" cy="10" r="5"/>
-<path d="M4 20c0-4 3-7 7-7m-5-3v6m-3-3h6"/>
-</svg>
-</span>
-<span>
-<svg viewBox="0 0 24 24">
-<rect x="2.5" y="5" width="19" height="14" rx="2"/>
-<path d="m3.5 6 8.5 7 8.5-7"/>
-</svg>
-</span>
-<span>
-<svg viewBox="0 0 24 24">
-<path d="M7 3H4a1 1 0 0 0-1 1v3m14-4h3a1 1 0 0 1 1 1v3M7 21H4a1 1 0 0 1-1-1v-3m14 4h3a1 1 0 0 0 1-1v-3"/>
-<rect x="7" y="7" width="3" height="3"/>
-<rect x="14" y="7" width="3" height="3"/>
-<rect x="7" y="14" width="3" height="3"/>
-<path d="M14 14h3v3"/>
-</svg>
-</span>
-<span>
-<svg viewBox="0 0 24 24">
-<path d="M14 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9"/>
-<path d="m12 12 8-8 1 1-8 8-3 1z"/>
-</svg>
-</span>
-</div>
-</div>
-<div class="inbox-title">Alice</div>
-<div class="inbox-list">
-<div class="inbox-row">
-<span class="inbox-avatar photo-one">
-</span>
-<div class="inbox-copy">
-<div class="inbox-name">Weekend Trip</div>
-<div class="inbox-preview">Maya: I booked the cabin</div>
-</div>
-<span class="verified">✓</span>
-<span class="inbox-chevron">›</span>
-</div>
-<div class="inbox-row">
-<span class="inbox-avatar ring">
-</span>
-<div class="inbox-copy">
-<div class="inbox-name">Family</div>
-<div class="inbox-preview">Dad: Sunday at our place?</div>
-</div>
-<span class="verified">✓</span>
-<span class="inbox-chevron">›</span>
-</div>
-<div class="inbox-row">
-<span class="inbox-avatar photo-two">
-</span>
-<div class="inbox-copy">
-<div class="inbox-name">Project Team</div>
-<div class="inbox-preview">You: The new build is ready</div>
-</div>
-<span class="verified">✓</span>
-<span class="inbox-chevron">›</span>
-</div>
-<div class="inbox-row">
-<span class="inbox-avatar ring">
-</span>
-<div class="inbox-copy">
-<div class="inbox-name">Neighbors</div>
-<div class="inbox-preview">Leo: Found the missing cat</div>
-</div>
-<span class="verified">✓</span>
-<span class="inbox-chevron">›</span>
-</div>
-</div>
-</div>
-<div class="inbox-dock">
-<div class="tab-capsule">
-<span class="dock-tab active">
-<svg viewBox="0 0 24 20">
-<path d="M2 2h13a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H9l-4 4v-4a3 3 0 0 1-3-3z"/>
-<path d="M8 5h11a3 3 0 0 1 3 3v8l-3-2"/>
-</svg>Chats</span>
-<span class="dock-tab">
-<svg viewBox="0 0 24 24">
-<circle cx="12" cy="12" r="4"/>
-<path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"/>
-</svg>Settings</span>
-</div>
-<span class="dock-search">
-<svg viewBox="0 0 24 24">
-<circle cx="10" cy="10" r="7"/>
-<path d="m15 15 6 6"/>
-</svg>
-</span>
-</div>
-</div>
-</div>
-        <div class="shot" data-screen="3">
-<div class="ui">
-<div class="ui-status">
-<span>9:41</span>
-<span class="ui-signals"><svg class="g-cell" viewBox="0 0 20 14"><rect x="0" y="9.5" width="3.2" height="4.5" rx="1"/><rect x="5.6" y="6.5" width="3.2" height="7.5" rx="1"/><rect x="11.2" y="3.3" width="3.2" height="10.7" rx="1"/><rect x="16.8" y="0" width="3.2" height="14" rx="1"/></svg><svg class="g-wifi" viewBox="0 0 16 12"><path d="M8 11.3 1 4.1a10 10 0 0 1 14 0L8 11.3Z"/></svg><span class="g-batt"><i></i></span></span>
-</div>
-<div class="ui-top">
-<span class="ui-back">‹</span>
-<span class="ui-top-title">Weekend Trip</span>
-<span class="ui-icon">ⓘ</span>
-</div>
-<div class="ui-page">
-<div class="welcome-center">
-<span class="avatar">
-</span>
-<h5>Welcome</h5>
-<p>No messages yet. Say hi.</p>
-</div>
-<div class="ui-label">Invitation</div>
-<div class="invite">House rules: be kind, share the good photos, no spoilers. Glad you’re here.</div>
-<div class="promise">
-<span class="promise-icon">▣</span>
-<div>
-<b>End-to-end encrypted</b>
-<span>Only your group can read what’s sent.</span>
-</div>
-</div>
-<div class="promise">
-<span class="promise-icon">⚿</span>
-<div>
-<b>No phone number, no email</b>
-<span>Your identity is a key you own.</span>
-</div>
-</div>
-<div class="promise">
-<span class="promise-icon">✣</span>
-<div>
-<b>No central server</b>
-<span>Group membership is anchored on Stellar.</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-        <div class="shot" data-screen="4"><div class="ui relay-screen"><div class="ui-status"><span>19:42</span><span class="ui-signals"><svg class="g-cell" viewBox="0 0 20 14"><rect x="0" y="9.5" width="3.2" height="4.5" rx="1"/><rect x="5.6" y="6.5" width="3.2" height="7.5" rx="1"/><rect x="11.2" y="3.3" width="3.2" height="10.7" rx="1"/><rect x="16.8" y="0" width="3.2" height="14" rx="1"/></svg><svg class="g-wifi" viewBox="0 0 16 12"><path d="M8 11.3 1 4.1a10 10 0 0 1 14 0L8 11.3Z"/></svg><span class="g-batt"><i></i></span></span></div><div class="relay-nav"><span class="chat-nav-button"><svg viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></span><div class="relay-nav-title">Nostr Relays</div><span></span></div><div class="relay-content"><div class="relay-heading">Nostr Relays</div><div class="relay-label">Configured · 1</div><div class="relay-card"><span class="relay-icon"><svg viewBox="0 0 24 24"><path d="M12 20V9"/><circle cx="12" cy="6" r="2"/><path d="M7.8 9.5a6 6 0 0 1 0-7M16.2 2.5a6 6 0 0 1 0 7"/></svg></span><div class="relay-card-copy"><div class="relay-card-title">Onym Official <span class="default-chip">DEFAULT</span></div><div class="relay-card-sub">wss://nostr.onym.app</div></div></div><div class="relay-label relay-gap">Add custom URL</div><div class="relay-add"><div class="relay-field">wss://relay.example.com</div><span class="relay-add-button">Add</span></div><p class="relay-help">Use a private deployment, localhost, or any Nostr relay you trust. URLs must use the wss:// scheme.</p><div class="relay-card restore-card"><span class="relay-icon restore-icon"><svg viewBox="0 0 24 24"><path d="M4 7h6V1"/><path d="M5.5 5.5a8 8 0 1 1-1.4 8.5"/></svg></span><div class="relay-card-copy"><div class="relay-card-title">Restore default</div><div class="settings-row-sub">Re-install Onym Official as the only relay.</div></div></div><p class="relay-help">Changes apply on the next app launch. The inbox transport reads relays once at boot.</p><div class="relay-label relay-gap">Self-host</div><div class="relay-card"><span class="self-host-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="1"/><rect x="3" y="13" width="18" height="7" rx="1"/><path d="M17 7.5h1M17 16.5h1"/></svg></span><div class="relay-card-copy"><div class="settings-row-title">Run your own relay</div><div class="settings-row-sub">Deploy a Nostr relay with Docker</div></div><span class="inbox-chevron">›</span></div></div><div class="inbox-dock"><div class="tab-capsule"><span class="dock-tab"><svg viewBox="0 0 24 20"><path d="M2 2h13a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H9l-4 4v-4a3 3 0 0 1-3-3z"/><path d="M8 5h11a3 3 0 0 1 3 3v8l-3-2"/></svg>Chats</span><span class="dock-tab active"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"/></svg>Settings</span></div><span class="dock-search"><svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="7"/><path d="m15 15 6 6"/></svg></span></div></div></div>
-        <div class="shot" data-screen="5"><div class="ui conversation-screen"><div class="ui-status"><span>19:31</span><span class="ui-signals"><svg class="g-cell" viewBox="0 0 20 14"><rect x="0" y="9.5" width="3.2" height="4.5" rx="1"/><rect x="5.6" y="6.5" width="3.2" height="7.5" rx="1"/><rect x="11.2" y="3.3" width="3.2" height="10.7" rx="1"/><rect x="16.8" y="0" width="3.2" height="14" rx="1"/></svg><svg class="g-wifi" viewBox="0 0 16 12"><path d="M8 11.3 1 4.1a10 10 0 0 1 14 0L8 11.3Z"/></svg><span class="g-batt"><i></i></span></span></div><div class="chat-nav"><span class="chat-nav-button"><svg viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></span><div class="chat-nav-center"><div class="chat-nav-title">Weekend Trip</div><div class="chat-nav-sub">4 members</div></div><span class="chat-nav-button"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.1"/></svg></span></div><div class="message-stage"><div class="sender-name">Maya</div><div class="chat-message incoming">hello</div><div class="chat-message outgoing">Hello</div><div class="delivery">✓✓</div><div class="generic-photo" role="img" aria-label="A generic landscape photo attachment"></div><div class="delivery">✓✓</div></div><div class="conversation-composer"><span class="round-compose"><svg viewBox="0 0 24 24"><path d="m9 17 8-8a3 3 0 0 0-4-4l-9 9a5 5 0 0 0 7 7l9-9"/></svg></span><div class="compose-field">Message</div><span class="round-compose"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11v1a7 7 0 0 0 14 0v-1m-7 8v3"/></svg></span></div></div></div>
-      </div>
 <div class="dots" aria-hidden="true">
 <i class="dot active" data-dot="0">
 </i>
@@ -530,6 +276,7 @@
 <p>Use the defaults. Replace the courier. Deploy the notary. Build the client. Your conversation does not depend on one company remaining in control.</p>
 <div class="actions">
 <a class="play-badge" href="https://play.google.com/store/apps/details?id=app.onym.android"><img src="/assets/google-play-badge-en.png" alt="Get it on Google Play"/></a>
+<a class="tf-badge" href="https://testflight.apple.com/join/tUaJrYzh"><svg viewBox="0 0 384 512" aria-hidden="true"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.9-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg><span class="tf-badge-copy"><small>Get the beta on</small><b>TestFlight</b></span></a>
 <a class="button primary" href="/qa/">Try the iOS alpha</a>
 <a class="button" href="/details/">Read the technical details</a>
 </div>
@@ -576,5 +323,9 @@
   else reflect(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
 })();
 </script>
+<script defer src="/assets/mock/react.js"></script>
+<script defer src="/assets/mock/react-dom.js"></script>
+<script defer src="/assets/mock/onym-ds.js"></script>
+<script defer src="/assets/mock/screens.js"></script>
 </body>
 </html>
