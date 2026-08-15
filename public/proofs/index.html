@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Proofs · Onym</title>
 <meta name="description" content="An interactive walkthrough of Onym's metadata-hiding group registry: how legitimate updates are gated by a ~700-byte PLONK proof on Stellar, and why three Bob adversaries can't forge one." />
-<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#0e0e10" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
 <link rel="icon" type="image/png" href="/assets/icon-dark.png" />
 <link rel="apple-touch-icon" href="/assets/icon-dark.png" />
@@ -20,7 +20,7 @@
 <link rel="alternate" hreflang="en" href="https://onym.app/proofs/" />
 <link rel="alternate" hreflang="x-default" href="https://onym.app/proofs/" />
 <script>(function(){try{document.addEventListener('click',function(e){var a=e.target&&e.target.closest?e.target.closest('a[lang],a[hreflang]'):null;if(!a)return;var L=a.getAttribute('lang')||a.getAttribute('hreflang');if(L==='ru'||L==='en'){try{localStorage.setItem('onym.lang',L)}catch(_){}}},true)}catch(e){}try{var p=location.pathname,h=location.hash,isRu=/^\/ru(\/|$)/.test(p),q=new URLSearchParams(location.search).get('lang'),want;if(q==='ru'||q==='en'){want=q;try{localStorage.setItem('onym.lang',q)}catch(_){}}else{var s=null;try{s=localStorage.getItem('onym.lang')}catch(_){}if(s==='ru'||s==='en')want=s;else if(document.referrer){var same=false;try{same=new URL(document.referrer).host===location.host}catch(_){}if(same)want=isRu?'ru':'en';}}if(!want){var l=(navigator.language||'').toLowerCase();want=(l==='ru'||l.indexOf('ru-')===0)?'ru':'en';}if((want==='ru')!==isRu){var n=0;try{n=parseInt(sessionStorage.getItem('onym.rc')||'0',10)||0}catch(_){}if(n>=2){try{sessionStorage.removeItem('onym.rc')}catch(_){}return;}try{sessionStorage.setItem('onym.rc',n+1)}catch(_){}var t=want==='ru'?('/ru'+(p==='/'?'/':p)):(p.replace(/^\/ru/,'')||'/');location.replace(t+h);return;}try{sessionStorage.removeItem('onym.rc')}catch(_){}if(q){try{history.replaceState(null,'',p+h)}catch(_){}}}catch(e){}})();</script>
-<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
@@ -28,16 +28,13 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"
   onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});"></script>
 
+<link rel="stylesheet" href="/assets/onym.css"/>
 <style>
   :root{
-    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
-    --hair:rgba(245,245,247,.10);
-    --hair-strong:rgba(245,245,247,.18);
-    --card:#101013;
-    --card-2:#16161b;
-    --nav-bg: rgba(8,8,10,.72);
+    --hair-strong: var(--on-hairline-strong);
+    --card-2: var(--on-surface3);
 
-    /* Lane tints — subtle, theme-aware */
+    /* Lane tints — subtle, theme-aware (dark defaults) */
     --lane-off:   rgba(120,150,255,.06);
     --lane-off-edge: rgba(120,150,255,.22);
     --lane-on:    rgba(255,170,90,.06);
@@ -47,15 +44,9 @@
     --warn:       #f0b35e;
     --danger:     #ef5350;
     --danger-soft:rgba(239,83,80,.10);
+    --dot-on:     #f0b35e;
   }
   html[data-theme="light"]{
-    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
-    --hair:rgba(10,10,10,.10);
-    --hair-strong:rgba(10,10,10,.22);
-    --card:#ffffff;
-    --card-2:#fbfbfd;
-    --nav-bg: rgba(245,245,247,.72);
-
     --lane-off:    rgba(40,80,200,.05);
     --lane-off-edge: rgba(40,80,200,.22);
     --lane-on:     rgba(200,110,30,.05);
@@ -65,34 +56,37 @@
     --warn:        #a05a00;
     --danger:      #b91c1c;
     --danger-soft: rgba(185,28,28,.08);
+    --dot-on:      #d97706;
+  }
+  @media (prefers-color-scheme: light){
+    html:not([data-theme]){
+      --lane-off:    rgba(40,80,200,.05);
+      --lane-off-edge: rgba(40,80,200,.22);
+      --lane-on:     rgba(200,110,30,.05);
+      --lane-on-edge: rgba(200,110,30,.22);
+      --wire:        #1d4ed8;
+      --ok:          #16803c;
+      --warn:        #a05a00;
+      --danger:      #b91c1c;
+      --danger-soft: rgba(185,28,28,.08);
+      --dot-on:      #d97706;
+    }
   }
 
   *,*::before,*::after{ box-sizing:border-box; }
-  html,body{ margin:0; padding:0; background:var(--bg); color:var(--fg); }
+  html,body{ margin:0; padding:0; }
   body{
-    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
     font-feature-settings: "ss01","ss02","cv11";
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    text-rendering:optimizeLegibility;
     line-height:1.55;
     transition: background-color .35s ease, color .35s ease;
   }
-  .mono{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-feature-settings:"zero","ss01"; }
-  .hair{ border-color:var(--hair); }
-  .muted{ color:var(--muted); }
+  .mono{ font-feature-settings:"zero","ss01"; }
   .focus-ring:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--wire); border-radius:4px; }
 
   .katex{ font-size:1em; color:inherit; }
 
   /* ---------- Nav (matches /how/, /threat-model/) ---------- */
-  .nav{
-    position:sticky; top:0; z-index:50;
-    background:var(--nav-bg);
-    backdrop-filter:saturate(160%) blur(14px);
-    -webkit-backdrop-filter:saturate(160%) blur(14px);
-    border-bottom:1px solid var(--hair);
-  }
+  .nav{ position:sticky; top:0; z-index:50; }
   .mark{
     display:inline-block; width:22px; height:22px; border-radius:22%;
     background:url('/assets/icon-dark.png') center/cover no-repeat;
@@ -111,11 +105,7 @@
   }
   section:last-of-type{ border-bottom:none; }
 
-  .eyebrow{
-    font-size:.74rem; letter-spacing:.18em; text-transform:uppercase;
-    color:var(--muted); font-weight:500;
-    margin: 0 0 clamp(20px, 3vw, 28px) 0;
-  }
+  .eyebrow{ margin: 0 0 clamp(20px, 3vw, 28px) 0; }
 
   h1.hero{
     font-weight:700; letter-spacing:-0.035em; line-height:1.05; margin:0;
@@ -146,22 +136,6 @@
     font-size:.94rem; color:var(--muted); line-height:1.6;
     margin: 20px 0 0 0; max-width: 64ch;
   }
-
-  /* ---------- Theme toggle ---------- */
-  .toggle{
-    position:fixed; bottom:18px; right:18px; z-index:60;
-    background:var(--nav-bg);
-    border:1px solid var(--hair); border-radius:999px;
-    padding:4px; display:flex; gap:2px;
-    backdrop-filter:saturate(180%) blur(14px);
-    -webkit-backdrop-filter:saturate(180%) blur(14px);
-    box-shadow:0 8px 24px -10px rgba(10,10,10,.18);
-  }
-  .toggle button{
-    font-size:12px; letter-spacing:.04em; padding:7px 12px; border-radius:999px;
-    color:var(--muted); border:0; background:transparent; cursor:pointer;
-  }
-  .toggle button[aria-pressed="true"]{ background:var(--fg); color:var(--bg); }
 
   /* ---------- Stat strip ---------- */
   .stat-strip{
@@ -212,7 +186,7 @@
   /* ---------- Swim lane ---------- */
   .swimlane{
     margin-top: clamp(28px, 3.4vw, 40px);
-    border:1px solid var(--hair); border-radius:16px;
+    border:1px solid var(--hair); border-radius:var(--on-radius-card);
     overflow:hidden; background:var(--card);
   }
   .lane-head{
@@ -224,8 +198,7 @@
   .lane-head .gap{ border-left:1px solid var(--hair); border-right:1px solid var(--hair); justify-content:center; }
   .lane-head .dot{ width:8px; height:8px; border-radius:50%; }
   .lane-head .dot.off{ background:var(--wire); }
-  .lane-head .dot.on{ background:#f0b35e; }
-  html[data-theme="light"] .lane-head .dot.on{ background:#d97706; }
+  .lane-head .dot.on{ background:var(--dot-on); }
 
   .lane-body{
     display:grid; grid-template-columns: 1fr 96px 1fr;
@@ -338,12 +311,13 @@
     border:1px solid var(--hair); border-radius:999px;
     background:var(--card); color:var(--fg);
     padding:8px 14px; font-size:.88rem; cursor:pointer;
+    min-height:auto; font-weight:400;
     transition: background .15s, border-color .15s;
   }
   .btn:hover{ border-color: var(--hair-strong); }
   .btn:focus-visible{ outline:none; box-shadow: 0 0 0 2px var(--wire); }
   .btn[disabled]{ opacity:.45; cursor:not-allowed; }
-  .btn.primary{ background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .btn.primary{ background: var(--on-blue); color: var(--on-on-accent); border-color: transparent; }
   .progress{ display:flex; gap:4px; align-items:center; margin-left:6px; }
   .progress .seg{ width:22px; height:4px; border-radius:2px; background:var(--hair); }
   .progress .seg.on{ background:var(--fg); }
@@ -395,7 +369,7 @@
   @media (max-width: 900px){ .stack{ grid-template-columns: 1fr; } }
 
   .stack-graph{
-    border:1px solid var(--hair); border-radius:16px; background:var(--card);
+    border:1px solid var(--hair); border-radius:var(--on-radius-card); background:var(--card);
     padding: 18px;
     position:relative;
   }
@@ -415,7 +389,7 @@
   .stack-edge.dashed{ stroke-dasharray: 4 4; opacity:.6; }
 
   .stack-panel{
-    border:1px solid var(--hair); border-radius:16px; background:var(--card);
+    border:1px solid var(--hair); border-radius:var(--on-radius-card); background:var(--card);
     padding: 22px;
     min-height: 360px;
     display:flex; flex-direction:column; gap:14px;
@@ -896,22 +870,27 @@
 
 <!-- ============== Theme toggle ============== -->
 <div class="toggle" role="group" aria-label="Theme">
-  <button id="t-dark"  aria-pressed="true"  onclick="setTheme('dark')">Dark</button>
+  <button id="t-dark"  aria-pressed="false" onclick="setTheme('dark')">Dark</button>
   <button id="t-light" aria-pressed="false" onclick="setTheme('light')">Light</button>
 </div>
 
 <script>
-  function setTheme(mode){
-    if(mode==='light') document.documentElement.setAttribute('data-theme','light');
-    else document.documentElement.removeAttribute('data-theme');
-    document.getElementById('t-dark').setAttribute('aria-pressed', mode==='dark');
-    document.getElementById('t-light').setAttribute('aria-pressed', mode==='light');
-    try{ localStorage.setItem('onym.theme', mode); }catch(e){}
+  function setTheme(t){
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('t-dark').setAttribute('aria-pressed', String(t==='dark'));
+    document.getElementById('t-light').setAttribute('aria-pressed', String(t==='light'));
+    try{ localStorage.setItem('onym.theme', t); }catch(e){}
   }
   (function(){
-    var t='dark';
-    try{ t = localStorage.getItem('onym.theme') || 'dark'; }catch(e){}
-    setTheme(t);
+    try{
+      var saved = localStorage.getItem('onym.theme');
+      if (saved==='light'||saved==='dark'){ setTheme(saved); }
+      else {
+        var light = matchMedia('(prefers-color-scheme: light)').matches;
+        document.getElementById('t-dark').setAttribute('aria-pressed', String(!light));
+        document.getElementById('t-light').setAttribute('aria-pressed', String(light));
+      }
+    }catch(e){}
   })();
 </script>
 

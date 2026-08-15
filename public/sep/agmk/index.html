@@ -16,9 +16,9 @@
 <link rel="canonical" href="https://onym.app/sep/agmk/" />
 <link rel="alternate" hreflang="en" href="https://onym.app/sep/agmk/" />
 <link rel="alternate" hreflang="x-default" href="https://onym.app/sep/agmk/" />
-<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#0e0e10" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
-<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
@@ -26,14 +26,11 @@
   onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});"></script>
 <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
 
+<link rel="stylesheet" href="/assets/onym.css"/>
 <style>
   :root{
-    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
-    --hair:rgba(245,245,247,.10);
-    --hair-strong:rgba(245,245,247,.18);
-    --card:#101013;
-    --card-2:#16161b;
-    --nav-bg: rgba(8,8,10,.72);
+    --hair-strong: var(--on-hairline-strong);
+    --card-2: var(--on-surface3);
 
     --wire:        #6a8bff;
     --wire-soft:   rgba(106,139,255,.10);
@@ -65,13 +62,6 @@
     --mortar:      rgba(245,245,247,.04);
   }
   html[data-theme="light"]{
-    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
-    --hair:rgba(10,10,10,.10);
-    --hair-strong:rgba(10,10,10,.22);
-    --card:#ffffff;
-    --card-2:#fbfbfd;
-    --nav-bg: rgba(245,245,247,.72);
-
     --wire:        #1d4ed8;
     --wire-soft:   rgba(29,78,216,.08);
     --wire-edge:   rgba(29,78,216,.45);
@@ -101,30 +91,51 @@
     --edge-fail:   rgba(185,28,28,1);
     --mortar:      rgba(10,10,10,.04);
   }
+  @media (prefers-color-scheme: light){
+    html:not([data-theme]){
+      --wire:        #1d4ed8;
+      --wire-soft:   rgba(29,78,216,.08);
+      --wire-edge:   rgba(29,78,216,.45);
+      --amber:       #b45309;
+      --amber-soft:  rgba(180,83,9,.08);
+      --amber-edge:  rgba(180,83,9,.45);
+      --ok:          #16803c;
+      --ok-soft:     rgba(22,128,60,.10);
+      --ok-edge:     rgba(22,128,60,.45);
+      --danger:      #b91c1c;
+      --danger-soft: rgba(185,28,28,.10);
+      --danger-edge: rgba(185,28,28,.55);
+      --gold:        #b45309;
+      --gold-edge:   rgba(180,83,9,.55);
+      --plum:        #7e22ce;
+      --plum-soft:   rgba(126,34,206,.08);
+      --plum-edge:   rgba(126,34,206,.45);
+
+      --brick-fill:        rgba(29,78,216,.06);
+      --brick-stroke:      rgba(29,78,216,.40);
+      --brick-fill-hot:    rgba(29,78,216,.14);
+      --brick-stroke-hot:  rgba(29,78,216,1);
+      --brick-fill-fail:   rgba(185,28,28,.10);
+      --brick-stroke-fail: rgba(185,28,28,1);
+      --edge:        rgba(29,78,216,.30);
+      --edge-hot:    rgba(29,78,216,1);
+      --edge-fail:   rgba(185,28,28,1);
+      --mortar:      rgba(10,10,10,.04);
+    }
+  }
 
   *,*::before,*::after{ box-sizing:border-box; }
-  html,body{ margin:0; padding:0; background:var(--bg); color:var(--fg); }
+  html,body{ margin:0; padding:0; }
   body{
-    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
     font-feature-settings: "ss01","ss02","cv11";
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    text-rendering:optimizeLegibility;
     line-height:1.55;
     transition: background-color .35s ease, color .35s ease;
   }
-  .mono{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-feature-settings:"zero","ss01"; }
-  .muted{ color:var(--muted); }
+  .mono{ font-feature-settings:"zero","ss01"; }
   .katex{ font-size:1em; color:inherit; }
 
   /* Nav */
-  .nav{
-    position:sticky; top:0; z-index:50;
-    background:var(--nav-bg);
-    backdrop-filter:saturate(160%) blur(14px);
-    -webkit-backdrop-filter:saturate(160%) blur(14px);
-    border-bottom:1px solid var(--hair);
-  }
+  .nav{ position:sticky; top:0; z-index:50; }
   .nav-mark{
     display:inline-grid; place-items:center; width:22px; height:22px;
     border:1px solid var(--hair-strong); border-radius:6px;
@@ -143,11 +154,7 @@
   }
   section:last-of-type{ border-bottom:none; }
 
-  .eyebrow{
-    font-size:.74rem; letter-spacing:.18em; text-transform:uppercase;
-    color:var(--muted); font-weight:500;
-    margin: 0 0 clamp(20px, 3vw, 28px) 0;
-  }
+  .eyebrow{ margin: 0 0 clamp(20px, 3vw, 28px) 0; }
   h1.hero{
     font-weight:700; letter-spacing:-0.035em; line-height:1.05; margin:0;
     text-wrap:balance;
@@ -196,45 +203,30 @@
   .bom .sep{ color:var(--muted); padding:0 8px; }
   .bom .cap{ color:var(--amber); }
 
-  /* Theme toggle */
-  .toggle{
-    position:fixed; bottom:18px; right:18px; z-index:60;
-    background:var(--nav-bg);
-    border:1px solid var(--hair); border-radius:999px;
-    padding:4px; display:flex; gap:2px;
-    backdrop-filter:saturate(180%) blur(14px);
-    -webkit-backdrop-filter:saturate(180%) blur(14px);
-    box-shadow:0 8px 24px -10px rgba(10,10,10,.18);
-  }
-  .toggle button{
-    font-size:12px; letter-spacing:.04em; padding:7px 12px; border-radius:999px;
-    color:var(--muted); border:0; background:transparent; cursor:pointer;
-  }
-  .toggle button[aria-pressed="true"]{ background:var(--fg); color:var(--bg); }
-
   /* Buttons */
   .btn{
     font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.82rem;
     padding:7px 14px; border-radius:999px;
     border:1px solid var(--hair-strong); background: var(--bg); color:var(--fg);
     cursor:pointer; letter-spacing:.04em;
+    min-height:auto; font-weight:400;
   }
   .btn:hover{ background: var(--card-2); }
   .btn:focus-visible{ outline:2px solid var(--wire); outline-offset:2px; }
   .btn[disabled]{ opacity:.4; cursor:not-allowed; }
-  .btn.primary{ background: var(--fg); color: var(--bg); border-color: var(--fg); }
-  .btn.primary:hover{ filter: brightness(0.95); background: var(--fg); }
+  .btn.primary{ background: var(--on-blue); color: var(--on-on-accent); border-color: transparent; }
+  .btn.primary:hover{ filter: brightness(0.95); background: var(--on-blue); }
   .btn.danger{ border-color: var(--danger-edge); color: var(--danger); }
 
   /* Cards (shared) */
   .wall-card{
     margin-top: clamp(28px, 3.4vw, 40px);
-    border:1px solid var(--hair); border-radius:16px; background:var(--card);
+    border:1px solid var(--hair); border-radius:var(--on-radius-card); background:var(--card);
     padding: clamp(18px, 2.8vw, 28px);
     display:grid; gap: 22px;
   }
   .col-card{
-    border:1px solid var(--hair); border-radius:16px;
+    border:1px solid var(--hair); border-radius:var(--on-radius-card);
     background: var(--card);
     padding: 22px 24px;
     display:flex; flex-direction:column; gap:14px;
@@ -363,7 +355,7 @@
   /* ===== §2 Registry ===== */
   .registry{
     margin-top: clamp(28px, 3.4vw, 40px);
-    border:1px solid var(--hair); border-radius:16px;
+    border:1px solid var(--hair); border-radius:var(--on-radius-card);
     background: var(--card);
     overflow:hidden;
   }
@@ -446,7 +438,7 @@
   @media (max-width: 900px){ .pipe-grid{ grid-template-columns: 1fr; } }
 
   .pipe-list{
-    border:1px solid var(--hair); border-radius:16px; background: var(--card);
+    border:1px solid var(--hair); border-radius:var(--on-radius-card); background: var(--card);
     overflow:hidden;
   }
   .pipe-controls{
@@ -516,7 +508,7 @@
   .pipe-legend .dot.expensive{ background: var(--amber); }
 
   .state-panel{
-    border:1px solid var(--hair); border-radius:16px;
+    border:1px solid var(--hair); border-radius:var(--on-radius-card);
     background: var(--card);
     padding: 18px 20px;
     display:flex; flex-direction:column; gap: 14px;
@@ -705,7 +697,7 @@
   }
   @media (max-width: 900px){ .replay-grid{ grid-template-columns: 1fr; } }
   .replay-card{
-    border:1px solid var(--hair); border-radius:16px;
+    border:1px solid var(--hair); border-radius:var(--on-radius-card);
     background: var(--card);
     padding: 20px 22px;
     display:flex; flex-direction:column; gap: 14px;
@@ -723,7 +715,7 @@
   /* ===== §7 LCA Merkle ===== */
   .lca-card{
     margin-top: clamp(28px, 3.4vw, 40px);
-    border:1px solid var(--hair); border-radius:16px;
+    border:1px solid var(--hair); border-radius:var(--on-radius-card);
     background: var(--card);
     padding: clamp(18px, 2.8vw, 28px);
     display:flex; flex-direction:column; gap: 14px;
@@ -761,7 +753,7 @@
   /* ===== §8 TTL timeline ===== */
   .ttl-card{
     margin-top: clamp(28px, 3.4vw, 40px);
-    border:1px solid var(--hair); border-radius:16px;
+    border:1px solid var(--hair); border-radius:var(--on-radius-card);
     background: var(--card);
     padding: 20px 24px;
     display:flex; flex-direction:column; gap: 14px;
@@ -808,7 +800,7 @@
   }
   @media (max-width: 900px){ .venn-grid{ grid-template-columns: 1fr; } }
   .venn-card{
-    border:1px solid var(--hair); border-radius:16px;
+    border:1px solid var(--hair); border-radius:var(--on-radius-card);
     background: var(--card);
     padding: 18px 20px;
     display:flex; flex-direction:column; gap: 12px;
@@ -871,7 +863,7 @@
   /* ===== §12 Iteration timeline ===== */
   .iter{
     margin-top: clamp(28px, 3.4vw, 40px);
-    border:1px solid var(--hair); border-radius:16px;
+    border:1px solid var(--hair); border-radius:var(--on-radius-card);
     background: var(--card);
     padding: 18px 22px;
   }
@@ -1729,22 +1721,27 @@
 
 <!-- Theme toggle -->
 <div class="toggle" role="group" aria-label="Theme">
-  <button id="t-dark"  aria-pressed="true"  onclick="setTheme('dark')">Dark</button>
+  <button id="t-dark"  aria-pressed="false" onclick="setTheme('dark')">Dark</button>
   <button id="t-light" aria-pressed="false" onclick="setTheme('light')">Light</button>
 </div>
 
 <script>
-  function setTheme(mode){
-    if(mode==='light') document.documentElement.setAttribute('data-theme','light');
-    else document.documentElement.removeAttribute('data-theme');
-    document.getElementById('t-dark').setAttribute('aria-pressed', mode==='dark');
-    document.getElementById('t-light').setAttribute('aria-pressed', mode==='light');
-    try{ localStorage.setItem('onym.theme', mode); }catch(e){}
+  function setTheme(t){
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('t-dark').setAttribute('aria-pressed', String(t==='dark'));
+    document.getElementById('t-light').setAttribute('aria-pressed', String(t==='light'));
+    try{ localStorage.setItem('onym.theme', t); }catch(e){}
   }
   (function(){
-    var t='dark';
-    try{ t = localStorage.getItem('onym.theme') || 'dark'; }catch(e){}
-    setTheme(t);
+    try{
+      var saved = localStorage.getItem('onym.theme');
+      if (saved==='light'||saved==='dark'){ setTheme(saved); }
+      else {
+        var light = matchMedia('(prefers-color-scheme: light)').matches;
+        document.getElementById('t-dark').setAttribute('aria-pressed', String(!light));
+        document.getElementById('t-light').setAttribute('aria-pressed', String(light));
+      }
+    }catch(e){}
   })();
 </script>
 

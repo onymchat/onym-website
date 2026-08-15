@@ -1,8 +1,8 @@
 /* Theme-aware HTML recreation of the iOS client used by the home-page flow. */
 .ui{
-  --ui-bg:#f2f2f7;--ui-card:#fff;--ui-fg:#09090b;--ui-sub:#6e6e73;
-  --ui-hair:rgba(60,60,67,.13);--ui-field:#e9e9ee;--ui-blue:#087ff5;
-  --ui-purple:#7052bd;--ui-green:#25a95b;
+  --ui-bg:#f5f5f7;--ui-card:#fff;--ui-fg:#0a0a0c;--ui-sub:rgba(10,10,12,.62);
+  --ui-hair:rgba(0,0,0,.12);--ui-field:#ebebef;--ui-blue:#1f86e0;
+  --ui-purple:#8b4deb;--ui-green:#1fa84a;
   --ui-glass:rgba(255,255,255,.58);--ui-glass-bd:rgba(255,255,255,.6);
   --ui-glass-hi:rgba(255,255,255,.9);--ui-glass-shadow:0 10px 32px -6px rgba(24,24,40,.22);
   --ui-elev:rgba(120,120,140,.1);
@@ -92,9 +92,7 @@
 .thread{height:calc(100% - 145px);padding:18px 12px;display:flex;flex-direction:column;gap:9px}.bubble{max-width:82%;padding:10px 12px;border-radius:16px;font-size:10px;line-height:1.35}.bubble.mine{align-self:flex-end;background:var(--ui-purple);color:#fff;border-bottom-right-radius:5px}.bubble.theirs{align-self:flex-start;background:var(--ui-card);border-bottom-left-radius:5px}.composer{position:absolute;left:10px;right:10px;bottom:17px;display:flex;align-items:center;gap:8px}.composer-field{height:38px;border:1px solid var(--ui-hair);background:var(--ui-card);border-radius:19px;flex:1;padding:11px;color:var(--ui-sub);font-size:10px}.composer-send{width:38px;height:38px;border-radius:50%;background:var(--ui-purple);color:#fff;display:flex;align-items:center;justify-content:center}
 .phone::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:4;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09),inset 0 2px 2px rgba(255,255,255,.2),inset 0 -3px 7px rgba(0,0,0,.42)}
 .profile-panel,.settings-group,.relay-card,.group-field,.group-textarea,.group-type-card,.ui-card,.chat-card{box-shadow:inset 0 .5px 0 var(--ui-elev)}
+html[data-theme="dark"] .ui{--ui-bg:#000;--ui-card:#17171a;--ui-fg:#f2f2f4;--ui-sub:rgba(242,242,244,.62);--ui-hair:rgba(255,255,255,.12);--ui-field:#1f1f23;--ui-blue:#3fa8ff;--ui-purple:#b278ff;--ui-green:#34c759;--ui-glass:rgba(58,58,62,.48);--ui-glass-bd:rgba(255,255,255,.13);--ui-glass-hi:rgba(255,255,255,.12);--ui-glass-shadow:0 12px 34px -8px rgba(0,0,0,.65);--ui-elev:rgba(255,255,255,.045)}
 @media(prefers-color-scheme:dark){
-  :root{--bg:#08080a;--fg:#f5f5f7;--muted:#919197;--card:#101013;--hair:rgba(245,245,247,.11);--glass:rgba(8,8,10,.82);--shadow:0 30px 85px -35px #000}
-  .ui{--ui-bg:#000;--ui-card:#1c1c1e;--ui-fg:#fff;--ui-sub:#98989f;--ui-hair:rgba(255,255,255,.08);--ui-field:#39393c;--ui-blue:#0a84ff;--ui-purple:#8b6bd5;--ui-green:#30d158;--ui-glass:rgba(58,58,62,.48);--ui-glass-bd:rgba(255,255,255,.13);--ui-glass-hi:rgba(255,255,255,.12);--ui-glass-shadow:0 12px 34px -8px rgba(0,0,0,.65);--ui-elev:rgba(255,255,255,.045)}
-  .step-inner{background:rgba(8,8,10,.9)!important}
-  .phone-sticky:before{background:linear-gradient(180deg,var(--bg) 0%,var(--bg) 84%,transparent)!important}
+  html:not([data-theme="light"]) .ui{--ui-bg:#000;--ui-card:#17171a;--ui-fg:#f2f2f4;--ui-sub:rgba(242,242,244,.62);--ui-hair:rgba(255,255,255,.12);--ui-field:#1f1f23;--ui-blue:#3fa8ff;--ui-purple:#b278ff;--ui-green:#34c759;--ui-glass:rgba(58,58,62,.48);--ui-glass-bd:rgba(255,255,255,.13);--ui-glass-hi:rgba(255,255,255,.12);--ui-glass-shadow:0 12px 34px -8px rgba(0,0,0,.65);--ui-elev:rgba(255,255,255,.045)}
 }

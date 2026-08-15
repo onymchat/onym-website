@@ -1,0 +1,260 @@
+/* Onym site theme — tokens from the Onym design system (design-system/src/tokens.css,
+   itself mirroring OnymTokens/OnymAccent in onym-ios). Single source of truth for
+   every page. Dark is the default; html[data-theme="light"] switches; with no
+   explicit choice (no data-theme attribute) the OS preference wins. */
+
+:root {
+  /* surfaces */
+  --on-bg: #000000;
+  --on-surface: #0e0e10;
+  --on-surface2: #17171a;
+  --on-surface3: #1f1f23;
+  /* text */
+  --on-text: #f2f2f4;
+  --on-text2: rgba(242, 242, 244, 0.62);
+  --on-text3: rgba(242, 242, 244, 0.4);
+  /* hairlines */
+  --on-hairline: rgba(255, 255, 255, 0.07);
+  --on-hairline-strong: rgba(255, 255, 255, 0.12);
+  /* semantic */
+  --on-blue: #3fa8ff;
+  --on-green: #34c759;
+  --on-red: #ff453a;
+  --on-on-accent: #000000;
+  /* identity accents */
+  --on-accent-orange: #ff7a45;
+  --on-accent-blue: #3fa8ff;
+  --on-accent-green: #3dd66e;
+  --on-accent-purple: #b278ff;
+  --on-accent-pink: #ff4d6d;
+  --on-accent-yellow: #ffc93c;
+  /* liquid glass */
+  --on-glass: rgba(58, 58, 62, 0.48);
+  --on-glass-bd: rgba(255, 255, 255, 0.13);
+  --on-glass-hi: rgba(255, 255, 255, 0.12);
+  --on-glass-shadow: 0 12px 34px -8px rgba(0, 0, 0, 0.65);
+  /* shape + type */
+  --on-radius-card: 14px;
+  --on-radius-field: 12px;
+  --on-radius-pill: 999px;
+  --on-font: -apple-system, BlinkMacSystemFont, system-ui, "Helvetica Neue", sans-serif;
+  --on-font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* legacy aliases used by page-local styles */
+  --bg: var(--on-surface);
+  --fg: var(--on-text);
+  --muted: var(--on-text2);
+  --hair: var(--on-hairline-strong);
+  --card: var(--on-surface2);
+  --glass: var(--on-glass);
+  --nav-bg: rgba(14, 14, 16, 0.72);
+  --shadow: 0 1px 0 rgba(0, 0, 0, 0.4), 0 30px 60px -30px rgba(0, 0, 0, 0.6);
+}
+
+.onym-light-tokens {
+  --on-bg: #ffffff;
+  --on-surface: #f5f5f7;
+  --on-surface2: #ffffff;
+  --on-surface3: #ebebef;
+  --on-text: #0a0a0c;
+  --on-text2: rgba(10, 10, 12, 0.62);
+  --on-text3: rgba(10, 10, 12, 0.42);
+  --on-hairline: rgba(0, 0, 0, 0.06);
+  --on-hairline-strong: rgba(0, 0, 0, 0.12);
+  --on-blue: #1f86e0;
+  --on-green: #1fa84a;
+  --on-red: #e5392e;
+  --on-on-accent: #ffffff;
+  --on-accent-orange: #e85f2a;
+  --on-accent-blue: #1f86e0;
+  --on-accent-green: #1fa84a;
+  --on-accent-purple: #8b4deb;
+  --on-accent-pink: #e03253;
+  --on-accent-yellow: #d9a400;
+  --on-glass: rgba(255, 255, 255, 0.58);
+  --on-glass-bd: rgba(255, 255, 255, 0.6);
+  --on-glass-hi: rgba(255, 255, 255, 0.9);
+  --on-glass-shadow: 0 10px 32px -6px rgba(24, 24, 40, 0.22);
+  --nav-bg: rgba(245, 245, 247, 0.72);
+  --shadow: 0 1px 2px rgba(10, 10, 12, 0.04), 0 12px 40px -24px rgba(10, 10, 12, 0.18);
+}
+
+/* Explicit light choice */
+html[data-theme="light"] {
+  --on-bg: #ffffff;
+  --on-surface: #f5f5f7;
+  --on-surface2: #ffffff;
+  --on-surface3: #ebebef;
+  --on-text: #0a0a0c;
+  --on-text2: rgba(10, 10, 12, 0.62);
+  --on-text3: rgba(10, 10, 12, 0.42);
+  --on-hairline: rgba(0, 0, 0, 0.06);
+  --on-hairline-strong: rgba(0, 0, 0, 0.12);
+  --on-blue: #1f86e0;
+  --on-green: #1fa84a;
+  --on-red: #e5392e;
+  --on-on-accent: #ffffff;
+  --on-accent-orange: #e85f2a;
+  --on-accent-blue: #1f86e0;
+  --on-accent-green: #1fa84a;
+  --on-accent-purple: #8b4deb;
+  --on-accent-pink: #e03253;
+  --on-accent-yellow: #d9a400;
+  --on-glass: rgba(255, 255, 255, 0.58);
+  --on-glass-bd: rgba(255, 255, 255, 0.6);
+  --on-glass-hi: rgba(255, 255, 255, 0.9);
+  --on-glass-shadow: 0 10px 32px -6px rgba(24, 24, 40, 0.22);
+  --nav-bg: rgba(245, 245, 247, 0.72);
+  --shadow: 0 1px 2px rgba(10, 10, 12, 0.04), 0 12px 40px -24px rgba(10, 10, 12, 0.18);
+}
+
+/* No explicit choice: follow the OS */
+@media (prefers-color-scheme: light) {
+  html:not([data-theme]) {
+    --on-bg: #ffffff;
+    --on-surface: #f5f5f7;
+    --on-surface2: #ffffff;
+    --on-surface3: #ebebef;
+    --on-text: #0a0a0c;
+    --on-text2: rgba(10, 10, 12, 0.62);
+    --on-text3: rgba(10, 10, 12, 0.42);
+    --on-hairline: rgba(0, 0, 0, 0.06);
+    --on-hairline-strong: rgba(0, 0, 0, 0.12);
+    --on-blue: #1f86e0;
+    --on-green: #1fa84a;
+    --on-red: #e5392e;
+    --on-on-accent: #ffffff;
+    --on-accent-orange: #e85f2a;
+    --on-accent-blue: #1f86e0;
+    --on-accent-green: #1fa84a;
+    --on-accent-purple: #8b4deb;
+    --on-accent-pink: #e03253;
+    --on-accent-yellow: #d9a400;
+    --on-glass: rgba(255, 255, 255, 0.58);
+    --on-glass-bd: rgba(255, 255, 255, 0.6);
+    --on-glass-hi: rgba(255, 255, 255, 0.9);
+    --on-glass-shadow: 0 10px 32px -6px rgba(24, 24, 40, 0.22);
+    --nav-bg: rgba(245, 245, 247, 0.72);
+    --shadow: 0 1px 2px rgba(10, 10, 12, 0.04), 0 12px 40px -24px rgba(10, 10, 12, 0.18);
+  }
+}
+
+/* ---------- base ---------- */
+html, body { background: var(--on-surface); color: var(--on-text); }
+body {
+  font-family: var(--on-font);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.mono { font-family: var(--on-font-mono); }
+.muted { color: var(--on-text2); }
+.hair { border-color: var(--on-hairline-strong); }
+.eyebrow {
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--on-text2);
+}
+a.link {
+  color: var(--on-text);
+  text-decoration: underline;
+  text-decoration-color: var(--on-hairline-strong);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.15s ease;
+}
+a.link:hover { text-decoration-color: var(--on-blue); }
+
+/* ---------- glass nav ---------- */
+.nav {
+  background: var(--nav-bg);
+  backdrop-filter: saturate(160%) blur(16px);
+  -webkit-backdrop-filter: saturate(160%) blur(16px);
+  border-bottom: 1px solid var(--on-hairline);
+}
+
+/* ---------- buttons (DS PrimaryButton / TextButton language) ---------- */
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: var(--on-radius-card);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.btn-primary {
+  background: var(--on-blue);
+  color: var(--on-on-accent);
+}
+.btn-primary.prominent {
+  box-shadow: 0 9px 24px color-mix(in srgb, var(--on-blue) 25%, transparent);
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--on-text);
+  border-color: var(--on-hairline-strong);
+}
+.btn-secondary:hover { border-color: var(--on-text3); }
+
+/* ---------- cards / chips (DS Card / Chip language) ---------- */
+.on-card {
+  background: var(--on-surface2);
+  border: 1px solid var(--on-hairline);
+  border-radius: var(--on-radius-card);
+}
+.on-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--on-text2);
+  background: var(--on-surface3);
+}
+.on-chip.blue { color: var(--on-blue); background: color-mix(in srgb, var(--on-blue) 14%, transparent); }
+.on-chip.green { color: var(--on-green); background: color-mix(in srgb, var(--on-green) 14%, transparent); }
+.on-chip.red { color: var(--on-red); background: color-mix(in srgb, var(--on-red) 14%, transparent); }
+
+/* ---------- theme toggle (Liquid Glass capsule) ---------- */
+.toggle {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  z-index: 60;
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  border-radius: var(--on-radius-pill);
+  background: var(--on-glass);
+  border: 0.5px solid var(--on-glass-bd);
+  box-shadow: var(--on-glass-shadow), inset 0 1px 0 var(--on-glass-hi);
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+}
+.toggle button {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 7px 12px;
+  border-radius: var(--on-radius-pill);
+  border: 0;
+  background: none;
+  color: var(--on-text2);
+  cursor: pointer;
+}
+.toggle button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--on-text) 13%, transparent);
+  color: var(--on-blue);
+  box-shadow: inset 0 1px 0 var(--on-glass-hi);
+}

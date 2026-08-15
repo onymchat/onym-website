@@ -6,41 +6,37 @@
 <title>Onym · QA Dashboard</title>
 <meta name="robots" content="noindex,nofollow" />
 <meta name="description" content="Внутренние QA-сборки приложений Onym для iOS и Android." />
-<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#0e0e10" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
 <link rel="icon" type="image/png" href="/assets/icon-dark.png" />
 <link rel="apple-touch-icon" href="/assets/icon-dark.png" />
 <link rel="alternate" hreflang="en" href="https://onym.app/qa/" />
 <link rel="alternate" hreflang="ru" href="https://onym.app/ru/qa/" />
 <link rel="alternate" hreflang="x-default" href="https://onym.app/qa/" />
-<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="/assets/onym.css"/>
 <style>
   :root{
-    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
-    --hair:rgba(245,245,247,.10);
-    --card:#101013;
     --tag-fg:#30d158; --tag-bg:rgba(48,209,88,.15); --tag-border:rgba(48,209,88,.30);
     --branch-fg:#0A84FF; --branch-bg:rgba(10,132,255,.15); --branch-border:rgba(10,132,255,.30);
     --warn-fg:#f5a524; --warn-bg:rgba(245,165,36,.10); --warn-border:rgba(245,165,36,.30);
-    --shadow: 0 1px 0 rgba(0,0,0,.4), 0 30px 60px -30px rgba(0,0,0,.6);
-    --nav-bg: rgba(8,8,10,.72);
-  }
+    }
   html[data-theme="light"]{
-    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
-    --hair:rgba(10,10,10,.08);
-    --card:#fbfbfd;
     --tag-fg:#1d8a3a; --tag-bg:#dcf5e1; --tag-border:rgba(48,209,88,.35);
     --branch-fg:#0660d0; --branch-bg:#e3eefb; --branch-border:rgba(10,132,255,.35);
     --warn-fg:#a36906; --warn-bg:#fdf3df; --warn-border:rgba(245,165,36,.40);
-    --shadow: 0 1px 2px rgba(10,10,10,.04), 0 12px 40px -24px rgba(10,10,10,.18);
-    --nav-bg: rgba(245,245,247,.72);
+    }
+  @media (prefers-color-scheme: light){
+    html:not([data-theme]){
+    --tag-fg:#1d8a3a; --tag-bg:#dcf5e1; --tag-border:rgba(48,209,88,.35);
+    --branch-fg:#0660d0; --branch-bg:#e3eefb; --branch-border:rgba(10,132,255,.35);
+    --warn-fg:#a36906; --warn-bg:#fdf3df; --warn-border:rgba(245,165,36,.40);
+    }
   }
-  html,body{ background:var(--bg); color:var(--fg); }
-  body{
-    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
-    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
-  }
+
+  
+  
   .mono{ font-family: "SF Mono","JetBrains Mono", ui-monospace, Menlo, monospace; }
   .hair{ border-color: var(--hair); }
   .muted{ color: var(--muted); }
@@ -68,7 +64,7 @@
     background: var(--fg); color: var(--bg); border-color: var(--fg);
   }
   .install-btn{
-    background: var(--fg); color: var(--bg);
+    background: var(--on-blue); color: var(--on-on-accent);
     transition: opacity .15s ease;
   }
   .install-btn:hover{ opacity: .85; }
@@ -83,20 +79,6 @@
   input[type="search"]:focus{
     outline: 2px solid var(--fg); outline-offset: 2px;
   }
-  .toggle{
-    position: fixed; bottom: 18px; right: 18px; z-index:60;
-    background: var(--nav-bg);
-    border: 1px solid var(--hair); border-radius: 999px;
-    padding: 4px; display: flex; gap: 2px;
-    backdrop-filter: saturate(180%) blur(14px);
-    -webkit-backdrop-filter: saturate(180%) blur(14px);
-    box-shadow: 0 8px 24px -10px rgba(10,10,10,.18);
-  }
-  .toggle button{
-    font-size: 12px; letter-spacing: .04em; padding: 7px 12px; border-radius: 999px;
-    color: var(--muted);
-  }
-  .toggle button[aria-pressed="true"]{ background: var(--fg); color: var(--bg); }
   .banner{
     background: var(--warn-bg);
     border: 1px solid var(--warn-border);
@@ -500,7 +482,7 @@
       tD.setAttribute('aria-pressed', 'false');
       tL.setAttribute('aria-pressed', 'true');
     } else {
-      root.removeAttribute('data-theme');
+      root.setAttribute('data-theme','dark');
       tD.setAttribute('aria-pressed', 'true');
       tL.setAttribute('aria-pressed', 'false');
     }
@@ -508,10 +490,14 @@
   }
   tD.addEventListener('click', () => setTheme('dark'));
   tL.addEventListener('click', () => setTheme('light'));
-  try{
-    const saved = localStorage.getItem('onym.theme');
-    if (saved) setTheme(saved);
-  }catch(e){}
+  let saved = null;
+  try{ saved = localStorage.getItem('onym.theme'); }catch(e){}
+  if (saved === 'light' || saved === 'dark'){ setTheme(saved); }
+  else {
+    const osLight = matchMedia('(prefers-color-scheme: light)').matches;
+    tD.setAttribute('aria-pressed', String(!osLight));
+    tL.setAttribute('aria-pressed', String(osLight));
+  }
 
   // ---- boot ----
   readFiltersFromURL();

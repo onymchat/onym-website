@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Onym — Open · Anonymous · Onchain</title>
 <meta name="description" content="End-to-end encrypted group chat. No company in the loop — no operator can disable your account. Identity, keys, and message history stay on your device. Open source, anchored on Stellar." />
-<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#0e0e10" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
 <link rel="icon" type="image/png" href="/assets/icon-dark.png" />
 <link rel="apple-touch-icon" href="/assets/icon-dark.png" />
@@ -21,45 +21,18 @@
 <link rel="alternate" hreflang="ru" href="https://onym.app/ru/" />
 <link rel="alternate" hreflang="x-default" href="https://onym.app/" />
 <script>(function(){try{document.addEventListener('click',function(e){var a=e.target&&e.target.closest?e.target.closest('a[lang],a[hreflang]'):null;if(!a)return;var L=a.getAttribute('lang')||a.getAttribute('hreflang');if(L==='ru'||L==='en'){try{localStorage.setItem('onym.lang',L)}catch(_){}}},true)}catch(e){}try{var p=location.pathname,h=location.hash,isRu=/^\/ru(\/|$)/.test(p),q=new URLSearchParams(location.search).get('lang'),want;if(q==='ru'||q==='en'){want=q;try{localStorage.setItem('onym.lang',q)}catch(_){}}else{var s=null;try{s=localStorage.getItem('onym.lang')}catch(_){}if(s==='ru'||s==='en')want=s;else if(document.referrer){var same=false;try{same=new URL(document.referrer).host===location.host}catch(_){}if(same)want=isRu?'ru':'en';}}if(!want){var l=(navigator.language||'').toLowerCase();want=(l==='ru'||l.indexOf('ru-')===0)?'ru':'en';}if((want==='ru')!==isRu){var n=0;try{n=parseInt(sessionStorage.getItem('onym.rc')||'0',10)||0}catch(_){}if(n>=2){try{sessionStorage.removeItem('onym.rc')}catch(_){}return;}try{sessionStorage.setItem('onym.rc',n+1)}catch(_){}var t=want==='ru'?('/ru'+(p==='/'?'/':p)):(p.replace(/^\/ru/,'')||'/');location.replace(t+h);return;}try{sessionStorage.removeItem('onym.rc')}catch(_){}if(q){try{history.replaceState(null,'',p+h)}catch(_){}}}catch(e){}})();</script>
-<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="/assets/onym.css"/>
 <style>
-  :root{
-    /* Dark (default) */
-    --bg:#08080a;
-    --fg:#f5f5f7;
-    --muted:#8c8c92;
-    --hair:rgba(245,245,247,.10);
-    --card:#101013;
-    --tint: transparent;
-    --shadow: 0 1px 0 rgba(0,0,0,.4), 0 30px 60px -30px rgba(0,0,0,.6);
-    --nav-bg: rgba(8,8,10,.72);
-  }
-  html[data-theme="light"]{
-    --bg:#f5f5f7;
-    --fg:#0a0a0a;
-    --muted:#6e6e73;
-    --hair:rgba(10,10,10,.08);
-    --card:#fbfbfd;
-    --tint: linear-gradient(180deg, #efeef1 0%, #f5f5f7 60%);
-    --shadow: 0 1px 2px rgba(10,10,10,.04), 0 12px 40px -24px rgba(10,10,10,.18);
-    --nav-bg: rgba(245,245,247,.72);
-  }
-  html,body{background:var(--bg);color:var(--fg);}
   body{
-    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
     font-feature-settings: "ss01","cv11";
-    -webkit-font-smoothing:antialiased;
-    text-rendering:optimizeLegibility;
   }
-  .mono{font-family: "SF Mono","JetBrains Mono", ui-monospace, Menlo, monospace; font-feature-settings:"zero","ss01";}
+  .mono{ font-feature-settings:"zero","ss01"; }
   .display{ font-weight:700; letter-spacing:-0.04em; line-height:0.95;}
   .display-xl{ font-size: clamp(3rem, 9vw, 8rem);}
   .display-lg{ font-size: clamp(2.5rem, 6.5vw, 5.25rem); letter-spacing:-0.035em; line-height:1.02;}
   .display-md{ font-size: clamp(1.875rem, 4.2vw, 3.25rem); letter-spacing:-0.03em; line-height:1.06;}
-  .eyebrow{ font-size:.78rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted);}
-  .hair{ border-color: var(--hair); }
-  .muted{ color: var(--muted); }
   .pill{ border-radius:999px; }
   .focus-ring:focus-visible{ outline:2px solid #0a0a0a; outline-offset:3px; border-radius:8px; }
 
@@ -366,7 +339,7 @@
   @media (max-width: 1023px){ .gov-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 599px){ .gov-grid{ grid-template-columns: 1fr; gap: 14px; } }
   .gov-card{
-    border-radius: 20px; padding: 28px;
+    border-radius: var(--on-radius-card); padding: 28px;
     background: var(--card); border:1px solid var(--hair);
     box-shadow: var(--shadow);
     display:flex; flex-direction:column; gap: 16px;
@@ -559,7 +532,7 @@
 
   /* Terminal */
   .terminal{
-    background:#0a0a0a; color:#e6e6e6; border-radius:18px; padding: 22px 24px;
+    background:#0a0a0a; color:#e6e6e6; border-radius:var(--on-radius-card); padding: 22px 24px;
     font-family:"SF Mono","JetBrains Mono", ui-monospace, monospace; font-size: 13.5px; line-height:1.7;
     box-shadow: 0 30px 60px -30px rgba(10,10,10,.4);
     min-width: 0;
@@ -577,22 +550,6 @@
 
   /* Smoke clip-path letters */
   .clip-text{ background-clip: text; -webkit-background-clip:text; color:transparent; }
-
-  /* Theme toggle */
-  .toggle{
-    position: fixed; bottom: 18px; right: 18px; z-index:60;
-    background: var(--nav-bg);
-    border:1px solid var(--hair); border-radius: 999px;
-    padding: 4px; display:flex; gap:2px;
-    backdrop-filter: saturate(180%) blur(14px); -webkit-backdrop-filter: saturate(180%) blur(14px);
-    box-shadow: 0 8px 24px -10px rgba(10,10,10,.18);
-  }
-  .toggle button{
-    font-size: 12px; letter-spacing:.04em; padding: 7px 12px; border-radius:999px;
-    color: var(--muted);
-  }
-  .toggle button[aria-pressed="true"]{ background: var(--fg); color: var(--bg); }
-  .toggle button{ font-family: inherit; }
 
   /* Section dividers (light only) */
   html[data-theme="light"] .section-div{ border-top:1px solid var(--hair); }
@@ -654,13 +611,66 @@
     .hero-stage .mt-20{ display: none; }
   }
 
+  /* OS-preference light (no explicit data-theme): mirror the light-theme rules */
+  @media (prefers-color-scheme: light){
+    html:not([data-theme]){ --amber-solid:#b8821b; }
+    html:not([data-theme]) .hero-mark .dark-icon{ display:none;}
+    html:not([data-theme]) .hero-mark .light-icon{ display:block;}
+    html:not([data-theme]) .hero-mark{ box-shadow: 0 30px 80px -20px rgba(10,10,10,.18), 0 1px 0 rgba(255,255,255,.6) inset; }
+    html:not([data-theme]) .mark.app-icon{
+      background: url('/assets/icon-light.png') center/cover no-repeat;
+      -webkit-mask: none; mask: none;
+      border-radius: 22%;
+    }
+    html:not([data-theme]) .mark.app-icon.logo-mark,
+    html:not([data-theme]) .mark.app-icon.logo-mark-lg{
+      box-shadow:
+        0 4px 12px -3px rgba(10,10,10,.18),
+        0 .5px 0 rgba(255,255,255,.6) inset;
+    }
+    html:not([data-theme]) .phone-screen{
+      --ios-bg: #fff;
+      --ios-card: #e9e9eb;
+      --ios-fg: #000;
+      --ios-sub: #8e8e93;
+      --ios-tile-bg: rgba(0,0,0,.04);
+      --ios-tile-border: rgba(0,0,0,.06);
+      --ios-divider: rgba(0,0,0,.30);
+    }
+    html:not([data-theme]) .ident-state{
+      --ios-bg: #F2F2F4;
+      --ios-card: #fff;
+      --ios-fg: #000;
+      --ios-sub: #6e6e73;
+      --ios-hair: rgba(60,60,67,.10);
+      --ios-green: #34C759;
+      --ios-green-bg: #ddf3df;
+      --ios-glass-bg: linear-gradient(180deg, rgba(255,255,255,.80) 0%, rgba(255,255,255,.55) 100%);
+      --ios-glass-border: rgba(255,255,255,.65);
+      --ios-glass-highlight: rgba(255,255,255,.90);
+      --ios-glass-shade: rgba(0,0,0,.04);
+      --ios-glass-shadow: 0 6px 20px rgba(0,0,0,.10);
+    }
+    html:not([data-theme]) .gov-card{ background: linear-gradient(180deg, #fbfbfd 0%, #efeff2 100%);}
+    html:not([data-theme]) .gov-card.planned{ background: transparent; }
+    html:not([data-theme]) .capstone{ --amber: #b45309; --amber-edge: rgba(180,83,9,.45); --amber-soft: rgba(180,83,9,.08); }
+    html:not([data-theme]) .section-div{ border-top:1px solid var(--hair); }
+    html:not([data-theme]) #relayer{
+      --green-solid:#0fa471;
+      --amber-solid:#b8821b;
+      --red-solid:#c8362c;
+      --amber:#f0b22922;
+      --red:#ef444422;
+    }
+    html:not([data-theme]) .rx-svg .relayer-body{ opacity: 1; }
+  }
 </style>
 </head>
 <body class="antialiased">
 
 <!-- Theme toggle -->
 <div class="toggle" role="tablist" aria-label="Surface variant">
-  <button id="themeDark" aria-pressed="true" class="focus-ring">Dark</button>
+  <button id="themeDark" aria-pressed="false" class="focus-ring">Dark</button>
   <button id="themeLight" aria-pressed="false" class="focus-ring">Light</button>
 </div>
 
@@ -700,7 +710,7 @@ Identity, keys, and history stay on your device.
 End-to-end encrypted, with an <a href="/threat-model/" class="hover:text-[var(--fg)] focus-ring" style="text-decoration:underline; text-decoration-color:var(--hair); text-underline-offset:3px;">honest threat model</a>.
 </p>
       <div class="mt-9 flex items-center justify-center gap-3">
-        <a href="/qa/" class="pill text-[13.5px] px-5 py-3 focus-ring" style="background:var(--fg);color:var(--bg);">Try the alpha</a>
+        <a href="/qa/" class="pill text-[13.5px] px-5 py-3 focus-ring" style="background:var(--on-blue);color:var(--on-on-accent);">Try the alpha</a>
         <a href="#identity" class="pill text-[13.5px] px-5 py-3 hair border focus-ring" style="border-style:solid;">See how it works</a>
       </div>
       <div class="mt-5 flex items-center justify-center">
@@ -740,7 +750,7 @@ End-to-end encrypted, with an <a href="/threat-model/" class="hover:text-[var(--
     .app-flow-phone .phone-screen{border-radius:25px}
     .app-flow-steps{position:relative;z-index:9}
     .app-flow-step{min-height:58vh;align-items:flex-end;padding:0 0 11vh;opacity:.2}
-    .app-flow-step-inner{width:100%;padding:22px 20px;border:1px solid var(--hair);border-radius:18px;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:var(--shadow)}
+    .app-flow-step-inner{width:100%;padding:22px 20px;border:1px solid var(--hair);border-radius:var(--on-radius-card);background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:var(--shadow)}
     .app-flow-step h3{font-size:clamp(1.65rem,8vw,2.35rem)}
   }
   @media(prefers-reduced-motion:reduce){.app-flow-step,.app-flow-dot,.phone-state{transition:none!important}}
@@ -1606,7 +1616,8 @@ End-to-end encrypted, with an <a href="/threat-model/" class="hover:text-[var(--
   function syncSmokeVideo(){
     const v = document.getElementById('smokeVideo');
     if(!v) return;
-    const isLight = root.getAttribute('data-theme') === 'light';
+    const attr = root.getAttribute('data-theme');
+    const isLight = attr === 'light' || (!attr && matchMedia('(prefers-color-scheme: light)').matches);
     const src = isLight ? '/assets/light_video.mp4' : '/assets/dark_video.mp4';
     if(v.getAttribute('src') !== src){
       v.setAttribute('src', src);
@@ -1615,8 +1626,9 @@ End-to-end encrypted, with an <a href="/threat-model/" class="hover:text-[var(--
     }
   }
   function setTheme(t){
-    if(t==='light'){ root.setAttribute('data-theme','light'); tD.setAttribute('aria-pressed','false'); tL.setAttribute('aria-pressed','true');}
-    else { root.removeAttribute('data-theme'); tD.setAttribute('aria-pressed','true'); tL.setAttribute('aria-pressed','false');}
+    root.setAttribute('data-theme', t);
+    tD.setAttribute('aria-pressed', String(t==='dark'));
+    tL.setAttribute('aria-pressed', String(t==='light'));
     try{ localStorage.setItem('onym.theme', t);}catch(e){}
     syncSmokeVideo();
   }
@@ -1624,7 +1636,12 @@ End-to-end encrypted, with an <a href="/threat-model/" class="hover:text-[var(--
   tL.addEventListener('click', ()=>setTheme('light'));
   try{
     const saved = localStorage.getItem('onym.theme');
-    if(saved) setTheme(saved);
+    if (saved==='light'||saved==='dark'){ setTheme(saved); }
+    else {
+      const light = matchMedia('(prefers-color-scheme: light)').matches;
+      tD.setAttribute('aria-pressed', String(!light));
+      tL.setAttribute('aria-pressed', String(light));
+    }
   }catch(e){}
   syncSmokeVideo();
 

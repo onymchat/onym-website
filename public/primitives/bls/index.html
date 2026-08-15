@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>BLS12-381 — pairing-friendly curve under a PLONK-on-Stellar verifier</title>
 <meta name="description" content="What BLS12-381 is, how its bilinear pairing works, and how it slots into a PLONK SNARK deployment running on Stellar Soroban via CAP-0059 host functions." />
-<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#0e0e10" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
 <link rel="icon" type="image/png" href="/assets/icon-dark.png" />
 <link rel="apple-touch-icon" href="/assets/icon-dark.png" />
@@ -20,7 +20,7 @@
 <link rel="alternate" hreflang="en" href="https://onym.app/primitives/bls/" />
 <link rel="alternate" hreflang="x-default" href="https://onym.app/primitives/bls/" />
 <script>(function(){try{document.addEventListener('click',function(e){var a=e.target&&e.target.closest?e.target.closest('a[lang],a[hreflang]'):null;if(!a)return;var L=a.getAttribute('lang')||a.getAttribute('hreflang');if(L==='ru'||L==='en'){try{localStorage.setItem('onym.lang',L)}catch(_){}}},true)}catch(e){}try{var p=location.pathname,h=location.hash,isRu=/^\/ru(\/|$)/.test(p),q=new URLSearchParams(location.search).get('lang'),want;if(q==='ru'||q==='en'){want=q;try{localStorage.setItem('onym.lang',q)}catch(_){}}else{var s=null;try{s=localStorage.getItem('onym.lang')}catch(_){}if(s==='ru'||s==='en')want=s;else if(document.referrer){var same=false;try{same=new URL(document.referrer).host===location.host}catch(_){}if(same)want=isRu?'ru':'en';}}if(!want){var l=(navigator.language||'').toLowerCase();want=(l==='ru'||l.indexOf('ru-')===0)?'ru':'en';}if((want==='ru')!==isRu){var n=0;try{n=parseInt(sessionStorage.getItem('onym.rc')||'0',10)||0}catch(_){}if(n>=2){try{sessionStorage.removeItem('onym.rc')}catch(_){}return;}try{sessionStorage.setItem('onym.rc',n+1)}catch(_){}var t=want==='ru'?('/ru'+(p==='/'?'/':p)):(p.replace(/^\/ru/,'')||'/');location.replace(t+h);return;}try{sessionStorage.removeItem('onym.rc')}catch(_){}if(q){try{history.replaceState(null,'',p+h)}catch(_){}}}catch(e){}})();</script>
-<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
@@ -28,46 +28,22 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"
   onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});"></script>
 
+<link rel="stylesheet" href="/assets/onym.css"/>
 <style>
   :root{
-    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
-    --hair:rgba(245,245,247,.10);
-    --hair-strong:rgba(245,245,247,.18);
-    --card:#101013;
-    --card-2:#16161b;
-    --nav-bg: rgba(8,8,10,.72);
-
-    --lane-off:   rgba(120,150,255,.06);
-    --lane-off-edge: rgba(120,150,255,.22);
-    --lane-on:    rgba(255,170,90,.06);
-    --lane-on-edge: rgba(255,170,90,.22);
-    --wire:       #6a8bff;
-    --amber:      #f0b35e;
-    --ok:         #4ade80;
-    --warn:       #f0b35e;
-    --danger:     #ef5350;
-    --danger-soft:rgba(239,83,80,.10);
-    --ok-soft:    rgba(74,222,128,.10);
-  }
-  html[data-theme="light"]{
-    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
-    --hair:rgba(10,10,10,.10);
-    --hair-strong:rgba(10,10,10,.22);
-    --card:#ffffff;
-    --card-2:#fbfbfd;
-    --nav-bg: rgba(245,245,247,.72);
-
-    --lane-off:    rgba(40,80,200,.05);
-    --lane-off-edge: rgba(40,80,200,.22);
-    --lane-on:     rgba(200,110,30,.05);
-    --lane-on-edge: rgba(200,110,30,.22);
-    --wire:        #1d4ed8;
-    --amber:       #b45309;
-    --ok:          #16803c;
-    --warn:        #a05a00;
-    --danger:      #b91c1c;
-    --danger-soft: rgba(185,28,28,.08);
-    --ok-soft:     rgba(22,128,60,.08);
+    --hair-strong: color-mix(in srgb, var(--on-text) 18%, transparent);
+    --card-2: var(--on-surface3);
+    --lane-off: color-mix(in srgb, var(--on-accent-blue) 6%, transparent);
+    --lane-off-edge: color-mix(in srgb, var(--on-accent-blue) 22%, transparent);
+    --lane-on: color-mix(in srgb, var(--on-accent-orange) 6%, transparent);
+    --lane-on-edge: color-mix(in srgb, var(--on-accent-orange) 22%, transparent);
+    --wire: var(--on-accent-blue);
+    --amber: var(--on-accent-orange);
+    --ok: var(--on-green);
+    --warn: var(--on-accent-orange);
+    --danger: var(--on-red);
+    --danger-soft: color-mix(in srgb, var(--on-red) 10%, transparent);
+    --ok-soft: color-mix(in srgb, var(--on-green) 10%, transparent);
   }
 
   *,*::before,*::after{ box-sizing:border-box; }
@@ -81,8 +57,6 @@
     line-height:1.55;
     transition: background-color .35s ease, color .35s ease;
   }
-  .mono{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; font-feature-settings:"zero","ss01"; }
-  .muted{ color:var(--muted); }
   .katex{ font-size:1em; color:inherit; }
   .focus-ring:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--wire); border-radius:4px; }
 
@@ -109,11 +83,7 @@
   }
   section:last-of-type{ border-bottom:none; }
 
-  .eyebrow{
-    font-size:.74rem; letter-spacing:.18em; text-transform:uppercase;
-    color:var(--muted); font-weight:500;
-    margin: 0 0 clamp(20px, 3vw, 28px) 0;
-  }
+  .eyebrow{ margin: 0 0 clamp(20px, 3vw, 28px) 0; }
   h1.hero{
     font-weight:700; letter-spacing:-0.035em; line-height:1.05; margin:0;
     text-wrap:balance;
@@ -137,22 +107,6 @@
   p.body.muted{ color:var(--muted); }
   p.caption{ font-size:.94rem; color:var(--muted); line-height:1.6; margin: 20px 0 0 0; max-width: 64ch; }
 
-  /* ---------- Theme toggle ---------- */
-  .toggle{
-    position:fixed; bottom:18px; right:18px; z-index:60;
-    background:var(--nav-bg);
-    border:1px solid var(--hair); border-radius:999px;
-    padding:4px; display:flex; gap:2px;
-    backdrop-filter:saturate(180%) blur(14px);
-    -webkit-backdrop-filter:saturate(180%) blur(14px);
-    box-shadow:0 8px 24px -10px rgba(10,10,10,.18);
-  }
-  .toggle button{
-    font-size:12px; letter-spacing:.04em; padding:7px 12px; border-radius:999px;
-    color:var(--muted); border:0; background:transparent; cursor:pointer;
-  }
-  .toggle button[aria-pressed="true"]{ background:var(--fg); color:var(--bg); }
-
   /* ---------- Stat strip ---------- */
   .stat-strip{
     margin-top: clamp(28px, 3.4vw, 40px);
@@ -168,7 +122,7 @@
   /* ---------- §2 Pairing diagram ---------- */
   .pairing-wrap{
     margin-top: clamp(28px, 3.4vw, 40px);
-    border:1px solid var(--hair); border-radius:16px; background:var(--card);
+    border:1px solid var(--hair); border-radius:var(--on-radius-card); background:var(--card);
     padding: clamp(20px, 3vw, 32px);
     display:grid; grid-template-columns: 1.4fr 1fr; gap: 28px; align-items:center;
   }
@@ -187,7 +141,7 @@
   /* ---------- §3 Interactive ---------- */
   .play{
     margin-top: clamp(28px, 3.4vw, 40px);
-    border:1px solid var(--hair); border-radius:16px; background:var(--card);
+    border:1px solid var(--hair); border-radius:var(--on-radius-card); background:var(--card);
     padding: clamp(22px, 3vw, 30px);
     display:grid; grid-template-columns: 280px 1fr; gap: 28px; align-items:center;
   }
@@ -222,7 +176,7 @@
   /* ---------- Params table ---------- */
   .params{
     margin-top: clamp(28px, 3.4vw, 40px);
-    border:1px solid var(--hair); border-radius:16px; background:var(--card); overflow:hidden;
+    border:1px solid var(--hair); border-radius:var(--on-radius-card); background:var(--card); overflow:hidden;
   }
   .params .row{
     display:grid; grid-template-columns: 320px 1fr;
@@ -240,7 +194,7 @@
   /* ---------- §5 Swim-lane ---------- */
   .swimlane{
     margin-top: clamp(28px, 3.4vw, 40px);
-    border:1px solid var(--hair); border-radius:16px; background:var(--card); overflow:hidden;
+    border:1px solid var(--hair); border-radius:var(--on-radius-card); background:var(--card); overflow:hidden;
   }
   .lane-head{
     display:grid; grid-template-columns: 1fr 1fr 1fr;
@@ -317,7 +271,7 @@
   }
   @media (max-width: 820px){ .sec-grid{ grid-template-columns: 1fr; } }
   .sec-card{
-    border:1px solid var(--hair); border-radius:16px;
+    border:1px solid var(--hair); border-radius:var(--on-radius-card);
     background: var(--card); padding: 22px 24px;
     display:flex; flex-direction:column; gap:14px;
   }
@@ -346,14 +300,14 @@
   .sec-card.pq{ position:relative; }
   .sec-card.pq::after{
     content:""; position:absolute; inset:0;
-    border-radius:16px; pointer-events:none;
+    border-radius:var(--on-radius-card); pointer-events:none;
     box-shadow: 0 0 0 1px rgba(239,83,80,.18) inset;
   }
 
   /* ---------- §7 Timeline ---------- */
   .timeline{
     margin-top: clamp(28px, 3.4vw, 40px);
-    border:1px solid var(--hair); border-radius:16px; background:var(--card);
+    border:1px solid var(--hair); border-radius:var(--on-radius-card); background:var(--card);
     padding: clamp(22px, 3vw, 32px);
   }
   .timeline-row{
@@ -762,17 +716,20 @@
 </div>
 
 <script>
-  function setTheme(mode){
-    if(mode==='light') document.documentElement.setAttribute('data-theme','light');
-    else document.documentElement.removeAttribute('data-theme');
+  function reflectTheme(mode){
     document.getElementById('t-dark').setAttribute('aria-pressed', mode==='dark');
     document.getElementById('t-light').setAttribute('aria-pressed', mode==='light');
+  }
+  function setTheme(mode){
+    document.documentElement.setAttribute('data-theme', mode);
+    reflectTheme(mode);
     try{ localStorage.setItem('onym.theme', mode); }catch(e){}
   }
   (function(){
-    var t='dark';
-    try{ t = localStorage.getItem('onym.theme') || 'dark'; }catch(e){}
-    setTheme(t);
+    var t=null;
+    try{ t = localStorage.getItem('onym.theme'); }catch(e){}
+    if(t==='light'||t==='dark'){ document.documentElement.setAttribute('data-theme',t); reflectTheme(t); }
+    else{ reflectTheme(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'); }
   })();
 </script>
 

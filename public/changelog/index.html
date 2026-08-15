@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Changelog · Onym</title>
 <meta name="description" content="Unified release history across Onym's open-source repos -- iOS, Android, Stellar contracts, relayer." />
-<meta name="theme-color" content="#08080a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#0e0e10" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
 <link rel="icon" type="image/png" href="/assets/icon-dark.png" />
 <link rel="apple-touch-icon" href="/assets/icon-dark.png" />
@@ -16,46 +16,18 @@
 <link rel="alternate" hreflang="en" href="https://onym.app/changelog/" />
 <link rel="alternate" hreflang="ru" href="https://onym.app/ru/changelog/" />
 <link rel="alternate" hreflang="x-default" href="https://onym.app/changelog/" />
-<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('onym.theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="/assets/onym.css"/>
 <style>
   :root{
-    --bg:#08080a; --fg:#f5f5f7; --muted:#8c8c92;
-    --hair:rgba(245,245,247,.10);
-    --card:#101013;
-    --shadow: 0 1px 0 rgba(0,0,0,.4), 0 30px 60px -30px rgba(0,0,0,.6);
-    --nav-bg: rgba(8,8,10,.72);
-    --pre-bg: rgba(255,255,255,.04);
-    --link: #5fa5ff;
+    --pre-bg: color-mix(in srgb, var(--on-text) 5%, transparent);
+    --link: var(--on-blue);
   }
-  html[data-theme="light"]{
-    --bg:#f5f5f7; --fg:#0a0a0a; --muted:#6e6e73;
-    --hair:rgba(10,10,10,.08);
-    --card:#fbfbfd;
-    --shadow: 0 1px 2px rgba(10,10,10,.04), 0 12px 40px -24px rgba(10,10,10,.18);
-    --nav-bg: rgba(245,245,247,.72);
-    --pre-bg: rgba(10,10,10,.04);
-    --link: #0660d0;
-  }
-  html,body{ background:var(--bg); color:var(--fg); }
-  body{
-    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
-    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
-  }
-  .mono{ font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace; }
   .display{ font-weight:700; letter-spacing:-.04em; line-height:.95; }
   .display-xl{ font-size: clamp(2.5rem, 7vw, 5rem); }
-  .eyebrow{ font-size:.78rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
-  .hair{ border-color:var(--hair); }
-  .muted{ color:var(--muted); }
   .pill{ border-radius:999px; }
-  .nav{
-    position:sticky; top:0; z-index:50;
-    background:var(--nav-bg);
-    backdrop-filter:saturate(160%) blur(14px);
-    -webkit-backdrop-filter:saturate(160%) blur(14px);
-    border-bottom:1px solid var(--hair);
-  }
+  .nav{ position:sticky; top:0; z-index:50; }
   .mark{
     display:inline-block; width:22px; height:22px; border-radius:22%;
     background:url('/assets/icon-dark.png') center/cover no-repeat;
@@ -70,21 +42,6 @@
       0 4px 12px -3px rgba(10,10,10,.18),
       0 .5px 0 rgba(255,255,255,.6) inset;
   }
-  .toggle{
-    position:fixed; bottom:18px; right:18px; z-index:60;
-    background:var(--nav-bg);
-    border:1px solid var(--hair); border-radius:999px;
-    padding:4px; display:flex; gap:2px;
-    backdrop-filter:saturate(180%) blur(14px);
-    -webkit-backdrop-filter:saturate(180%) blur(14px);
-    box-shadow:0 8px 24px -10px rgba(10,10,10,.18);
-  }
-  .toggle button{
-    font-size:12px; letter-spacing:.04em; padding:7px 12px; border-radius:999px;
-    color:var(--muted);
-  }
-  .toggle button[aria-pressed="true"]{ background:var(--fg); color:var(--bg); }
-
   .filter-pill{
     background: transparent;
     border: 1px solid var(--hair);
@@ -102,7 +59,7 @@
 
   .release{
     border: 1px solid var(--hair);
-    border-radius: 14px;
+    border-radius: var(--on-radius-card);
     background: var(--card);
     box-shadow: var(--shadow);
     padding: 22px 24px;
@@ -145,7 +102,7 @@
 
   .skeleton{
     border: 1px solid var(--hair);
-    border-radius: 14px;
+    border-radius: var(--on-radius-card);
     background: var(--card);
     padding: 22px 24px;
     box-shadow: var(--shadow);
@@ -177,7 +134,7 @@
 <body>
 
 <div class="toggle" role="group" aria-label="Theme">
-  <button id="themeDark" aria-pressed="true">Dark</button>
+  <button id="themeDark" aria-pressed="false">Dark</button>
   <button id="themeLight" aria-pressed="false">Light</button>
 </div>
 
@@ -464,22 +421,21 @@
   const tD = $('themeDark');
   const tL = $('themeLight');
   function setTheme(t){
-    if (t === 'light'){
-      root.setAttribute('data-theme', 'light');
-      tD.setAttribute('aria-pressed', 'false');
-      tL.setAttribute('aria-pressed', 'true');
-    } else {
-      root.removeAttribute('data-theme');
-      tD.setAttribute('aria-pressed', 'true');
-      tL.setAttribute('aria-pressed', 'false');
-    }
+    root.setAttribute('data-theme', t);
+    tD.setAttribute('aria-pressed', String(t==='dark'));
+    tL.setAttribute('aria-pressed', String(t==='light'));
     try{ localStorage.setItem('onym.theme', t); }catch(e){}
   }
   tD.addEventListener('click', () => setTheme('dark'));
   tL.addEventListener('click', () => setTheme('light'));
   try{
     const saved = localStorage.getItem('onym.theme');
-    if (saved) setTheme(saved);
+    if (saved==='light'||saved==='dark'){ setTheme(saved); }
+    else {
+      const light = matchMedia('(prefers-color-scheme: light)').matches;
+      tD.setAttribute('aria-pressed', String(!light));
+      tL.setAttribute('aria-pressed', String(light));
+    }
   }catch(e){}
 
   load();
