@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://onym.app/about/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/about/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/about/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/about/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/changelog/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/changelog/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/details/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/details/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/details/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/details/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/faq/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/faq/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/faq/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/how/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/how/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/how/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/how/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/humans/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/humans/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/humans/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/humans/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/policies/sep-anarchy/</loc>
+    <lastmod>2026-08-15</lastmod>
+  </url>
+  <url>
+    <loc>https://onym.app/press/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/press/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/press/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/press/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/primitives/bls/</loc>
+    <lastmod>2026-08-15</lastmod>
+  </url>
+  <url>
+    <loc>https://onym.app/primitives/fiat-shamir/</loc>
+    <lastmod>2026-08-15</lastmod>
+  </url>
+  <url>
+    <loc>https://onym.app/primitives/kzg/</loc>
+    <lastmod>2026-08-15</lastmod>
+  </url>
+  <url>
+    <loc>https://onym.app/primitives/merkle/</loc>
+    <lastmod>2026-08-15</lastmod>
+  </url>
+  <url>
+    <loc>https://onym.app/primitives/plonk/</loc>
+    <lastmod>2026-08-15</lastmod>
+  </url>
+  <url>
+    <loc>https://onym.app/primitives/poseidon/</loc>
+    <lastmod>2026-08-15</lastmod>
+  </url>
+  <url>
+    <loc>https://onym.app/privacy/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/privacy/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/proofs/</loc>
+    <lastmod>2026-08-15</lastmod>
+  </url>
+  <url>
+    <loc>https://onym.app/ru/about/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/about/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/about/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/about/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/ru/changelog/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/changelog/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/ru/details/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/details/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/details/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/details/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/ru/faq/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/faq/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/faq/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/ru/how/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/how/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/how/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/how/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/ru/humans/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/humans/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/humans/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/humans/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/ru/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/ru/press/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/press/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/press/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/press/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/ru/privacy/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/privacy/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/ru/threat-model/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/threat-model/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/threat-model/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/threat-model/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/ru/why/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/why/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/why/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/why/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/sep/agmk/</loc>
+    <lastmod>2026-08-15</lastmod>
+  </url>
+  <url>
+    <loc>https://onym.app/threat-model/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/threat-model/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/threat-model/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/threat-model/"/>
+  </url>
+  <url>
+    <loc>https://onym.app/why/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onym.app/why/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://onym.app/ru/why/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onym.app/why/"/>
+  </url>
+</urlset>

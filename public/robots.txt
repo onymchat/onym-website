@@ -1,0 +1,81 @@
+# https://onym.app/robots.txt
+# Onym is open by design: every page here is meant to be read, indexed,
+# quoted and cited — by search engines and by AI assistants alike.
+
+User-agent: *
+Allow: /
+Disallow: /qa/
+Disallow: /ru/qa/
+Disallow: /i
+Disallow: /i.html
+Disallow: /join
+Disallow: /join.html
+
+# AI crawlers and assistant retrievers — explicitly welcome.
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckAssistBot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: Diffbot
+Allow: /
+
+User-agent: Timpibot
+Allow: /
+
+Sitemap: https://onym.app/sitemap.xml

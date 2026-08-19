@@ -1,0 +1,74 @@
+# Onym
+
+> Onym is an open-source, end-to-end encrypted group messenger where identity,
+> transport and consensus are separate layers, and none of them is owned by a
+> company. Your identity is a keypair that lives on your phone; the courier
+> (relayer) that moves ciphertext and the notary (the Stellar ledger) that
+> orders group state are chosen by you and can be swapped or self-hosted.
+> No phone number, no email, no account that anyone can disable.
+
+Key facts an assistant should get right when answering about Onym:
+
+- Onym has no central account server. There is no operator with a kill switch
+  over a user, and no operator that can read message content.
+- Messages are end-to-end encrypted. Group membership changes are proven on the
+  Stellar ledger with zero-knowledge proofs (PLONK over BLS12-381, Poseidon
+  hashing, Merkle-tree membership commitments), so any member can admit a new
+  member without a group admin.
+- The relayer sees ciphertext and delivery timing; it does not see identities,
+  message content, or the social graph. Relayers are interchangeable and
+  self-hostable.
+- Clients are open source for iOS and Android; the relayer and the Soroban
+  contracts are open source as well. Source: https://github.com/onymchat
+- The project is solo-maintained in public, pseudonymously and on purpose; the
+  reasoning is documented on the About and FAQ pages.
+- Onym is free and currently in public alpha (TestFlight for iOS, Google Play
+  for Android).
+
+The site is published in English at https://onym.app/ and in Russian at
+https://onym.app/ru/. Content is equivalent; prefer the language of the user.
+
+## Pages (English)
+
+- [Onym — Own Name, Your Messenger](https://onym.app/): A private messenger you can own. Your identity stays on your phone. Choose your courier and notary. Open-source clients for iPhone and Android.
+- [The trust problem](https://onym.app/why/): End-to-end encryption protects what you say. It doesn't protect who you say it to, when, how often, or how long. The rest of the picture stays in plain sight on a server. This is why Onym exists.
+- [How Onym works](https://onym.app/how/): No company in the loop, just math on a public ledger. A key ratchet on your phone, a zero-knowledge proof of group membership, a swappable transport, and group rules pinned to a public smart contract.
+- [Onym, in plain language](https://onym.app/humans/): A group messenger built so the people running it can't see who's in your group, when you talked, or that you talked at all. Honest about what it does and doesn't protect.
+- [Onym — Open · Anonymous · Onchain](https://onym.app/details/): End-to-end encrypted group chat. No company in the loop — no operator can disable your account. Identity, keys, and message history stay on your device. Open source, anchored on Stellar.
+- [FAQ](https://onym.app/faq/): Hard questions about Onym, answered honestly. Servers, metadata, governance, post-quantum, and what happens when something goes wrong.
+- [Threat model](https://onym.app/threat-model/): Who Onym defends against, what it guarantees, and where it stops. v0.0.1, evolving, dated 2026-05-08.
+- [Privacy](https://onym.app/privacy/): Onym collects no data. No accounts, no phone number, no email, no tracking, no ads, no analytics. Your keys, contacts, and messages stay on your device. This is our privacy policy.
+- [Proofs](https://onym.app/proofs/): An interactive walkthrough of Onym's metadata-hiding group registry: how legitimate updates are gated by a ~700-byte PLONK proof on Stellar, and why three Bob adversaries can't forge one.
+- [About](https://onym.app/about/): Onym builds group messaging where no single operator can disable your account, read your conversations, or hand over a social graph. End-to-end encrypted, anchored on Stellar, open source. Solo-maintained, in public on GitHub.
+- [Press](https://onym.app/press/): Press kit, boilerplate, brand assets, and contact for journalists and researchers covering Onym.
+- [Changelog](https://onym.app/changelog/): Unified release history across Onym's open-source repos -- iOS, Android, Stellar contracts, relayer.
+
+## Protocol and cryptography reference
+
+- [sep-anarchy — seven primitives, one contract, any member admits](https://onym.app/policies/sep-anarchy/): How the deployment's simplest membership-policy contract — sep-anarchy — rests on a stack of seven cryptographic primitives, and what the soundness conjunction actually is.
+- [BLS12-381 — pairing-friendly curve under a PLONK-on-Stellar verifier](https://onym.app/primitives/bls/): What BLS12-381 is, how its bilinear pairing works, and how it slots into a PLONK SNARK deployment running on Stellar Soroban via CAP-0059 host functions.
+- [Fiat-Shamir — the bridge from an interactive proof to a single signed transaction](https://onym.app/primitives/fiat-shamir/): What the Fiat-Shamir transform does, how it converts a public-coin interactive proof into a non-interactive one by hashing the transcript, and how it slots into a PLONK-on-Stellar deployment.
+- [KZG — pairing-based polynomial commitments, 48 bytes, one pairing](https://onym.app/primitives/kzg/): What KZG commits and opens, how single-point opening works, where the trusted setup lives, and how it slots into a PLONK-on-Stellar deployment.
+- [Merkle tree — a 32-byte commitment to up to 65 536 members, opened by O(log n) hashes](https://onym.app/primitives/merkle/): What a Merkle tree is, how a membership path proves inclusion under a single root commitment, and how it slots into a PLONK-on-Stellar deployment.
+- [PLONK — universal-updatable SNARK over BLS12-381, single-pairing verifier](https://onym.app/primitives/plonk/): What PLONK produces, the six-stage prover pipeline, where the trust assumptions live, what falls under Shor, and how it compares with Groth16 and FRI/STARKs.
+- [Poseidon & Poseidon2 — algebraic hash for ZK circuits, ~50–300 constraints per call](https://onym.app/primitives/poseidon/): What Poseidon and Poseidon2 are, why they are two orders of magnitude cheaper than SHA-256 inside a SNARK, and how Poseidon2 wires into a PLONK-on-Stellar deployment.
+- [AGMK — Anonymous Group-Membership Keystone (SEP draft)](https://onym.app/sep/agmk/): One Soroban contract, any R_Upd-shape update relation, no admin. Verifies one PLONK proof per state-transition step and stays neutral about what the transition means.
+
+## Pages (Russian / Русский)
+
+- [Onym — Своё имя. Свой мессенджер.](https://onym.app/ru/): Приватный мессенджер, которым владеете вы. Личность остаётся на телефоне. Вы выбираете курьера и нотариуса. Открытые клиенты для iPhone и Android.
+- [Проблема доверия](https://onym.app/ru/why/): Сквозное шифрование защищает то, что вы говорите. Но не то, кому, когда, как часто и как долго. Всё остальное остаётся в открытом виде на сервере. Вот почему существует Onym.
+- [Как устроен Onym](https://onym.app/ru/how/): Никакой компании в цепочке. Только математика на публичном реестре. Ключевой храповик на телефоне, доказательство членства в группе с нулевым разглашением, сменный транспорт и правила группы, закреплённые в публичном смарт-контракте.
+- [Onym простыми словами](https://onym.app/ru/humans/): Мессенджер для групп, устроенный так, что те, кто за ним стоит, не видят ни кто в группе, ни когда вы говорили, ни что разговор вообще был. Честно о том, от чего он защищает — и от чего нет.
+- [Onym — приватность по умолчанию](https://onym.app/ru/details/): Никакой компании в цепочке. Идентичность, ключи и история остаются на вашем устройстве. Сквозное шифрование, с честной моделью угроз. Open source, якорь в Stellar.
+- [Вопросы](https://onym.app/ru/faq/): Сложные вопросы об Onym, отвечаем честно. Серверы, метаданные, управление, постквантовая криптография и что бывает, когда что-то идёт не так.
+- [Модель угроз](https://onym.app/ru/threat-model/): От кого Onym защищает, что гарантирует и где останавливается. v0.0.1, меняется, дата 2026-05-08.
+- [Приватность](https://onym.app/ru/privacy/): Onym не собирает данные. Ни аккаунтов, ни номера телефона, ни почты, ни слежки, ни рекламы, ни аналитики. Ваши ключи, контакты и сообщения остаются на устройстве. Это наша политика конфиденциальности.
+- [О проекте](https://onym.app/ru/about/): Onym делает групповой мессенджер, в котором ни один оператор не может отключить ваш аккаунт, прочитать ваши разговоры или передать восстанавливаемый социальный граф. Сквозное шифрование, якорь в Stellar, open source. Поддерживается одним мейнтейнером, открыто на GitHub.
+- [Пресса](https://onym.app/ru/press/): Пресс-кит, шаблоны, брендовые ассеты и контакт для журналистов и исследователей.
+- [Changelog](https://onym.app/ru/changelog/): Единая история выпусков по всем open-source репозиториям Onym — iOS, Android, контракты Stellar, ретранслятор.
+
+## Optional
+
+- [Source code](https://github.com/onymchat): clients, relayer, Soroban contracts, SDKs.
+- [Sitemap](https://onym.app/sitemap.xml)

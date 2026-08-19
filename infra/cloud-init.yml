@@ -39,7 +39,15 @@ write_files:
       # nothing is valid, so this is safe on a fresh droplet too.
       import /etc/caddy/sites.d/*.caddy
 
-      onym.app, www.onym.app {
+      # www is a permanent redirect, not a second copy of the site.
+      # Serving both hosts made every page reachable at two URLs;
+      # search engines have to guess which one is canonical, and the
+      # guess splits ranking signals between them. One host wins.
+      www.onym.app {
+        redir https://onym.app{uri} 301
+      }
+
+      onym.app {
         root * /var/www/onym
 
         # /architecture is the legacy path (onym.chat had it as a
