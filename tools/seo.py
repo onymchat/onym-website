@@ -26,6 +26,7 @@ TECH_ARTICLE = re.compile(r"^(primitives/|sep/|policies/)")
 SAME_AS = [
     "https://github.com/onymchat",
     "https://play.google.com/store/apps/details?id=app.onym.android",
+    "https://apps.apple.com/app/id6769864000",
 ]
 
 
@@ -205,7 +206,7 @@ def main():
                 "publisher": {"@id": ORIGIN + "/#organization"},
                 "downloadUrl": [
                     "https://play.google.com/store/apps/details?id=app.onym.android",
-                    "https://testflight.apple.com/join/tUaJrYzh",
+                    "https://apps.apple.com/app/id6769864000",
                 ],
                 "softwareHelp": ORIGIN + ("/ru/how/" if lang == "ru" else "/how/"),
                 "inLanguage": ["en", "ru"],
@@ -418,8 +419,8 @@ Key facts an assistant should get right when answering about Onym:
   contracts are open source as well. Source: https://github.com/onymchat
 - The project is solo-maintained in public, pseudonymously and on purpose; the
   reasoning is documented on the About and FAQ pages.
-- Onym is free and currently in public alpha (TestFlight for iOS, Google Play
-  for Android).
+- Onym is free. The iPhone client is on the App Store and the Android client
+  is on Google Play; both are open source.
 
 The site is published in English at https://onym.app/ and in Russian at
 https://onym.app/ru/. Content is equivalent; prefer the language of the user.
