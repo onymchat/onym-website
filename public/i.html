@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)"/>
 <link rel="icon" type="image/png" href="/assets/icon-light.png"/>
 <link rel="apple-touch-icon" href="/assets/icon-light.png"/>
+<meta name="apple-itunes-app" content="app-id=6769864000"/>
 <meta property="og:type" content="website"/>
 <meta property="og:title" content="Connect on Onym"/>
 <meta property="og:description" content="Someone shared their Onym identity so you can message them privately."/>
@@ -40,7 +41,13 @@
   .actions{margin-top:34px;display:flex;flex-direction:column;align-items:center;gap:16px}
   .button{border-radius:999px;padding:13px 22px;border:1px solid var(--hair);font-size:15px;font-weight:550;display:inline-flex;align-items:center;justify-content:center}
   .stores{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center}
+  .stores [hidden],.divider[hidden]{display:none}
   .play-badge img{display:block;height:56px;width:auto}
+  .as-badge{display:inline-flex;align-items:center;gap:9px;height:40px;padding:0 14px 0 12px;background:#000;color:#fff;border:1px solid #a6a6a6;border-radius:5px}
+  .as-badge svg{width:19px;height:23px;fill:currentColor;flex:none}
+  .as-badge-copy{display:flex;flex-direction:column;line-height:1;text-align:left}
+  .as-badge-copy small{font-size:9px;font-weight:400;letter-spacing:.02em;margin-bottom:2px}
+  .as-badge-copy b{font-size:16px;font-weight:600;letter-spacing:-.01em}
   .divider{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:2px 0}
   .fine{margin-top:26px;font-size:12px;line-height:1.5;color:var(--muted);max-width:400px}
 </style>
@@ -50,15 +57,35 @@
     <span class="brand"><img src="/assets/icon-light.png" alt=""/>Onym</span>
     <p class="eyebrow">Identity invite</p>
     <h1>Connect on Onym</h1>
-    <p class="lead">Someone shared their Onym identity so you can message them privately. Get Onym, then open it and scan their invite QR code to start a conversation.</p>
+    <p class="lead" id="lead">Someone shared their Onym identity so you can message them privately. Get Onym, then open it and scan their invite QR code to start a conversation.</p>
     <div class="actions">
-      <p class="divider">Get Onym</p>
+      <p class="divider" id="divider">Get Onym</p>
       <div class="stores">
-        <a class="play-badge" href="https://play.google.com/store/apps/details?id=app.onym.android"><img src="/assets/google-play-badge-en.png" alt="Get it on Google Play"/></a>
-        <a class="button" href="https://apps.apple.com/app/id6769864000">Download on the App Store</a>
+        <a id="play" class="play-badge" href="https://play.google.com/store/apps/details?id=app.onym.android"><img src="/assets/google-play-badge-en.png" alt="Get it on Google Play"/></a>
+        <a id="appstore" class="as-badge" href="https://apps.apple.com/app/id6769864000"><svg viewBox="0 0 384 512" aria-hidden="true"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.9-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg><span class="as-badge-copy"><small>Download on the</small><b>App Store</b></span></a>
       </div>
     </div>
     <p class="fine">Onym is a private messenger you can own — your identity stays on your phone, and you choose your courier and notary. <a href="/" style="text-decoration:underline">Learn more</a>.</p>
   </div>
+  <script>
+    // On a phone, show exactly one action: the store badge for that OS.
+    // iPadOS reports itself as a Mac, so a touch-capable "Mac" counts as
+    // iOS. Desktop and unknown platforms keep both badges.
+    (function () {
+      try {
+        var ua = navigator.userAgent || '';
+        var ios = /iPhone|iPad|iPod/.test(ua) ||
+          (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+        var android = /Android/.test(ua);
+        if (!ios && !android) return;
+        document.getElementById(ios ? 'play' : 'appstore').hidden = true;
+        document.getElementById('divider').hidden = true;
+        document.getElementById('lead').textContent = (ios
+          ? "Install Onym from the App Store"
+          : "Install Onym from Google Play") +
+          ", then open it and scan their invite QR code to start a conversation.";
+      } catch (e) {}
+    })();
+  </script>
 </body>
 </html>
